@@ -6,6 +6,7 @@ import { nextCookies } from "better-auth/next-js";
 
 import { db } from "@/db/db";
 import * as schema from "@/db/schema";
+import { admin } from "better-auth/plugins";
 
 export const auth = betterAuth({
     database: drizzleAdapter(db, {
@@ -15,7 +16,7 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
     },
-    plugins: [nextCookies()],
+    plugins: [nextCookies(), admin()],
     socialProviders: {
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID as string,
