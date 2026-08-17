@@ -1,4 +1,4 @@
-import { Login1 } from "@/components/login1";
+import { Login } from "@/components/login";
 
 type LoginPageProps = {
     searchParams?: Promise<{
@@ -10,5 +10,5 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     const params = await searchParams;
     const errorMessage = params?.error;
 
-    return <Login1 errorMessage={errorMessage} />;
+    return <Login errorMessage={errorMessage} />;
 }

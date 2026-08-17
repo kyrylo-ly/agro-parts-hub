@@ -1,4 +1,4 @@
-import { Signup1 } from "@/components/signup1";
+import { Signup } from "@/components/signup";
 
 type SignupPageProps = {
     searchParams?: Promise<{
@@ -10,5 +10,5 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
     const params = await searchParams;
     const errorMessage = params?.error;
 
-    return <Signup1 errorMessage={errorMessage} />;
+    return <Signup errorMessage={errorMessage} />;
 }
