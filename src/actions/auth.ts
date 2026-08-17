@@ -95,3 +95,19 @@ export async function signOutAction() {
         headers: await headers(),
     });
 }
+
+export async function loginWithGoogleAction() {
+    const data = await auth.api.signInSocial({
+        body: {
+            provider: "google",
+            callbackURL: process.env.BETTER_AUTH_URL,
+        },
+        headers: await headers(),
+    });
+
+    if (data?.url) {
+        redirect(data.url);
+    } else {
+        redirect("/login?error=Failed%20to%20initialize%20Google%20login");
+    }
+}
