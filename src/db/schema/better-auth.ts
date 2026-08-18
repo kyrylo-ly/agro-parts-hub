@@ -6,6 +6,7 @@ import {
     text,
     timestamp,
 } from "drizzle-orm/pg-core";
+import { favorite, order } from "./store";
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -87,6 +88,8 @@ export const verification = pgTable(
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),
     accounts: many(account),
+    favorites: many(favorite),
+    orders: many(order),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
