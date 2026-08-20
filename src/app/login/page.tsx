@@ -4,7 +4,7 @@ import { getSafeCallbackUrl } from "@/lib/utils";
 type LoginPageProps = {
     searchParams?: Promise<{
         error?: string;
-        callbackUrl?: string
+        callbackUrl?: string;
     }>;
 };
 
