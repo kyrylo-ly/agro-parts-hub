@@ -6,6 +6,7 @@ import { db } from "@/db/db";
 import { collection, productToCollection } from "@/db/schema/store";
 import { collectionSchema, type CollectionInput } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
+import { requireAdmin } from "./admin-auth";
 
 export async function getCollections() {
   try {
@@ -28,6 +29,7 @@ export async function getCollections() {
 
 export async function createCollection(input: CollectionInput) {
   try {
+    await requireAdmin();
     const validatedData = collectionSchema.parse(input);
     const slug = validatedData.slug || slugify(validatedData.title);
 
@@ -51,6 +53,7 @@ export async function createCollection(input: CollectionInput) {
 
 export async function updateCollection(id: number, input: CollectionInput) {
   try {
+    await requireAdmin();
     const validatedData = collectionSchema.parse(input);
     const slug = validatedData.slug || slugify(validatedData.title);
 
@@ -75,6 +78,7 @@ export async function updateCollection(id: number, input: CollectionInput) {
 
 export async function deleteCollection(id: number) {
   try {
+    await requireAdmin();
     await db.delete(collection).where(eq(collection.id, id));
     revalidatePath("/admin/collections");
     return { success: true };
@@ -86,6 +90,7 @@ export async function deleteCollection(id: number) {
 
 export async function addProductToCollection(productId: string, collectionId: number) {
   try {
+    await requireAdmin();
     await db.insert(productToCollection).values({
       productId,
       collectionId,
@@ -100,6 +105,7 @@ export async function addProductToCollection(productId: string, collectionId: nu
 
 export async function removeProductFromCollection(productId: string, collectionId: number) {
   try {
+    await requireAdmin();
     await db
       .delete(productToCollection)
       .where(
