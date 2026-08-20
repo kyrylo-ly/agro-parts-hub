@@ -26,3 +26,13 @@ export function slugify(text: string): string {
     .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
     .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
 }
+
+export function getSafeCallbackUrl(url?: string, defaultUrl = "/") {
+  if (!url) return defaultUrl;
+
+  if (url.startsWith("/") && !url.startsWith("//")) {
+    return url;
+  }
+
+  return defaultUrl;
+}

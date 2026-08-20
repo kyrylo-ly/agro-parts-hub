@@ -32,6 +32,7 @@ function readRequiredFormValue(formData: FormData, key: string) {
 }
 
 export async function loginWithEmailAction(formData: FormData) {
+    const callbackUrl = readRequiredFormValue(formData, 'callbackUrl')
     const email = readRequiredFormValue(formData, "email");
     const password = readRequiredFormValue(formData, "password");
 
@@ -54,10 +55,11 @@ export async function loginWithEmailAction(formData: FormData) {
         redirect(`/login?error=${message}`);
     }
 
-    redirect("/");
+    redirect(callbackUrl);
 }
 
 export async function signupWithEmailAction(formData: FormData) {
+    const callbackUrl = readRequiredFormValue(formData, 'callbackUrl')
     const name = readRequiredFormValue(formData, "name");
     const email = readRequiredFormValue(formData, "email");
     const password = readRequiredFormValue(formData, "password");
@@ -87,7 +89,7 @@ export async function signupWithEmailAction(formData: FormData) {
         redirect(`/signup?error=${message}`);
     }
 
-    redirect("/");
+    redirect(callbackUrl);
 }
 
 export async function signOutAction() {
@@ -96,11 +98,13 @@ export async function signOutAction() {
     });
 }
 
-export async function loginWithGoogleAction() {
+export async function loginWithGoogleAction(formData: FormData) {
+    const callbackUrl = readRequiredFormValue(formData, 'callbackUrl')
+
     const data = await auth.api.signInSocial({
         body: {
             provider: "google",
-            callbackURL: process.env.BETTER_AUTH_URL,
+            callbackURL: callbackUrl,
         },
         headers: await headers(),
     });
