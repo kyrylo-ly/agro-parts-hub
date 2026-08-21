@@ -28,7 +28,10 @@ export default async function EditProductPage({
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold mb-6">Редагувати продукт</h1>
       <ProductForm
-        product={productResult.data}
+        product={{
+          ...productResult.data,
+          attributes: productResult.data.attributes as Record<string, string> | null,
+        }}
         categories={categoriesResult.success ? categoriesResult.data : []}
         brands={brandsResult.success ? brandsResult.data : []}
         collections={collectionsResult.success ? collectionsResult.data : []}

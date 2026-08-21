@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 import { db } from "@/db/db";
 import { productImage } from "@/db/schema/store";
 import { uploadToR2, deleteFromR2, getKeyFromUrl } from "@/lib/r2";
@@ -28,10 +29,25 @@ export async function uploadProductImage(productId: string, formData: FormData) 
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = file.type.split("/")[1].replace("jpeg", "jpg");
+
+    let optimizedBuffer: Buffer;
+    let contentType = "image/webp";
+    let ext = "webp";
+
+    if ((file.type === "image/webp" || file.type === "image/avif") && file.size < 200 * 1024) {
+      optimizedBuffer = buffer;
+      contentType = file.type;
+      ext = file.type === "image/avif" ? "avif" : "webp";
+    } else {
+      optimizedBuffer = await sharp(buffer)
+        .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+    }
+
     const key = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    const url = await uploadToR2(buffer, key, file.type);
+    const url = await uploadToR2(optimizedBuffer, key, contentType);
 
     // Get current max order index
     const existingImages = await db.query.productImage.findMany({

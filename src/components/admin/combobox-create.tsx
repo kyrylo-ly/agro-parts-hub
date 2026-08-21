@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, ChevronsUpDown, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -77,16 +77,13 @@ export function ComboboxCreate({
   return (
     <>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between font-normal"
-          >
-            {selectedItem ? selectedItem.label : placeholder}
-            <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-          </Button>
+        <PopoverTrigger
+          className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between font-normal")}
+          role="combobox"
+          aria-expanded={open}
+        >
+          {selectedItem ? selectedItem.label : placeholder}
+          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
           <Command>
