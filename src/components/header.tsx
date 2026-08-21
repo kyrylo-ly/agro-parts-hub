@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/actions/auth";
+import Image from "next/image";
 
 type NavItem = {
   label: string;
@@ -81,8 +82,8 @@ const accountItems: AccountItem[] = [
 
 const appLogo = {
   src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblocks-logo.svg",
-  alt: "RazomPay",
-  title: "RazomPay",
+  alt: "Літ",
+  title: "Агро Літ",
 };
 
 function isActivePath(pathname: string, href: string) {
@@ -129,7 +130,7 @@ function NavButton({ item, pathname }: { item: NavItem; pathname: string }) {
             <DropdownMenuItem
               key={child.label}
               render={
-                <Link href={child.href} className="flex items-center gap-2" />
+                <Link href={child.href} className="flex w-full items-center gap-2" />
               }
               className={cn(childActive && "bg-muted font-medium")}
             >
@@ -155,9 +156,11 @@ function MobileNav({ pathname }: { pathname: string }) {
         <SheetHeader className="px-4 pt-4">
           <SheetTitle className="flex items-center gap-2">
             <div className="flex aspect-square size-8 items-center justify-center rounded-sm bg-primary">
-              <img
+              <Image
                 src={appLogo.src}
                 alt={appLogo.alt}
+                width={24}
+                height={24}
                 className="size-6 invert dark:invert-0"
               />
             </div>
@@ -228,31 +231,31 @@ function MobileNav({ pathname }: { pathname: string }) {
   );
 }
 
-function AccountMenu({ account }: { account: AccountData }) {
+function AccountMenu({ name, email, avatar }: AccountData) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={<Button variant="ghost" className="gap-2 px-2" />}
       >
         <Avatar className="size-8">
-          <AvatarImage src={account.avatar} alt={account.name} />
+          <AvatarImage src={avatar} alt={name} />
           <AvatarFallback>
-            {account.name
+            {name
               .split(" ")
               .map((part) => part[0])
               .join("")}
           </AvatarFallback>
         </Avatar>
         <span className="hidden text-sm font-medium md:inline">
-          {account.name}
+          {name}
         </span>
         <ChevronsUpDown className="hidden size-4 md:block" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium">{account.name}</p>
-            <p className="text-xs text-muted-foreground">{account.email}</p>
+            <p className="text-sm font-medium">{name}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -262,26 +265,28 @@ function AccountMenu({ account }: { account: AccountData }) {
           return (
             <DropdownMenuItem
               key={item.label}
-              render={<Link href={item.href} className="flex items-center" />}
+              render={<Link href={item.href} className="flex w-full items-center" />}
             >
               <Icon className="mr-2 size-4" />
               {item.label}
             </DropdownMenuItem>
           );
         })}
-        <DropdownMenuItem
-          key="Log out"
-          render={<form action={signOutAction} className="flex items-center" />}
-        >
-          <LogOut className="mr-2 size-4" />
-          <button type="submit">Log out</button>
-        </DropdownMenuItem>
+        <form action={signOutAction}>
+          <DropdownMenuItem
+            key="Log out"
+            render={<button type="submit" className="flex w-full items-center" />}
+          >
+            <LogOut className="mr-2 size-4" />
+            Log out
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-export function Header(accountData: AccountData) {
+export function Header({ name, email, avatar }: AccountData) {
   const pathname = usePathname();
 
   return (
@@ -291,9 +296,11 @@ export function Header(accountData: AccountData) {
 
         <Link href="/" className="flex items-center gap-2">
           <div className="flex aspect-square size-8 items-center justify-center rounded-sm bg-primary">
-            <img
+            <Image
               src={appLogo.src}
               alt={appLogo.alt}
+              width={24}
+              height={24}
               className="size-6 invert dark:invert-0"
             />
           </div>
@@ -318,8 +325,8 @@ export function Header(accountData: AccountData) {
           <Button variant="ghost" size="icon" className="md:hidden">
             <Search className="size-5" />
           </Button>
-          {accountData.name ? (
-            <AccountMenu account={accountData} />
+          {email ? (
+            <AccountMenu name={name} email={email} avatar={avatar} />
           ) : (
             <Button
               render={<Link href="/login" className="flex items-center" />}

@@ -1,9 +1,8 @@
-import "../globals.css";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { Header } from "@/components/header";
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function MainLayout({ children }: LayoutProps<"/">) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
