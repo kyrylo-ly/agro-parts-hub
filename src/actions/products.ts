@@ -38,6 +38,7 @@ export async function getProducts({ page = 1, limit = 10, search }: GetProductsO
       orderBy: (products, { desc }) => [desc(products.id)],
       with: {
         category: true,
+        brand: true,
       },
     });
 
@@ -63,6 +64,7 @@ export async function getProductById(id: string) {
       where: eq(product.id, id),
       with: {
         category: true,
+        brand: true,
         images: {
           orderBy: (images, { asc }) => [asc(images.orderIndex)],
         },
@@ -90,6 +92,7 @@ export async function createProduct(input: ProductInput) {
       .insert(product)
       .values({
         categoryId: validatedData.categoryId,
+        brandId: validatedData.brandId,
         sku: validatedData.sku,
         name: validatedData.name,
         slug,
@@ -120,6 +123,7 @@ export async function updateProduct(id: string, input: ProductInput) {
       .update(product)
       .set({
         categoryId: validatedData.categoryId,
+        brandId: validatedData.brandId,
         sku: validatedData.sku,
         name: validatedData.name,
         slug,
