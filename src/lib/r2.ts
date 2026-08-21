@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID!;
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!;
@@ -37,6 +37,19 @@ export async function deleteFromR2(key: string): Promise<void> {
     new DeleteObjectCommand({
       Bucket: R2_BUCKET_NAME,
       Key: key,
+    })
+  );
+}
+
+export async function deleteManyFromR2(keys: string[]): Promise<void> {
+  if (keys.length === 0) return;
+
+  await s3Client.send(
+    new DeleteObjectsCommand({
+      Bucket: R2_BUCKET_NAME,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+      },
     })
   );
 }

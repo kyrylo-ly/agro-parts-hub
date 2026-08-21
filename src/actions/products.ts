@@ -3,8 +3,9 @@
 import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
-import { product, productToCollection } from "@/db/schema/store";
+import { product, productToCollection, productImage } from "@/db/schema/store";
 import { productSchema, type ProductInput } from "@/lib/validations";
+import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
 
@@ -228,6 +229,19 @@ export async function updateProduct(id: string, input: ProductInput) {
 export async function deleteProduct(id: string) {
   try {
     await requireAdmin();
+
+    const images = await db.query.productImage.findMany({
+      where: eq(productImage.productId, id),
+    });
+
+    const keysToDelete = images
+      .map((image) => getKeyFromUrl(image.url))
+      .filter((key): key is string => key !== null);
+
+    if (keysToDelete.length > 0) {
+      await deleteManyFromR2(keysToDelete);
+    }
+
     await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
     return { success: true as const };
