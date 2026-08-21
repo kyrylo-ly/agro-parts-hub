@@ -11,6 +11,7 @@ import {
   Search,
   Settings,
   User,
+  UserRoundCog,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -57,6 +58,7 @@ type AccountData = {
   name: string;
   email: string;
   avatar: string;
+  role: string;
 };
 
 const mainNav: NavItem[] = [
@@ -231,7 +233,7 @@ function MobileNav({ pathname }: { pathname: string }) {
   );
 }
 
-function AccountMenu({ name, email, avatar }: AccountData) {
+function AccountMenu({ name, email, avatar, role }: AccountData) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -260,21 +262,27 @@ function AccountMenu({ name, email, avatar }: AccountData) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {accountItems.map((item) => {
-          const Icon = item.icon;
-
           return (
             <DropdownMenuItem
               key={item.label}
               render={<Link href={item.href} className="flex w-full items-center" />}
             >
-              <Icon className="mr-2 size-4" />
+              <item.icon className="mr-2 size-4" />
               {item.label}
             </DropdownMenuItem>
           );
         })}
+        {role === "admin" ? <DropdownMenuItem
+          key="admin"
+          render={<Link href="/admin" className="flex w-full items-center" />}
+        >
+          <UserRoundCog className="mr-2 size-4" />
+          Admin
+        </DropdownMenuItem> : null}
         <form action={signOutAction}>
           <DropdownMenuItem
             key="Log out"
+            nativeButton
             render={<button type="submit" className="flex w-full items-center" />}
           >
             <LogOut className="mr-2 size-4" />
@@ -286,7 +294,7 @@ function AccountMenu({ name, email, avatar }: AccountData) {
   );
 }
 
-export function Header({ name, email, avatar }: AccountData) {
+export function Header({ name, email, avatar, role }: AccountData) {
   const pathname = usePathname();
 
   return (
@@ -326,7 +334,7 @@ export function Header({ name, email, avatar }: AccountData) {
             <Search className="size-5" />
           </Button>
           {email ? (
-            <AccountMenu name={name} email={email} avatar={avatar} />
+            <AccountMenu name={name} email={email} avatar={avatar} role={role} />
           ) : (
             <Button
               render={<Link href="/login" className="flex items-center" />}

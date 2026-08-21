@@ -13,6 +13,7 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
         name={session?.user.name ?? ""}
         email={session?.user.email ?? ""}
         avatar={session?.user.image ?? ""}
+        role={session?.user.role ?? ""}
       />
       {children}
     </>
