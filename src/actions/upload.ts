@@ -30,20 +30,13 @@ export async function uploadProductImage(productId: string, formData: FormData) 
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    let optimizedBuffer: Buffer;
-    let contentType = "image/webp";
-    let ext = "webp";
+    const contentType = "image/webp";
+    const ext = "webp";
 
-    if ((file.type === "image/webp" || file.type === "image/avif") && file.size < 200 * 1024) {
-      optimizedBuffer = buffer;
-      contentType = file.type;
-      ext = file.type === "image/avif" ? "avif" : "webp";
-    } else {
-      optimizedBuffer = await sharp(buffer)
-        .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toBuffer();
-    }
+    const optimizedBuffer = await sharp(buffer)
+      .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
 
     const key = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
