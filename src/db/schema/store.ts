@@ -60,6 +60,28 @@ export const categoryRelations = relations(category, ({ one, many }) => ({
     products: many(product),
 }));
 
+// Brand Table
+export const brand = pgTable(
+    "brand",
+    {
+        id: serial("id").primaryKey(),
+        name: text("name").notNull().unique(),
+        slug: text("slug").notNull().unique(),
+        createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+            .defaultNow()
+            .notNull(),
+        updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+            .defaultNow()
+            .$onUpdate(() => /* @__PURE__ */ new Date())
+            .notNull(),
+    },
+    (table) => [index("brand_slug_idx").on(table.slug)]
+);
+
+export const brandRelations = relations(brand, ({ many }) => ({
+    products: many(product),
+}));
+
 // Product Table
 export const product = pgTable(
     "product",
@@ -70,6 +92,8 @@ export const product = pgTable(
         categoryId: integer("category_id")
             .notNull()
             .references(() => category.id),
+        brandId: integer("brand_id")
+            .references(() => brand.id, { onDelete: "set null" }),
         sku: text("sku").notNull().unique(),
         name: text("name").notNull(),
         slug: text("slug").notNull().unique(),
@@ -102,6 +126,10 @@ export const productRelations = relations(product, ({ one, many }) => ({
     category: one(category, {
         fields: [product.categoryId],
         references: [category.id],
+    }),
+    brand: one(brand, {
+        fields: [product.brandId],
+        references: [brand.id],
     }),
     images: many(productImage),
     collections: many(productToCollection),
