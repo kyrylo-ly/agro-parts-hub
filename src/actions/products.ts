@@ -1,9 +1,9 @@
 "use server";
 
-import { eq, ilike, or, count, sql } from "drizzle-orm";
+import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
-import { product } from "@/db/schema/store";
+import { product, productToCollection } from "@/db/schema/store";
 import { productSchema, type ProductInput } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
@@ -18,13 +18,18 @@ export async function getProducts({ page = 1, limit = 10, search }: GetProductsO
   try {
     const offset = (page - 1) * limit;
 
-    const whereClause = search
-      ? or(
-        ilike(product.name, `%${search}%`),
-        ilike(product.sku, `%${search}%`),
-        ilike(sql`cast(${product.attributes} as text)`, `%${search}%`)
-      )
-      : undefined;
+    const conditions = [];
+
+    if (search) {
+      conditions.push(
+        or(
+          ilike(product.name, `%${search}%`),
+          ilike(product.sku, `%${search}%`),
+        )
+      );
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const [totalCount] = await db
       .select({ count: count() })
@@ -35,15 +40,19 @@ export async function getProducts({ page = 1, limit = 10, search }: GetProductsO
       where: whereClause,
       limit,
       offset,
-      orderBy: (products, { desc }) => [desc(products.id)],
+      orderBy: (products, { desc }) => [desc(products.createdAt)],
       with: {
         category: true,
         brand: true,
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1, // Only first image for list view
+        },
       },
     });
 
     return {
-      success: true,
+      success: true as const,
       data: products,
       meta: {
         total: totalCount.count,
@@ -54,7 +63,7 @@ export async function getProducts({ page = 1, limit = 10, search }: GetProductsO
     };
   } catch (error) {
     console.error("Failed to get products:", error);
-    return { success: false, error: "Failed to fetch products" };
+    return { success: false as const, error: "Failed to fetch products" };
   }
 }
 
@@ -68,25 +77,41 @@ export async function getProductById(id: string) {
         images: {
           orderBy: (images, { asc }) => [asc(images.orderIndex)],
         },
+        collections: {
+          with: {
+            collection: true,
+          },
+        },
       },
     });
 
     if (!foundProduct) {
-      return { success: false, error: "Product not found" };
+      return { success: false as const, error: "Product not found" };
     }
 
-    return { success: true, data: foundProduct };
+    return { success: true as const, data: foundProduct };
   } catch (error) {
     console.error("Failed to get product:", error);
-    return { success: false, error: "Failed to fetch product" };
+    return { success: false as const, error: "Failed to fetch product" };
   }
 }
 
 export async function createProduct(input: ProductInput) {
   try {
     await requireAdmin();
-    const validatedData = productSchema.parse(input);
+
+    const result = productSchema.safeParse(input);
+    if (!result.success) {
+      return {
+        success: false as const,
+        error: "Validation failed",
+        fieldErrors: result.error.flatten().fieldErrors,
+      };
+    }
+
+    const validatedData = result.data;
     const slug = validatedData.slug || slugify(validatedData.name);
+    const compareAtPrice = validatedData.compareAtPrice === "" ? null : validatedData.compareAtPrice;
 
     const [newProduct] = await db
       .insert(product)
@@ -98,26 +123,56 @@ export async function createProduct(input: ProductInput) {
         slug,
         description: validatedData.description,
         price: validatedData.price,
-        compareAtPrice: validatedData.compareAtPrice,
+        compareAtPrice,
         stock: validatedData.stock,
         attributes: validatedData.attributes,
         isActive: validatedData.isActive,
       })
       .returning();
 
+    // Handle collection assignments
+    if (validatedData.collectionIds && validatedData.collectionIds.length > 0) {
+      await db.insert(productToCollection).values(
+        validatedData.collectionIds.map((collectionId) => ({
+          productId: newProduct.id,
+          collectionId,
+        }))
+      );
+    }
+
     revalidatePath("/admin/products");
-    return { success: true, data: newProduct };
+    return { success: true as const, data: newProduct };
   } catch (error) {
     console.error("Failed to create product:", error);
-    return { success: false, error: "Failed to create product" };
+    if (error instanceof Error && error.message.includes("unique")) {
+      if (error.message.includes("sku")) {
+        return { success: false as const, error: "Продукт з таким SKU вже існує" };
+      }
+      if (error.message.includes("slug")) {
+        return { success: false as const, error: "Продукт з таким slug вже існує" };
+      }
+      return { success: false as const, error: "Дублювання даних" };
+    }
+    return { success: false as const, error: "Failed to create product" };
   }
 }
 
 export async function updateProduct(id: string, input: ProductInput) {
   try {
     await requireAdmin();
-    const validatedData = productSchema.parse(input);
+
+    const result = productSchema.safeParse(input);
+    if (!result.success) {
+      return {
+        success: false as const,
+        error: "Validation failed",
+        fieldErrors: result.error.flatten().fieldErrors,
+      };
+    }
+
+    const validatedData = result.data;
     const slug = validatedData.slug || slugify(validatedData.name);
+    const compareAtPrice = validatedData.compareAtPrice === "" ? null : validatedData.compareAtPrice;
 
     const [updatedProduct] = await db
       .update(product)
@@ -129,7 +184,7 @@ export async function updateProduct(id: string, input: ProductInput) {
         slug,
         description: validatedData.description,
         price: validatedData.price,
-        compareAtPrice: validatedData.compareAtPrice,
+        compareAtPrice,
         stock: validatedData.stock,
         attributes: validatedData.attributes,
         isActive: validatedData.isActive,
@@ -137,12 +192,36 @@ export async function updateProduct(id: string, input: ProductInput) {
       .where(eq(product.id, id))
       .returning();
 
+    // Sync collection assignments
+    if (validatedData.collectionIds !== undefined) {
+      // Remove existing
+      await db.delete(productToCollection).where(eq(productToCollection.productId, id));
+      // Add new
+      if (validatedData.collectionIds.length > 0) {
+        await db.insert(productToCollection).values(
+          validatedData.collectionIds.map((collectionId) => ({
+            productId: id,
+            collectionId,
+          }))
+        );
+      }
+    }
+
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
-    return { success: true, data: updatedProduct };
+    return { success: true as const, data: updatedProduct };
   } catch (error) {
     console.error("Failed to update product:", error);
-    return { success: false, error: "Failed to update product" };
+    if (error instanceof Error && error.message.includes("unique")) {
+      if (error.message.includes("sku")) {
+        return { success: false as const, error: "Продукт з таким SKU вже існує" };
+      }
+      if (error.message.includes("slug")) {
+        return { success: false as const, error: "Продукт з таким slug вже існує" };
+      }
+      return { success: false as const, error: "Дублювання даних" };
+    }
+    return { success: false as const, error: "Failed to update product" };
   }
 }
 
@@ -151,9 +230,9 @@ export async function deleteProduct(id: string) {
     await requireAdmin();
     await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
-    return { success: true };
+    return { success: true as const };
   } catch (error) {
     console.error("Failed to delete product:", error);
-    return { success: false, error: "Failed to delete product" };
+    return { success: false as const, error: "Failed to delete product" };
   }
 }
