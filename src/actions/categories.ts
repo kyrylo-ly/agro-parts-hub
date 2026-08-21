@@ -6,6 +6,7 @@ import { db } from "@/db/db";
 import { category } from "@/db/schema/store";
 import { categorySchema, type CategoryInput } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
+import { requireAdmin } from "./admin-auth";
 
 export async function getCategories() {
   try {
@@ -21,6 +22,7 @@ export async function getCategories() {
 
 export async function createCategory(input: CategoryInput) {
   try {
+    await requireAdmin();
     const validatedData = categorySchema.parse(input);
     const slug = validatedData.slug || slugify(validatedData.name);
 
@@ -43,6 +45,7 @@ export async function createCategory(input: CategoryInput) {
 
 export async function updateCategory(id: number, input: CategoryInput) {
   try {
+    await requireAdmin();
     const validatedData = categorySchema.parse(input);
     const slug = validatedData.slug || slugify(validatedData.name);
 
@@ -66,6 +69,7 @@ export async function updateCategory(id: number, input: CategoryInput) {
 
 export async function deleteCategory(id: number) {
   try {
+    await requireAdmin();
     await db.delete(category).where(eq(category.id, id));
     revalidatePath("/admin/categories");
     return { success: true };

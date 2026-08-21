@@ -6,6 +6,7 @@ import { db } from "@/db/db";
 import { product } from "@/db/schema/store";
 import { productSchema, type ProductInput } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
+import { requireAdmin } from "./admin-auth";
 
 interface GetProductsOptions {
   page?: number;
@@ -81,6 +82,7 @@ export async function getProductById(id: string) {
 
 export async function createProduct(input: ProductInput) {
   try {
+    await requireAdmin();
     const validatedData = productSchema.parse(input);
     const slug = validatedData.slug || slugify(validatedData.name);
 
@@ -110,6 +112,7 @@ export async function createProduct(input: ProductInput) {
 
 export async function updateProduct(id: string, input: ProductInput) {
   try {
+    await requireAdmin();
     const validatedData = productSchema.parse(input);
     const slug = validatedData.slug || slugify(validatedData.name);
 
@@ -141,6 +144,7 @@ export async function updateProduct(id: string, input: ProductInput) {
 
 export async function deleteProduct(id: string) {
   try {
+    await requireAdmin();
     await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
     return { success: true };
