@@ -130,7 +130,7 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
             })}
           </nav>
 
-          <div className="flex items-center gap-6 text-muted-foreground">
+          <div className="flex items-center gap-6 text-foreground/80">
             <div className="flex items-center gap-4">
               <Link
                 href="/delivery"

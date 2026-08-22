@@ -92,7 +92,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
                           {cat.imageUrl ? (
                             <Image
                               src={cat.imageUrl}
-                              alt={cat.name}
+                              alt=""
                               width={32}
                               height={32}
                               className="size-full object-cover"
@@ -146,7 +146,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
                             {sub.imageUrl ? (
                               <Image
                                 src={sub.imageUrl}
-                                alt={sub.name}
+                                alt=""
                                 width={40}
                                 height={40}
                                 className="size-full object-cover"

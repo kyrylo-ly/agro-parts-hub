@@ -29,6 +29,7 @@ export function SectionHeader({
       {href && (
         <Link
           href={href}
+          aria-label={linkText === "Дивитись всі" ? `Дивитись всі ${title.toLowerCase()}` : linkText}
           className="group flex shrink-0 items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
         >
           {linkText}
