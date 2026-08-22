@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronRight, Grid2X2, Settings, Wrench, Zap, CircleDashed } from "lucide-react";
+import { ChevronRight, Grid2X2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,57 +12,40 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-// Мокові дані для категорій (потім можна замінити на дані з БД)
-const categories = [
-  {
-    id: "engine",
-    name: "Двигуни та запчастини",
-    icon: Zap,
-    subcategories: [
-      { name: "Блоки циліндрів", href: "/category/engine/blocks" },
-      { name: "Поршневі групи", href: "/category/engine/pistons" },
-      { name: "Колінчасті вали", href: "/category/engine/crankshafts" },
-      { name: "Головки блоку", href: "/category/engine/heads" },
-      { name: "Турбіни", href: "/category/engine/turbines" },
-    ],
-  },
-  {
-    id: "chassis",
-    name: "Ходова частина",
-    icon: CircleDashed,
-    subcategories: [
-      { name: "Амортизатори", href: "/category/chassis/shocks" },
-      { name: "Підшипники", href: "/category/chassis/bearings" },
-      { name: "Ступиці", href: "/category/chassis/hubs" },
-      { name: "Рульові тяги", href: "/category/chassis/steering" },
-    ],
-  },
-  {
-    id: "tools",
-    name: "Інструменти та обладнання",
-    icon: Wrench,
-    subcategories: [
-      { name: "Ключі", href: "/category/tools/wrenches" },
-      { name: "Домкрати", href: "/category/tools/jacks" },
-      { name: "Спецінструмент", href: "/category/tools/special" },
-    ],
-  },
-  {
-    id: "maintenance",
-    name: "Витратні матеріали",
-    icon: Settings,
-    subcategories: [
-      { name: "Фільтри масляні", href: "/category/maintenance/filters-oil" },
-      { name: "Фільтри повітряні", href: "/category/maintenance/filters-air" },
-      { name: "Мастила", href: "/category/maintenance/oil" },
-      { name: "Герметики", href: "/category/maintenance/sealants" },
-    ],
-  },
-];
+interface CategoryMenuProps {
+  categories?: {
+    id: number;
+    name: string;
+    slug: string;
+    children: { id: number; name: string; slug: string }[];
+  }[];
+}
 
-export function CategoryMenu() {
+export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
   const [activeCategory, setActiveCategory] = React.useState(categories[0]);
   const [isOpen, setIsOpen] = React.useState(false);
+
+  // Update active category when categories prop changes
+  React.useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0]);
+    }
+  }, [categories, activeCategory]);
+
+  if (categories.length === 0) {
+    return (
+      <Button
+        variant="default"
+        className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        render={<Link href="/catalog" />}
+        nativeButton={false}
+      >
+        <Grid2X2 className="size-4" />
+        <span className="hidden sm:inline-block">Каталог товарів</span>
+        <span className="sm:hidden">Каталог</span>
+      </Button>
+    );
+  }
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -84,18 +67,17 @@ export function CategoryMenu() {
         sideOffset={16}
       >
         <div className="flex h-[500px]">
-          {/* Ліва колонка: Головні категорії */}
+          {/* Left column: Main categories */}
           <div className="w-1/3 border-r bg-muted/30">
             <ScrollArea className="h-full">
               <div className="flex flex-col py-2">
-                {categories.map((category) => {
-                  const Icon = category.icon;
-                  const isActive = activeCategory.id === category.id;
+                {categories.map((cat) => {
+                  const isActive = activeCategory?.id === cat.id;
                   return (
                     <button
-                      key={category.id}
-                      onMouseEnter={() => setActiveCategory(category)}
-                      onClick={() => setActiveCategory(category)}
+                      key={cat.id}
+                      onMouseEnter={() => setActiveCategory(cat)}
+                      onClick={() => setActiveCategory(cat)}
                       className={cn(
                         "flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors hover:bg-muted",
                         isActive
@@ -103,10 +85,7 @@ export function CategoryMenu() {
                           : "text-muted-foreground"
                       )}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className="size-4" />
-                        {category.name}
-                      </div>
+                      <span>{cat.name}</span>
                       <ChevronRight
                         className={cn(
                           "size-4 transition-transform",
@@ -120,30 +99,43 @@ export function CategoryMenu() {
             </ScrollArea>
           </div>
 
-          {/* Права колонка: Підкатегорії */}
+          {/* Right column: Subcategories */}
           <div className="w-2/3 p-6">
             <ScrollArea className="h-full">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-foreground">
-                  {activeCategory.name}
-                </h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                {activeCategory.subcategories.map((sub) => (
-                  <Link
-                    key={sub.name}
-                    href={sub.href}
-                    onClick={() => setIsOpen(false)}
-                    className="group flex flex-col items-center justify-center gap-2 rounded-lg border bg-card p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
-                  >
-                    {/* Плейсхолдер для картинки (можна замінити на Image з next/image) */}
-                    <div className="flex size-16 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-background">
-                      <Grid2X2 className="size-8 opacity-20" />
+              {activeCategory && (
+                <>
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {activeCategory.name}
+                    </h3>
+                    <Link
+                      href={`/catalog/${activeCategory.slug}`}
+                      onClick={() => setIsOpen(false)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Дивитись всі
+                    </Link>
+                  </div>
+                  {activeCategory.children.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                      {activeCategory.children.map((sub) => (
+                        <Link
+                          key={sub.id}
+                          href={`/catalog/${sub.slug}`}
+                          onClick={() => setIsOpen(false)}
+                          className="group rounded-lg border bg-card p-4 text-sm font-medium transition-colors hover:border-primary hover:bg-muted/50"
+                        >
+                          {sub.name}
+                        </Link>
+                      ))}
                     </div>
-                    <span className="text-sm font-medium">{sub.name}</span>
-                  </Link>
-                ))}
-              </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Підкатегорій немає
+                    </p>
+                  )}
+                </>
+              )}
             </ScrollArea>
           </div>
         </div>
