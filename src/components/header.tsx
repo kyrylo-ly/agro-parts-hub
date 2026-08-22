@@ -106,7 +106,7 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
                 variant="ghost"
                 size="icon"
                 className="lg:w-auto lg:px-4 shrink-0"
-                render={<Link href="/login" className="flex items-center gap-2" />}
+                render={<Link href="/login" aria-label="Увійти" className="flex items-center gap-2" />}
                 nativeButton={false}
               >
                 <User className="size-5 lg:hidden" />

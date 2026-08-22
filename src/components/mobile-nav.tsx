@@ -72,7 +72,7 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
                       {cat.imageUrl ? (
                         <Image
                           src={cat.imageUrl}
-                          alt={cat.name}
+                          alt=""
                           width={24}
                           height={24}
                           className="size-full object-cover"
