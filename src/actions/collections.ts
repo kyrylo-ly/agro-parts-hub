@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq, count } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { db } from "@/db/db";
 import { collection, productToCollection } from "@/db/schema/store";
 import { collectionSchema, type CollectionInput } from "@/lib/validations";
@@ -96,6 +96,8 @@ export async function createCollection(input: CollectionInput) {
       .returning();
 
     revalidatePath("/admin/collections");
+    // Invalidate public ISR cache
+    revalidateTag("collections", "max");
     return { success: true as const, data: newCollection };
   } catch (error) {
     console.error("Failed to create collection:", error);
@@ -135,6 +137,8 @@ export async function updateCollection(id: number, input: CollectionInput) {
       .returning();
 
     revalidatePath("/admin/collections");
+    // Invalidate public ISR cache
+    revalidateTag("collections", "max");
     return { success: true as const, data: updatedCollection };
   } catch (error) {
     console.error("Failed to update collection:", error);
@@ -150,6 +154,8 @@ export async function deleteCollection(id: number) {
     await requireAdmin();
     await db.delete(collection).where(eq(collection.id, id));
     revalidatePath("/admin/collections");
+    // Invalidate public ISR cache
+    revalidateTag("collections", "max");
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete collection:", error);
@@ -165,6 +171,8 @@ export async function addProductToCollection(productId: string, collectionId: nu
       .values({ productId, collectionId })
       .onConflictDoNothing();
     revalidatePath("/admin/collections");
+    // Invalidate public ISR cache
+    revalidateTag("collections", "max");
     return { success: true as const };
   } catch (error) {
     console.error("Failed to add product to collection:", error);
@@ -184,6 +192,8 @@ export async function removeProductFromCollection(productId: string, collectionI
         )
       );
     revalidatePath("/admin/collections");
+    // Invalidate public ISR cache
+    revalidateTag("collections", "max");
     return { success: true as const };
   } catch (error) {
     console.error("Failed to remove product from collection:", error);

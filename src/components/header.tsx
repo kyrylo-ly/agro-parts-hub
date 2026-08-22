@@ -1,31 +1,21 @@
 import {
   Flame,
-  Heart,
   Percent,
   Phone,
   Sparkles,
   Tag,
   TrendingUp,
-  User,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
 import { CartButton } from "@/components/cart-button";
 import { MobileNav } from "@/components/mobile-nav";
-import { AccountMenu } from "@/components/account-menu";
+import { UserMenu } from "@/components/user-menu";
 import { CategoryMenu } from "@/components/category-menu";
 import { CompareIndicator } from "@/components/compare-indicator";
 import { FavoriteIndicator } from "@/components/favorite-indicator";
-
-type AccountData = {
-  name: string;
-  email: string;
-  avatar: string;
-  role: string;
-};
 
 export type NavItem = {
   label: string;
@@ -47,7 +37,7 @@ const appLogo = {
   title: "Агро Літ",
 };
 
-interface HeaderProps extends AccountData {
+export interface HeaderProps {
   categories?: {
     id: number;
     name: string;
@@ -57,7 +47,7 @@ interface HeaderProps extends AccountData {
   }[];
 }
 
-export function Header({ name, email, avatar, role, categories = [] }: HeaderProps) {
+export function Header({ categories = [] }: HeaderProps) {
   return (
     <>
       {/* Main Header - Sticky */}
@@ -98,22 +88,7 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
             <FavoriteIndicator />
             <CompareIndicator />
-
-            {email ? (
-              <AccountMenu name={name} email={email} avatar={avatar} role={role} />
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:w-auto lg:px-4 shrink-0"
-                render={<Link href="/login" aria-label="Увійти" className="flex items-center gap-2" />}
-                nativeButton={false}
-              >
-                <User className="size-5 lg:hidden" />
-                <span className="hidden lg:inline-block">Увійти</span>
-              </Button>
-            )}
-
+            <UserMenu />
             <CartButton />
           </div>
         </div>

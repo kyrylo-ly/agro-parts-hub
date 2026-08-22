@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { db } from "@/db/db";
 import { product, productToCollection, productImage } from "@/db/schema/store";
 import { productSchema, type ProductInput } from "@/lib/validations";
@@ -142,6 +142,11 @@ export async function createProduct(input: ProductInput) {
     }
 
     revalidatePath("/admin/products");
+    // Invalidate public ISR cache
+    revalidateTag("products", "max");
+    revalidateTag("new-arrivals", "max");
+    revalidateTag("bestsellers", "max");
+    revalidateTag("popular", "max");
     return { success: true as const, data: newProduct };
   } catch (error) {
     console.error("Failed to create product:", error);
@@ -210,6 +215,11 @@ export async function updateProduct(id: string, input: ProductInput) {
 
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
+    // Invalidate public ISR cache
+    revalidateTag("products", "max");
+    revalidateTag("new-arrivals", "max");
+    revalidateTag("bestsellers", "max");
+    revalidateTag("popular", "max");
     return { success: true as const, data: updatedProduct };
   } catch (error) {
     console.error("Failed to update product:", error);
@@ -244,6 +254,11 @@ export async function deleteProduct(id: string) {
 
     await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
+    // Invalidate public ISR cache
+    revalidateTag("products", "max");
+    revalidateTag("new-arrivals", "max");
+    revalidateTag("bestsellers", "max");
+    revalidateTag("popular", "max");
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete product:", error);

@@ -1,14 +1,11 @@
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { getPublicCategories } from "@/actions/public";
 
+export const revalidate = 3600; // Revalidate layout data every hour
+
 export default async function MainLayout({ children }: LayoutProps<"/">) {
-  const [session, categoriesResult] = await Promise.all([
-    auth.api.getSession({ headers: await headers() }),
-    getPublicCategories(),
-  ]);
+  const categoriesResult = await getPublicCategories();
 
   // Transform categories into tree structure for navigation
   const allCategories = categoriesResult.success ? categoriesResult.data : [];
@@ -31,13 +28,7 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
 
   return (
     <>
-      <Header
-        name={session?.user.name ?? ""}
-        email={session?.user.email ?? ""}
-        avatar={session?.user.image ?? ""}
-        role={session?.user.role ?? ""}
-        categories={topLevelCategories}
-      />
+      <Header categories={topLevelCategories} />
       <main className="flex-1">{children}</main>
       <Footer />
     </>

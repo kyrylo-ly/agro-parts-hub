@@ -22,6 +22,8 @@ import {
   getPublicBrands,
 } from "@/actions/public";
 
+export const revalidate = 300; // ISR: revalidate every 5 minutes
+
 export const metadata: Metadata = {
   title: "Агро Літ — Запчастини для тракторів та сільгосптехніки",
   description:
