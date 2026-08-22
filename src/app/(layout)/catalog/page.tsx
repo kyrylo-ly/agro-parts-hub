@@ -61,9 +61,6 @@ export default async function CatalogPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold line-clamp-2">{cat.name}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {cat.productCount} товарів
-                </p>
                 {childCategories.length > 0 && (
                   <p className="mt-1 text-xs text-primary">
                     {childCategories.length} підкатегорій

@@ -178,14 +178,6 @@ export default async function Home() {
                   <p className="text-sm font-semibold line-clamp-2">
                     {cat.name}
                   </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {cat.productCount}{" "}
-                    {cat.productCount === 1
-                      ? "товар"
-                      : cat.productCount < 5
-                        ? "товари"
-                        : "товарів"}
-                  </p>
                 </div>
               </Link>
             ))}
