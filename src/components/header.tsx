@@ -17,6 +17,7 @@ import { MobileNav } from "@/components/mobile-nav";
 import { AccountMenu } from "@/components/account-menu";
 import { CategoryMenu } from "@/components/category-menu";
 import { CompareIndicator } from "@/components/compare-indicator";
+import { FavoriteIndicator } from "@/components/favorite-indicator";
 
 type AccountData = {
   name: string;
@@ -89,6 +90,7 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
 
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-4 ml-auto">
+            <FavoriteIndicator />
             <CompareIndicator />
 
             {email ? (

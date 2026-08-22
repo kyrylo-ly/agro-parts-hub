@@ -723,3 +723,32 @@ export async function getProductsForCompare(ids: string[]) {
   }
 }
 
+export async function getProductsForFavorites(ids: string[]) {
+  if (ids.length === 0) {
+    return { success: true as const, data: [] };
+  }
+
+  try {
+    const products = await db.query.product.findMany({
+      where: and(
+        eq(product.isActive, true),
+        inArray(product.id, ids)
+      ),
+      with: {
+        brand: { columns: { name: true, slug: true } },
+        category: { columns: { name: true, slug: true } },
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1,
+          columns: { url: true },
+        },
+      },
+    });
+
+    return { success: true as const, data: products };
+  } catch (error) {
+    console.error("getProductsForFavorites error:", error);
+    return { success: false as const, error: "Помилка завантаження" };
+  }
+}
+

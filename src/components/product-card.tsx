@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { CompareButton } from "@/components/compare-button";
+import { FavoriteButton } from "@/components/favorite-button";
 
 interface ProductCardProps {
   product: {
@@ -139,6 +140,10 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
           <div className="flex gap-1">
+            <FavoriteButton
+              productId={product.id}
+              productName={product.name}
+            />
             <CompareButton
               productId={product.id}
               productName={product.name}
