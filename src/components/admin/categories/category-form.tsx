@@ -44,6 +44,7 @@ async function handleSubmit(
     parentId: formData.get("parentId")
       ? parseInt(formData.get("parentId") as string, 10)
       : null,
+    imageUrl: (formData.get("imageUrl") as string) || null,
   };
 
   const result = categoryId
@@ -110,6 +111,19 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
         />
         {state.fieldErrors?.slug && (
           <p className="text-sm text-destructive">{state.fieldErrors.slug[0]}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="imageUrl">URL Зображення</Label>
+        <Input
+          id="imageUrl"
+          name="imageUrl"
+          defaultValue={category?.imageUrl ?? ""}
+          placeholder="https://example.com/image.jpg"
+        />
+        {state.fieldErrors?.imageUrl && (
+          <p className="text-sm text-destructive">{state.fieldErrors.imageUrl[0]}</p>
         )}
       </div>
 

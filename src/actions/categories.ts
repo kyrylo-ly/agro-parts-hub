@@ -67,6 +67,7 @@ export async function createCategory(input: CategoryInput) {
         name: validatedData.name,
         slug,
         parentId: validatedData.parentId,
+        imageUrl: validatedData.imageUrl,
       })
       .returning();
 
@@ -108,6 +109,7 @@ export async function updateCategory(id: number, input: CategoryInput) {
         name: validatedData.name,
         slug,
         parentId: validatedData.parentId,
+        imageUrl: validatedData.imageUrl,
       })
       .where(eq(category.id, id))
       .returning();

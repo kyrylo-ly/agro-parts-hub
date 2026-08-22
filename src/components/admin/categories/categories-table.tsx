@@ -23,6 +23,7 @@ interface Category {
   parentId: number | null;
   parent?: { id: number; name: string } | null;
   children?: { id: number }[];
+  imageUrl?: string | null;
   createdAt: Date;
 }
 
@@ -57,6 +58,7 @@ export function CategoriesTable({ categories }: { categories: Category[] }) {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[80px]">Зображення</TableHead>
             <TableHead>Назва</TableHead>
             <TableHead>Slug</TableHead>
             <TableHead>Батьківська</TableHead>
@@ -67,6 +69,13 @@ export function CategoriesTable({ categories }: { categories: Category[] }) {
         <TableBody>
           {categories.map((cat) => (
             <TableRow key={cat.id}>
+              <TableCell>
+                {cat.imageUrl ? (
+                  <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 object-contain rounded-md border bg-white" />
+                ) : (
+                  <div className="w-10 h-10 rounded-md border bg-muted flex items-center justify-center text-xs text-muted-foreground">Немає</div>
+                )}
+              </TableCell>
               <TableCell className="font-medium">{cat.name}</TableCell>
               <TableCell>
                 <Badge variant="secondary" className="font-mono text-xs">

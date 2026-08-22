@@ -41,6 +41,7 @@ export async function createBrand(input: BrandInput) {
       .values({
         name: validatedData.name,
         slug,
+        imageUrl: validatedData.imageUrl,
       })
       .returning();
 
@@ -76,6 +77,7 @@ export async function updateBrand(id: number, input: BrandInput) {
       .set({
         name: validatedData.name,
         slug,
+        imageUrl: validatedData.imageUrl,
       })
       .where(eq(brand.id, id))
       .returning();

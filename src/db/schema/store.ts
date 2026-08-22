@@ -37,6 +37,7 @@ export const category = pgTable(
         name: text("name").notNull(),
         slug: text("slug").notNull().unique(),
         parentId: integer("parent_id"), // self-reference logic handled in relations
+        imageUrl: text("image_url"),
         createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
             .defaultNow()
             .notNull(),
@@ -67,6 +68,7 @@ export const brand = pgTable(
         id: serial("id").primaryKey(),
         name: text("name").notNull().unique(),
         slug: text("slug").notNull().unique(),
+        imageUrl: text("image_url"),
         createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
             .defaultNow()
             .notNull(),
@@ -120,7 +122,7 @@ export const product = pgTable(
         index("product_slug_idx").on(table.slug),
         index("product_salesCount_idx").on(table.salesCount),
         index("product_viewCount_idx").on(table.viewCount),
-        index("product_attributes_gin_idx").on(table.attributes),
+        index("product_attributes_gin_idx").using("gin", table.attributes),
     ]
 );
 

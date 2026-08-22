@@ -22,6 +22,7 @@ interface Brand {
   id: number;
   name: string;
   slug: string;
+  imageUrl?: string | null;
   createdAt: Date;
 }
 
@@ -30,6 +31,7 @@ export function BrandsTable({ brands }: { brands: Brand[] }) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   async function handleDelete(id: number, name: string) {
@@ -48,12 +50,14 @@ export function BrandsTable({ brands }: { brands: Brand[] }) {
     setEditingId(brand.id);
     setEditName(brand.name);
     setEditSlug(brand.slug);
+    setEditImageUrl(brand.imageUrl || "");
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditName("");
     setEditSlug("");
+    setEditImageUrl("");
   }
 
   async function handleUpdate(id: number) {
@@ -62,7 +66,8 @@ export function BrandsTable({ brands }: { brands: Brand[] }) {
     setIsUpdating(true);
     const result = await updateBrand(id, { 
       name: editName.trim(), 
-      slug: editSlug.trim() || undefined 
+      slug: editSlug.trim() || undefined,
+      imageUrl: editImageUrl.trim() || null
     });
     setIsUpdating(false);
 
@@ -88,6 +93,7 @@ export function BrandsTable({ brands }: { brands: Brand[] }) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">Зображення</TableHead>
                 <TableHead>Назва</TableHead>
                 <TableHead>Slug</TableHead>
                 <TableHead className="w-[120px]">Дії</TableHead>
@@ -96,13 +102,29 @@ export function BrandsTable({ brands }: { brands: Brand[] }) {
             <TableBody>
               {brands.map((b) => (
                 <TableRow key={b.id}>
+                  <TableCell>
+                    {b.imageUrl ? (
+                      <img src={b.imageUrl} alt={b.name} className="w-10 h-10 object-contain rounded-md border bg-white" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-md border bg-muted flex items-center justify-center text-xs text-muted-foreground">Немає</div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">
                     {editingId === b.id ? (
-                      <Input 
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="h-8"
-                      />
+                      <div className="flex flex-col gap-2">
+                        <Input 
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="h-8"
+                          placeholder="Назва"
+                        />
+                        <Input 
+                          value={editImageUrl}
+                          onChange={(e) => setEditImageUrl(e.target.value)}
+                          className="h-8"
+                          placeholder="URL зображення"
+                        />
+                      </div>
                     ) : (
                       b.name
                     )}
