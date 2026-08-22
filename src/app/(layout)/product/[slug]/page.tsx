@@ -87,7 +87,7 @@ export default async function ProductPage({
     : 0;
   const inStock = p.stock > 0;
   const attributes = (p.attributes as Record<string, string>) || {};
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
   // Breadcrumbs
   const breadcrumbItems: { label: string; href?: string }[] = [
