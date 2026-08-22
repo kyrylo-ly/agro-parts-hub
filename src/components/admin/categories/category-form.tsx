@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -13,14 +13,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createCategory, updateCategory } from "@/actions/categories";
-import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { createCategory, updateCategory, getCategoryProductImages } from "@/actions/categories";
+import { Loader2, ImageIcon } from "lucide-react";
+import { SingleImageUploader } from "@/components/admin/single-image-uploader";
 
 interface Category {
   id: number;
   name: string;
   slug: string;
   parentId: number | null;
+  imageUrl?: string | null;
 }
 
 interface CategoryFormProps {
@@ -65,10 +74,18 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
   const router = useRouter();
   const isEditing = !!category;
 
+  const [imageUrl, setImageUrl] = useState<string>(category?.imageUrl || "");
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const boundAction = handleSubmit.bind(null, category?.id);
 
   const [state, formAction, pending] = useActionState(
     async (prevState: FormState, formData: FormData) => {
+      // imageUrl is managed in React state, we need to append it to formData before submitting
+      formData.set("imageUrl", imageUrl);
+      
       const result = await boundAction(prevState, formData);
       if (!result.error) {
         toast.success(isEditing ? "Категорію оновлено" : "Категорію створено");
@@ -78,6 +95,25 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
     },
     {}
   );
+
+  async function loadProductImages() {
+    if (!category) return;
+    setIsLoadingImages(true);
+    const result = await getCategoryProductImages(category.id);
+    if (result.success && result.data) {
+      setProductImages(result.data);
+    } else {
+      toast.error(result.error);
+    }
+    setIsLoadingImages(false);
+  }
+
+  function handleDialogOpenChange(open: boolean) {
+    setIsDialogOpen(open);
+    if (open && productImages.length === 0) {
+      loadProductImages();
+    }
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -114,14 +150,59 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="imageUrl">URL Зображення</Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          defaultValue={category?.imageUrl ?? ""}
-          placeholder="https://example.com/image.jpg"
-        />
+      <div className="space-y-4">
+        <Label>Зображення</Label>
+        
+        <div className="flex flex-col gap-4">
+          <SingleImageUploader 
+            folder="categories"
+            currentImageUrl={imageUrl}
+            onUpload={(url) => setImageUrl(url)}
+            onRemove={() => setImageUrl("")}
+          />
+
+          {isEditing && (
+            <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+              <DialogTrigger asChild>
+                <Button variant="outline" type="button" className="max-w-sm">
+                  <ImageIcon className="mr-2 size-4" />
+                  Обрати з товарів цієї категорії
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Оберіть зображення</DialogTitle>
+                </DialogHeader>
+                
+                {isLoadingImages ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="size-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : productImages.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Не знайдено жодного фото у товарах цієї категорії.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 pt-4">
+                    {productImages.map((imgUrl, i) => (
+                      <div 
+                        key={i}
+                        className="cursor-pointer border rounded-md overflow-hidden aspect-square hover:ring-2 hover:ring-primary transition-all"
+                        onClick={() => {
+                          setImageUrl(imgUrl);
+                          setIsDialogOpen(false);
+                        }}
+                      >
+                        <img src={imgUrl} alt="" className="w-full h-full object-cover bg-muted" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+
         {state.fieldErrors?.imageUrl && (
           <p className="text-sm text-destructive">{state.fieldErrors.imageUrl[0]}</p>
         )}
@@ -146,7 +227,7 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
         </Select>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={pending}>
           {pending && <Loader2 className="size-4 mr-2 animate-spin" />}
           {isEditing ? "Зберегти" : "Створити"}

@@ -67,7 +67,57 @@ export async function uploadProductImage(productId: string, formData: FormData) 
     return { success: false as const, error: "Не вдалося завантажити зображення" };
   }
 }
+export async function uploadSingleImage(folder: string, formData: FormData) {
+  try {
+    await requireAdmin();
 
+    const file = formData.get("file") as File | null;
+    if (!file) {
+      return { success: false as const, error: "Файл не обрано" };
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return { success: false as const, error: "Дозволені формати: JPEG, PNG, WebP, AVIF" };
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return { success: false as const, error: "Максимальний розмір файлу — 5 МБ" };
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const contentType = "image/webp";
+    const ext = "webp";
+
+    const optimizedBuffer = await sharp(buffer)
+      .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const key = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const url = await uploadToR2(optimizedBuffer, key, contentType);
+
+    return { success: true as const, data: { url } };
+  } catch (error) {
+    console.error("Failed to upload image:", error);
+    return { success: false as const, error: "Не вдалося завантажити зображення" };
+  }
+}
+
+export async function deleteImageByUrl(url: string) {
+  try {
+    await requireAdmin();
+    const key = getKeyFromUrl(url);
+    if (key) {
+      await deleteFromR2(key);
+    }
+    return { success: true as const };
+  } catch (error) {
+    console.error("Failed to delete image:", error);
+    return { success: false as const, error: "Не вдалося видалити зображення" };
+  }
+}
 export async function deleteProductImage(imageId: string) {
   try {
     await requireAdmin();

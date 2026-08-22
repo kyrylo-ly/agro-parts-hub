@@ -161,3 +161,27 @@ export async function deleteCategory(id: number) {
     return { success: false as const, error: "Failed to delete category" };
   }
 }
+
+export async function getCategoryProductImages(categoryId: number) {
+  try {
+    const products = await db.query.product.findMany({
+      where: eq(product.categoryId, categoryId),
+      with: {
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+        },
+      },
+    });
+
+    // Extract unique image URLs
+    const urls = new Set<string>();
+    products.forEach((p) => {
+      p.images.forEach((img) => urls.add(img.url));
+    });
+
+    return { success: true as const, data: Array.from(urls) };
+  } catch (error) {
+    console.error("Failed to fetch category product images:", error);
+    return { success: false as const, error: "Failed to fetch images" };
+  }
+}
