@@ -81,7 +81,7 @@ export default async function Home() {
     <>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
-        <div className="container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
+        <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               Запчастини для{" "}
@@ -109,20 +109,20 @@ export default async function Home() {
           </div>
         </div>
         {/* Decorative gradient blobs */}
-        <div className="absolute -top-24 -right-24 size-96 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 size-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 size-96 rounded-full bg-primary/5 blur-3xl" />
       </section>
 
       {/* Benefits Bar */}
       <section className="border-y bg-muted/20">
         <div className="container mx-auto max-w-[1400px] px-4 lg:px-8">
-          <div className="grid grid-cols-2 divide-x lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4 lg:gap-0 lg:py-0 lg:divide-x">
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
               return (
                 <div
                   key={benefit.title}
-                  className="flex items-center gap-3 px-4 py-4 lg:px-6 lg:py-5"
+                  className="flex items-center gap-3 px-4 lg:px-6 lg:py-5"
                 >
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary lg:size-12">
                     <Icon className="size-5 lg:size-6" />
