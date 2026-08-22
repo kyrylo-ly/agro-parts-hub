@@ -163,11 +163,13 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
 
           {isEditing && (
             <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-              <DialogTrigger asChild>
-                <Button variant="outline" type="button" className="max-w-sm">
-                  <ImageIcon className="mr-2 size-4" />
-                  Обрати з товарів цієї категорії
-                </Button>
+              <DialogTrigger
+                render={
+                  <Button variant="outline" type="button" className="max-w-sm" />
+                }
+              >
+                <ImageIcon className="mr-2 size-4" />
+                Обрати з товарів цієї категорії
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>

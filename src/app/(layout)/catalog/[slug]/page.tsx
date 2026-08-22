@@ -162,6 +162,7 @@ export default async function CategoryPage({
           brands={brands}
           attributes={attributeFilters}
           basePath={`/catalog/${slug}`}
+          variant="mobile"
         />
       </div>
 
@@ -182,7 +183,13 @@ export default async function CategoryPage({
 
       {/* Content: sidebar + grid */}
       <div className="mt-6 flex gap-6">
-        {/* Desktop sidebar is rendered inside CatalogFilters */}
+        {/* Desktop sidebar */}
+        <CatalogFilters
+          brands={brands}
+          attributes={attributeFilters}
+          basePath={`/catalog/${slug}`}
+          variant="desktop"
+        />
 
         {/* Products */}
         <div className="flex-1 min-w-0">

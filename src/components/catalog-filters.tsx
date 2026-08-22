@@ -39,6 +39,7 @@ interface CatalogFiltersProps {
   brands: FilterBrand[];
   attributes: FilterAttribute[];
   basePath: string;
+  variant?: "desktop" | "mobile" | "both";
 }
 
 const sortOptions = [
@@ -53,6 +54,7 @@ export function CatalogFilters({
   brands,
   attributes,
   basePath,
+  variant = "both",
 }: CatalogFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -267,39 +269,43 @@ export function CatalogFilters({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 shrink-0">
-        <div className="sticky top-20 rounded-xl border bg-card p-4">
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider">
-            Фільтри
-          </h2>
-          {filterContent}
-        </div>
-      </aside>
+      {(variant === "both" || variant === "desktop") && (
+        <aside className="hidden lg:block w-64 shrink-0">
+          <div className="sticky top-20 rounded-xl border bg-card p-4">
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-wider">
+              Фільтри
+            </h2>
+            {filterContent}
+          </div>
+        </aside>
+      )}
 
       {/* Mobile Sheet Trigger */}
-      <div className="lg:hidden">
-        <Sheet>
-          <SheetTrigger
-            render={
-              <Button variant="outline" size="sm" className="gap-2" />
-            }
-          >
-            <SlidersHorizontal className="size-4" />
-            Фільтри
-            {hasFilters && (
-              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                !
-              </span>
-            )}
-          </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[85vh]">
-            <SheetHeader>
-              <SheetTitle>Фільтри</SheetTitle>
-            </SheetHeader>
-            <div className="overflow-y-auto py-4">{filterContent}</div>
-          </SheetContent>
-        </Sheet>
-      </div>
+      {(variant === "both" || variant === "mobile") && (
+        <div className="lg:hidden">
+          <Sheet>
+            <SheetTrigger
+              render={
+                <Button variant="outline" size="sm" className="gap-2" />
+              }
+            >
+              <SlidersHorizontal className="size-4" />
+              Фільтри
+              {hasFilters && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                  !
+                </span>
+              )}
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[85vh]">
+              <SheetHeader>
+                <SheetTitle>Фільтри</SheetTitle>
+              </SheetHeader>
+              <div className="overflow-y-auto py-4">{filterContent}</div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
     </>
   );
 }
