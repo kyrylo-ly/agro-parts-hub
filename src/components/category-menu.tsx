@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { ChevronRight, Grid2X2 } from "lucide-react";
+import { ChevronRight, Grid2X2, Truck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -17,7 +18,8 @@ interface CategoryMenuProps {
     id: number;
     name: string;
     slug: string;
-    children: { id: number; name: string; slug: string }[];
+    imageUrl?: string | null;
+    children: { id: number; name: string; slug: string; imageUrl?: string | null }[];
   }[];
 }
 
@@ -85,7 +87,22 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
                           : "text-muted-foreground"
                       )}
                     >
-                      <span>{cat.name}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-background overflow-hidden border">
+                          {cat.imageUrl ? (
+                            <Image
+                              src={cat.imageUrl}
+                              alt={cat.name}
+                              width={32}
+                              height={32}
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <Truck className="size-4 text-muted-foreground" />
+                          )}
+                        </div>
+                        <span className="text-left line-clamp-1">{cat.name}</span>
+                      </div>
                       <ChevronRight
                         className={cn(
                           "size-4 transition-transform",
@@ -123,9 +140,22 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
                           key={sub.id}
                           href={`/catalog/${sub.slug}`}
                           onClick={() => setIsOpen(false)}
-                          className="group rounded-lg border bg-card p-4 text-sm font-medium transition-colors hover:border-primary hover:bg-muted/50"
+                          className="group flex items-center gap-3 rounded-lg border bg-card p-4 text-sm font-medium transition-colors hover:border-primary hover:bg-muted/50"
                         >
-                          {sub.name}
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted overflow-hidden border transition-colors group-hover:bg-primary/10">
+                            {sub.imageUrl ? (
+                              <Image
+                                src={sub.imageUrl}
+                                alt={sub.name}
+                                width={40}
+                                height={40}
+                                className="size-full object-cover"
+                              />
+                            ) : (
+                              <Truck className="size-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                            )}
+                          </div>
+                          <span className="line-clamp-2">{sub.name}</span>
                         </Link>
                       ))}
                     </div>

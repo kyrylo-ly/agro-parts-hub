@@ -18,12 +18,14 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
+      imageUrl: cat.imageUrl,
       children: allCategories
         .filter((child) => child.parent?.id === cat.id)
         .map((child) => ({
           id: child.id,
           name: child.name,
           slug: child.slug,
+          imageUrl: child.imageUrl,
         })),
     }));
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Truck } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -45,8 +46,18 @@ export default async function CatalogPage() {
               href={`/catalog/${cat.slug}`}
               className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-4 text-center transition-all hover:border-primary/30 hover:shadow-md lg:p-6"
             >
-              <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground lg:size-16">
-                <Truck className="size-7 lg:size-8" />
+              <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary overflow-hidden transition-colors group-hover:bg-primary group-hover:text-primary-foreground lg:size-16">
+                {cat.imageUrl ? (
+                  <Image
+                    src={cat.imageUrl}
+                    alt={cat.name}
+                    width={64}
+                    height={64}
+                    className="size-full object-cover transition-transform group-hover:scale-110"
+                  />
+                ) : (
+                  <Truck className="size-7 lg:size-8" />
+                )}
               </div>
               <div>
                 <p className="text-sm font-semibold line-clamp-2">{cat.name}</p>

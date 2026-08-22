@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Phone } from "lucide-react";
+import { Menu, Phone, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,7 +23,8 @@ interface MobileNavProps {
     id: number;
     name: string;
     slug: string;
-    children: { id: number; name: string; slug: string }[];
+    imageUrl?: string | null;
+    children: { id: number; name: string; slug: string; imageUrl?: string | null }[];
   }[];
 }
 
@@ -65,8 +66,21 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
                     key={cat.id}
                     href={`/catalog/${cat.slug}`}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted"
+                    className="flex items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-muted"
                   >
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-sm bg-muted overflow-hidden border">
+                      {cat.imageUrl ? (
+                        <Image
+                          src={cat.imageUrl}
+                          alt={cat.name}
+                          width={24}
+                          height={24}
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <Truck className="size-3 text-muted-foreground" />
+                      )}
+                    </div>
                     {cat.name}
                   </Link>
                 ))}
