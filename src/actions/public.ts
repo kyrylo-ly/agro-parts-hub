@@ -30,6 +30,7 @@ export interface ProductFilterParams {
   priceMin?: number;
   priceMax?: number;
   inStock?: boolean;
+  isPromotion?: boolean;
   attributes?: Record<string, string[]>; // e.g. { "inner_diameter": ["30mm", "35mm"] }
   sort?: "price_asc" | "price_desc" | "newest" | "popular" | "bestsellers";
   page?: number;
@@ -490,6 +491,7 @@ async function getFilteredProducts(params: InternalFilterParams) {
     priceMin,
     priceMax,
     inStock,
+    isPromotion,
     attributes,
     sort = "newest",
     page = 1,
@@ -546,6 +548,13 @@ async function getFilteredProducts(params: InternalFilterParams) {
   // In-stock filter
   if (inStock) {
     conditions.push(sql`${product.stock} > 0`);
+  }
+
+  // Promotion filter
+  if (isPromotion) {
+    conditions.push(
+      sql`${product.compareAtPrice} IS NOT NULL AND ${product.compareAtPrice}::numeric > ${product.price}::numeric`
+    );
   }
 
   // Attribute filters (JSONB) — use parameterized queries
@@ -628,6 +637,18 @@ async function getFilteredProducts(params: InternalFilterParams) {
     },
   };
 }
+
+/** Get public products based on general filters */
+export async function getPublicProducts(filters: ProductFilterParams = {}) {
+  try {
+    const productsResult = await getFilteredProducts(filters);
+    return { success: true as const, data: productsResult };
+  } catch (error) {
+    console.error("Failed to get public products:", error);
+    return { success: false as const, error: "Failed to fetch products" };
+  }
+}
+
 
 // ─── Quick Search (for live search dropdown) ────────────────────────────────
 
