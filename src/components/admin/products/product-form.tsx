@@ -131,9 +131,9 @@ export function ProductForm({
     async (_prevState: FormState, formData: FormData): Promise<FormState> => {
       // Clean attributes — remove entries with empty keys
       const cleanedAttributes: Record<string, string> = {};
-      for (const [key, val] of Object.entries(attributes)) {
-        if (key.trim()) {
-          cleanedAttributes[key.trim()] = val.trim();
+      for (const [key, val] of Object.entries(attributes || {})) {
+        if (key && typeof key === "string" && key.trim()) {
+          cleanedAttributes[key.trim()] = typeof val === "string" ? val.trim() : String(val ?? "");
         }
       }
 

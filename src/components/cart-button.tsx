@@ -28,6 +28,7 @@ export function CartButton() {
   return (
     <Button
       variant="default"
+      aria-label="Кошик"
       className="gap-2 rounded-full pl-3 pr-4 h-10 bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90"
     >
       <div className="relative">

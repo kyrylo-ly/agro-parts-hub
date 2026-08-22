@@ -179,16 +179,18 @@ export async function createOrder(data: CheckoutData) {
     });
     await db.insert(orderItem).values(orderItems);
 
-    // Update stock and salesCount
-    for (const item of data.items) {
-      await db
-        .update(product)
-        .set({
-          stock: sql`${product.stock} - ${item.quantity}`,
-          salesCount: sql`${product.salesCount} + ${item.quantity}`,
-        })
-        .where(eq(product.id, item.productId));
-    }
+    // Update stock and salesCount concurrently
+    await Promise.all(
+      data.items.map((item) =>
+        db
+          .update(product)
+          .set({
+            stock: sql`${product.stock} - ${item.quantity}`,
+            salesCount: sql`${product.salesCount} + ${item.quantity}`,
+          })
+          .where(eq(product.id, item.productId))
+      )
+    );
 
     return { success: true as const, orderId: newOrder.id };
   } catch (error) {

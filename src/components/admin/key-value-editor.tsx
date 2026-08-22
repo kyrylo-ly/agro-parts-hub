@@ -44,13 +44,13 @@ export function KeyValueEditor({ value, onChange }: KeyValueEditorProps) {
         <div key={index} className="flex items-center gap-2">
           <Input
             placeholder="Назва (напр. діаметр)"
-            value={key}
+            value={key ?? ""}
             onChange={(e) => updateKey(key, e.target.value)}
             className="flex-1"
           />
           <Input
             placeholder="Значення (напр. 12 мм)"
-            value={val}
+            value={val ?? ""}
             onChange={(e) => updateValue(key, e.target.value)}
             className="flex-1"
           />
