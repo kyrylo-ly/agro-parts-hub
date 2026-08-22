@@ -115,10 +115,12 @@ export const product = pgTable(
     },
     (table) => [
         index("product_categoryId_idx").on(table.categoryId),
+        index("product_brandId_idx").on(table.brandId),
         index("product_sku_idx").on(table.sku),
         index("product_slug_idx").on(table.slug),
         index("product_salesCount_idx").on(table.salesCount),
         index("product_viewCount_idx").on(table.viewCount),
+        index("product_attributes_gin_idx").on(table.attributes),
     ]
 );
 
