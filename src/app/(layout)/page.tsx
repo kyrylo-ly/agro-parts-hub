@@ -13,16 +13,9 @@ import { SectionHeader } from "@/components/section-header";
 import { ProductGrid } from "@/components/product-grid";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  getNewArrivals,
-  getBestsellers,
-  getPopularProducts,
-  getPublicCategories,
-  getPublicCollections,
-  getPublicBrands,
-} from "@/actions/public";
+import { getHomepageData } from "@/actions/public";
 
-export const revalidate = 300; // ISR: revalidate every 5 minutes
+export const revalidate = 7200;
 
 export const metadata: Metadata = {
   title: "Агро Літ — Запчастини для тракторів та сільгосптехніки",
@@ -54,21 +47,8 @@ const benefits = [
 ];
 
 export default async function Home() {
-  const [
-    newArrivalsResult,
-    bestsellersResult,
-    popularResult,
-    categoriesResult,
-    collectionsResult,
-    brandsResult,
-  ] = await Promise.all([
-    getNewArrivals(8),
-    getBestsellers(8),
-    getPopularProducts(8),
-    getPublicCategories(),
-    getPublicCollections(),
-    getPublicBrands(),
-  ]);
+  const { newArrivals: newArrivalsResult, bestsellers: bestsellersResult, popular: popularResult, categories: categoriesResult, collections: collectionsResult, brands: brandsResult } =
+    await getHomepageData();
 
   const newArrivals = newArrivalsResult.success ? newArrivalsResult.data : [];
   const bestsellers = bestsellersResult.success ? bestsellersResult.data : [];

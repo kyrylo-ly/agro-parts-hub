@@ -41,46 +41,48 @@ export interface ProductFilterParams {
 // ─── Categories ──────────────────────────────────────────────────────────────
 
 /** Get all categories with product counts for navigation */
-export const getPublicCategories = unstable_cache(
-  async function _getPublicCategories() {
-    try {
-      const categories = await db.query.category.findMany({
-        orderBy: (categories, { asc }) => [asc(categories.name)],
-        with: {
-          parent: true,
-          children: {
-            orderBy: (children, { asc }) => [asc(children.name)],
-          },
+async function _getPublicCategoriesRaw() {
+  try {
+    const categories = await db.query.category.findMany({
+      orderBy: (categories, { asc }) => [asc(categories.name)],
+      with: {
+        parent: true,
+        children: {
+          orderBy: (children, { asc }) => [asc(children.name)],
         },
-      });
+      },
+    });
 
-      // Get product counts per category
-      const productCounts = await db
-        .select({
-          categoryId: product.categoryId,
-          count: count(),
-        })
-        .from(product)
-        .where(eq(product.isActive, true))
-        .groupBy(product.categoryId);
+    // Get product counts per category
+    const productCounts = await db
+      .select({
+        categoryId: product.categoryId,
+        count: count(),
+      })
+      .from(product)
+      .where(eq(product.isActive, true))
+      .groupBy(product.categoryId);
 
-      const countMap = new Map(
-        productCounts.map((c) => [c.categoryId, c.count])
-      );
+    const countMap = new Map(
+      productCounts.map((c) => [c.categoryId, c.count])
+    );
 
-      const categoriesWithCounts = categories.map((cat) => ({
-        ...cat,
-        productCount: countMap.get(cat.id) ?? 0,
-      }));
+    const categoriesWithCounts = categories.map((cat) => ({
+      ...cat,
+      productCount: countMap.get(cat.id) ?? 0,
+    }));
 
-      return { success: true as const, data: categoriesWithCounts };
-    } catch (error) {
-      console.error("Failed to get public categories:", error);
-      return { success: false as const, error: "Failed to fetch categories" };
-    }
-  },
+    return { success: true as const, data: categoriesWithCounts };
+  } catch (error) {
+    console.error("Failed to get public categories:", error);
+    return { success: false as const, error: "Failed to fetch categories" };
+  }
+}
+
+export const getPublicCategories = unstable_cache(
+  _getPublicCategoriesRaw,
   ["public-categories"],
-  { revalidate: 3600, tags: ["categories"] }
+  { revalidate: 7200, tags: ["categories"] }
 );
 
 /** Get a single category by slug with filtered products */
@@ -159,8 +161,8 @@ export async function getPublicProductBySlug(slug: string) {
     db.update(product)
       .set({ viewCount: sql`${product.viewCount} + 1` })
       .where(eq(product.id, foundProduct.id))
-      .then(() => {})
-      .catch(() => {});
+      .then(() => { })
+      .catch(() => { });
 
     return { success: true as const, data: foundProduct };
   } catch (error) {
@@ -223,80 +225,84 @@ export async function getPublicCollectionBySlug(
 }
 
 /** Get all collections with product counts */
+async function _getPublicCollectionsRaw() {
+  try {
+    const collections = await db.query.collection.findMany({
+      orderBy: (collections, { desc }) => [desc(collections.createdAt)],
+    });
+
+    const productCounts = await db
+      .select({
+        collectionId: productToCollection.collectionId,
+        count: count(),
+      })
+      .from(productToCollection)
+      .groupBy(productToCollection.collectionId);
+
+    const countMap = new Map(
+      productCounts.map((c) => [c.collectionId, c.count])
+    );
+
+    const collectionsWithCounts = collections.map((col) => ({
+      ...col,
+      productCount: countMap.get(col.id) ?? 0,
+    }));
+
+    return { success: true as const, data: collectionsWithCounts };
+  } catch (error) {
+    console.error("Failed to get public collections:", error);
+    return { success: false as const, error: "Failed to fetch collections" };
+  }
+}
+
 export const getPublicCollections = unstable_cache(
-  async function _getPublicCollections() {
-    try {
-      const collections = await db.query.collection.findMany({
-        orderBy: (collections, { desc }) => [desc(collections.createdAt)],
-      });
-
-      const productCounts = await db
-        .select({
-          collectionId: productToCollection.collectionId,
-          count: count(),
-        })
-        .from(productToCollection)
-        .groupBy(productToCollection.collectionId);
-
-      const countMap = new Map(
-        productCounts.map((c) => [c.collectionId, c.count])
-      );
-
-      const collectionsWithCounts = collections.map((col) => ({
-        ...col,
-        productCount: countMap.get(col.id) ?? 0,
-      }));
-
-      return { success: true as const, data: collectionsWithCounts };
-    } catch (error) {
-      console.error("Failed to get public collections:", error);
-      return { success: false as const, error: "Failed to fetch collections" };
-    }
-  },
+  _getPublicCollectionsRaw,
   ["public-collections"],
-  { revalidate: 3600, tags: ["collections"] }
+  { revalidate: 7200, tags: ["collections"] }
 );
 
 // ─── Brands ──────────────────────────────────────────────────────────────────
 
-export const getPublicBrands = unstable_cache(
-  async function _getPublicBrands(categoryIds?: number[]) {
-    try {
-      const brands = await db.query.brand.findMany({
-        orderBy: (brands, { asc }) => [asc(brands.name)],
-      });
+async function _getPublicBrandsRaw(categoryIds?: number[]) {
+  try {
+    const brands = await db.query.brand.findMany({
+      orderBy: (brands, { asc }) => [asc(brands.name)],
+    });
 
-      const conditions = [eq(product.isActive, true)];
-      if (categoryIds && categoryIds.length > 0) {
-        conditions.push(inArray(product.categoryId, categoryIds));
-      }
-
-      const productCounts = await db
-        .select({
-          brandId: product.brandId,
-          count: count(),
-        })
-        .from(product)
-        .where(and(...conditions))
-        .groupBy(product.brandId);
-
-      const countMap = new Map(
-        productCounts.map((c) => [c.brandId!, c.count])
-      );
-
-      const brandsWithCounts = brands.map((br) => ({
-        ...br,
-        productCount: countMap.get(br.id) ?? 0,
-      }));
-
-      return { success: true as const, data: brandsWithCounts };
-    } catch (error) {
-      console.error("Failed to get public brands:", error);
-      return { success: false as const, error: "Failed to fetch brands" };
+    const conditions = [eq(product.isActive, true)];
+    if (categoryIds && categoryIds.length > 0) {
+      conditions.push(inArray(product.categoryId, categoryIds));
     }
-  },
+
+    const productCounts = await db
+      .select({
+        brandId: product.brandId,
+        count: count(),
+      })
+      .from(product)
+      .where(and(...conditions))
+      .groupBy(product.brandId);
+
+    const countMap = new Map(
+      productCounts.map((c) => [c.brandId!, c.count])
+    );
+
+    const brandsWithCounts = brands.map((br) => ({
+      ...br,
+      productCount: countMap.get(br.id) ?? 0,
+    }));
+
+    return { success: true as const, data: brandsWithCounts };
+  } catch (error) {
+    console.error("Failed to get public brands:", error);
+    return { success: false as const, error: "Failed to fetch brands" };
+  }
+}
+
+export const getPublicBrands = unstable_cache(
+  _getPublicBrandsRaw,
   ["public-brands"],
-  { revalidate: 3600, tags: ["brands"] }
+  { revalidate: 7200, tags: ["brands"] }
 );
 
 /** Get brand by slug with its products */
@@ -334,87 +340,120 @@ export async function getPublicBrandBySlug(
 // ─── Homepage sections ───────────────────────────────────────────────────────
 
 /** New arrivals — latest products */
-export const getNewArrivals = unstable_cache(
-  async function _getNewArrivals(limit = 8) {
-    try {
-      const products = await db.query.product.findMany({
-        where: eq(product.isActive, true),
-        limit,
-        orderBy: (products, { desc }) => [desc(products.createdAt)],
-        with: {
-          brand: true,
-          images: {
-            orderBy: (images, { asc }) => [asc(images.orderIndex)],
-            limit: 1,
-          },
+async function _getNewArrivalsRaw(limit = 8) {
+  try {
+    const products = await db.query.product.findMany({
+      where: eq(product.isActive, true),
+      limit,
+      orderBy: (products, { desc }) => [desc(products.createdAt)],
+      with: {
+        brand: true,
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1,
         },
-      });
+      },
+    });
 
-      return { success: true as const, data: products };
-    } catch (error) {
-      console.error("Failed to get new arrivals:", error);
-      return { success: false as const, error: "Failed to fetch new arrivals" };
-    }
-  },
+    return { success: true as const, data: products };
+  } catch (error) {
+    console.error("Failed to get new arrivals:", error);
+    return { success: false as const, error: "Failed to fetch new arrivals" };
+  }
+}
+
+export const getNewArrivals = unstable_cache(
+  _getNewArrivalsRaw,
   ["new-arrivals"],
-  { revalidate: 300, tags: ["products", "new-arrivals"] }
+  { revalidate: 7200, tags: ["products", "new-arrivals"] }
 );
 
 /** Popular products — by viewCount */
-export const getPopularProducts = unstable_cache(
-  async function _getPopularProducts(limit = 8) {
-    try {
-      const products = await db.query.product.findMany({
-        where: eq(product.isActive, true),
-        limit,
-        orderBy: (products, { desc }) => [desc(products.viewCount)],
-        with: {
-          brand: true,
-          images: {
-            orderBy: (images, { asc }) => [asc(images.orderIndex)],
-            limit: 1,
-          },
+async function _getPopularProductsRaw(limit = 8) {
+  try {
+    const products = await db.query.product.findMany({
+      where: eq(product.isActive, true),
+      limit,
+      orderBy: (products, { desc }) => [desc(products.viewCount)],
+      with: {
+        brand: true,
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1,
         },
-      });
+      },
+    });
 
-      return { success: true as const, data: products };
-    } catch (error) {
-      console.error("Failed to get popular products:", error);
-      return {
-        success: false as const,
-        error: "Failed to fetch popular products",
-      };
-    }
-  },
+    return { success: true as const, data: products };
+  } catch (error) {
+    console.error("Failed to get popular products:", error);
+    return {
+      success: false as const,
+      error: "Failed to fetch popular products",
+    };
+  }
+}
+
+export const getPopularProducts = unstable_cache(
+  _getPopularProductsRaw,
   ["popular-products"],
-  { revalidate: 600, tags: ["products", "popular"] }
+  { revalidate: 7200, tags: ["products", "popular"] }
 );
 
 /** Bestsellers — by salesCount */
-export const getBestsellers = unstable_cache(
-  async function _getBestsellers(limit = 8) {
-    try {
-      const products = await db.query.product.findMany({
-        where: eq(product.isActive, true),
-        limit,
-        orderBy: (products, { desc }) => [desc(products.salesCount)],
-        with: {
-          brand: true,
-          images: {
-            orderBy: (images, { asc }) => [asc(images.orderIndex)],
-            limit: 1,
-          },
+async function _getBestsellersRaw(limit = 8) {
+  try {
+    const products = await db.query.product.findMany({
+      where: eq(product.isActive, true),
+      limit,
+      orderBy: (products, { desc }) => [desc(products.salesCount)],
+      with: {
+        brand: true,
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1,
         },
-      });
+      },
+    });
 
-      return { success: true as const, data: products };
-    } catch (error) {
-      console.error("Failed to get bestsellers:", error);
-      return { success: false as const, error: "Failed to fetch bestsellers" };
-    }
-  },
+    return { success: true as const, data: products };
+  } catch (error) {
+    console.error("Failed to get bestsellers:", error);
+    return { success: false as const, error: "Failed to fetch bestsellers" };
+  }
+}
+
+export const getBestsellers = unstable_cache(
+  _getBestsellersRaw,
   ["bestsellers"],
-  { revalidate: 600, tags: ["products", "bestsellers"] }
+  { revalidate: 7200, tags: ["products", "bestsellers"] }
+);
+
+/**
+ * Homepage data — all 6 sections in a single Neon round-trip.
+ * Uses Promise.all over raw (non-cached) functions so the entire
+ * payload is stored as one cache entry.
+ * TTL = 5 min (shortest among all sections).
+ * Tags cover every entity — any admin mutation invalidates this too.
+ */
+export const getHomepageData = unstable_cache(
+  async function _getHomepageData() {
+    const [newArrivals, bestsellers, popular, categories, collections, brands] =
+      await Promise.all([
+        _getNewArrivalsRaw(8),
+        _getBestsellersRaw(8),
+        _getPopularProductsRaw(8),
+        _getPublicCategoriesRaw(),
+        _getPublicCollectionsRaw(),
+        _getPublicBrandsRaw(),
+      ]);
+    return { newArrivals, bestsellers, popular, categories, collections, brands };
+  },
+  ["homepage-data"],
+  {
+    revalidate: 7200,
+    tags: ["products", "categories", "brands", "collections", "new-arrivals", "popular", "bestsellers"],
+  }
 );
 
 // ─── Search ──────────────────────────────────────────────────────────────────

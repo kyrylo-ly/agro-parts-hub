@@ -2,7 +2,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { getPublicCategories } from "@/actions/public";
 
-export const revalidate = 3600; // Revalidate layout data every hour
+export const revalidate = 7200;
 
 export default async function MainLayout({ children }: LayoutProps<"/">) {
   const categoriesResult = await getPublicCategories();

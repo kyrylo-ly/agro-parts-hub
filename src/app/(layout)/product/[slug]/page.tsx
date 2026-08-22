@@ -16,7 +16,7 @@ import { product } from "@/db/schema/store";
 import { eq, desc } from "drizzle-orm";
 import { cn } from "@/lib/utils";
 
-export const revalidate = 1200;
+export const revalidate = 7200;
 
 export async function generateStaticParams() {
   // Pre-render top 100 most viewed products

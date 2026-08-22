@@ -4,7 +4,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { getPublicProducts } from "@/actions/public";
 
-export const revalidate = 600; // ISR 10 хвилин
+export const revalidate = 7200;
 
 export const metadata: Metadata = {
   title: "Новинки | Агро Літ",
@@ -20,7 +20,7 @@ export default async function NewArrivalsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = await searchParams;
-  
+
   // Parse page
   let page = 1;
   const pageParam = resolvedSearchParams.page;
