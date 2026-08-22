@@ -4,6 +4,7 @@ import { Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { CompareButton } from "@/components/compare-button";
 
 interface ProductCardProps {
   product: {
@@ -137,12 +138,18 @@ export function ProductCard({ product }: ProductCardProps) {
               {formatPrice(product.price)} ₴
             </span>
           </div>
-          {inStock && (
-            <AddToCartButton
+          <div className="flex gap-1">
+            <CompareButton
               productId={product.id}
               productName={product.name}
             />
-          )}
+            {inStock && (
+              <AddToCartButton
+                productId={product.id}
+                productName={product.name}
+              />
+            )}
+          </div>
         </div>
       </div>
     </article>

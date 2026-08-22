@@ -624,3 +624,77 @@ async function getFilteredProducts(params: InternalFilterParams) {
     },
   };
 }
+
+// ─── Quick Search (for live search dropdown) ────────────────────────────────
+
+export async function searchProductsQuick(query: string) {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) {
+    return { success: true as const, data: [] };
+  }
+
+  try {
+    const results = await db.query.product.findMany({
+      where: and(
+        eq(product.isActive, true),
+        or(
+          ilike(product.name, `%${trimmed}%`),
+          ilike(product.sku, `%${trimmed}%`)
+        )
+      ),
+      limit: 5,
+      columns: {
+        id: true,
+        name: true,
+        slug: true,
+        sku: true,
+        price: true,
+      },
+      with: {
+        brand: { columns: { name: true } },
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1,
+          columns: { url: true },
+        },
+      },
+    });
+
+    return { success: true as const, data: results };
+  } catch (error) {
+    console.error("searchProductsQuick error:", error);
+    return { success: false as const, error: "Помилка пошуку" };
+  }
+}
+
+// ─── Products for Comparison ────────────────────────────────────────────────
+
+export async function getProductsForCompare(ids: string[]) {
+  if (ids.length === 0 || ids.length > 4) {
+    return { success: true as const, data: [] };
+  }
+
+  try {
+    const products = await db.query.product.findMany({
+      where: and(
+        eq(product.isActive, true),
+        inArray(product.id, ids)
+      ),
+      with: {
+        brand: { columns: { name: true, slug: true } },
+        category: { columns: { name: true, slug: true } },
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1,
+          columns: { url: true },
+        },
+      },
+    });
+
+    return { success: true as const, data: products };
+  } catch (error) {
+    console.error("getProductsForCompare error:", error);
+    return { success: false as const, error: "Помилка завантаження" };
+  }
+}
+

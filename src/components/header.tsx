@@ -11,12 +11,12 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/search-bar";
 import { CartButton } from "@/components/cart-button";
 import { MobileNav } from "@/components/mobile-nav";
 import { AccountMenu } from "@/components/account-menu";
 import { CategoryMenu } from "@/components/category-menu";
+import { CompareIndicator } from "@/components/compare-indicator";
 
 type AccountData = {
   name: string;
@@ -97,6 +97,8 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
               <Heart className="size-5" />
               <span className="sr-only">Улюблене</span>
             </Button>
+
+            <CompareIndicator />
 
             {email ? (
               <AccountMenu name={name} email={email} avatar={avatar} role={role} />
