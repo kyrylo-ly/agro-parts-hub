@@ -6,6 +6,7 @@ import {
   Sparkles,
   Tag,
   TrendingUp,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -61,24 +62,27 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
     <>
       {/* Main Header - Sticky */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
-        <div className="container mx-auto flex h-16 max-w-[1400px] items-center gap-4 px-4 lg:px-8 lg:gap-8">
-          <MobileNav categories={categories} />
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-y-3 gap-x-4 px-4 py-3 lg:h-16 lg:flex-nowrap lg:gap-8 lg:px-8 lg:py-0 max-w-[1400px]">
+          {/* Top row elements on mobile, left on desktop */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <MobileNav categories={categories} />
 
-          {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-primary">
-              <Image
-                src={appLogo.src}
-                alt={appLogo.alt}
-                width={28}
-                height={28}
-                className="size-7 invert dark:invert-0"
-              />
-            </div>
-            <span className="hidden font-bold text-xl tracking-tight sm:inline-block">
-              {appLogo.title}
-            </span>
-          </Link>
+            {/* Logo */}
+            <Link href="/" className="flex shrink-0 items-center gap-2">
+              <div className="flex aspect-square size-9 lg:size-10 items-center justify-center rounded-lg bg-primary">
+                <Image
+                  src={appLogo.src}
+                  alt={appLogo.alt}
+                  width={28}
+                  height={28}
+                  className="size-6 lg:size-7 invert dark:invert-0"
+                />
+              </div>
+              <span className="hidden font-bold text-xl tracking-tight sm:inline-block">
+                {appLogo.title}
+              </span>
+            </Link>
+          </div>
 
           {/* Catalog Button */}
           <div className="hidden lg:block">
@@ -86,10 +90,12 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
           </div>
 
           {/* Search Bar (Client) */}
-          <SearchBar />
+          <div className="order-last w-full lg:order-none lg:flex-1 lg:w-auto">
+            <SearchBar />
+          </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 lg:gap-4 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
             <FavoriteIndicator />
             <CompareIndicator />
 
@@ -98,11 +104,13 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
             ) : (
               <Button
                 variant="ghost"
-                className="gap-2 hidden lg:flex"
-                render={<Link href="/login" className="flex items-center" />}
+                size="icon"
+                className="lg:w-auto lg:px-4 shrink-0"
+                render={<Link href="/login" className="flex items-center gap-2" />}
                 nativeButton={false}
               >
-                Увійти
+                <User className="size-5 lg:hidden" />
+                <span className="hidden lg:inline-block">Увійти</span>
               </Button>
             )}
 

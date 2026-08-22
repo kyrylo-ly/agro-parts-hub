@@ -67,6 +67,18 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
+      {/* Top Right Actions */}
+      <div className="absolute right-2 top-2 z-10 flex flex-col gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-background/60 backdrop-blur-md p-1 rounded-xl border shadow-sm">
+        <FavoriteButton
+          productId={product.id}
+          productName={product.name}
+        />
+        <CompareButton
+          productId={product.id}
+          productName={product.name}
+        />
+      </div>
+
       {/* Image */}
       <Link
         href={`/product/${product.slug}`}
@@ -124,30 +136,22 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Price + Cart */}
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             {hasDiscount && (
-              <span className="text-xs text-muted-foreground line-through">
+              <span className="text-xs text-muted-foreground line-through truncate">
                 {formatPrice(product.compareAtPrice!)} ₴
               </span>
             )}
             <span
               className={cn(
-                "text-lg font-bold",
+                "text-lg font-bold truncate",
                 hasDiscount ? "text-red-600" : "text-foreground"
               )}
             >
               {formatPrice(product.price)} ₴
             </span>
           </div>
-          <div className="flex gap-1">
-            <FavoriteButton
-              productId={product.id}
-              productName={product.name}
-            />
-            <CompareButton
-              productId={product.id}
-              productName={product.name}
-            />
+          <div className="shrink-0">
             {inStock && (
               <AddToCartButton
                 productId={product.id}

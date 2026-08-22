@@ -11,7 +11,8 @@ import {
 
 import { SectionHeader } from "@/components/section-header";
 import { ProductGrid } from "@/components/product-grid";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   getNewArrivals,
   getBestsellers,
@@ -91,24 +92,19 @@ export default async function Home() {
               техніки. Великий асортимент, доступні ціни.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <Button
-                size="lg"
-                className="rounded-full px-8"
-                render={<Link href="/catalog" />}
-                nativeButton={false}
+              <Link
+                href="/catalog"
+                className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
               >
                 Перейти до каталогу
                 <ArrowRight className="ml-2 size-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full px-8"
-                render={<Link href="/brands" />}
-                nativeButton={false}
+              </Link>
+              <Link
+                href="/brands"
+                className={cn(buttonVariants({ size: "lg", variant: "outline" }), "rounded-full px-8")}
               >
                 Бренди
-              </Button>
+              </Link>
             </div>
           </div>
         </div>

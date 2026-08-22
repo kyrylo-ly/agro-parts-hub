@@ -114,7 +114,7 @@ export function SearchBar() {
   }
 
   return (
-    <div ref={containerRef} className="relative flex-1 max-w-2xl ml-auto lg:ml-0">
+    <div ref={containerRef} className="relative w-full max-w-2xl">
       <form onSubmit={handleSubmit}>
         <div className="relative group">
           {isLoading ? (
