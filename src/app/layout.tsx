@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <Toaster />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
