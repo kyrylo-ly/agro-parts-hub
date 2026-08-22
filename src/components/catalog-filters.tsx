@@ -115,7 +115,11 @@ export function CatalogFilters({
           onValueChange={(value) => applyFilters({ sort: value })}
         >
           <SelectTrigger className="w-full">
-            <SelectValue />
+            <SelectValue placeholder="Сортування">
+              {(val: string | null) => 
+                val ? sortOptions.find(o => o.value === val)?.label : "Сортування"
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((opt) => (
@@ -134,6 +138,7 @@ export function CatalogFilters({
         <Label className="text-sm font-semibold mb-2 block">Ціна, ₴</Label>
         <div className="flex items-center gap-2">
           <Input
+            key={`min-${currentPriceMin}`}
             type="number"
             placeholder="Від"
             defaultValue={currentPriceMin}
@@ -142,6 +147,7 @@ export function CatalogFilters({
           />
           <span className="text-muted-foreground">–</span>
           <Input
+            key={`max-${currentPriceMax}`}
             type="number"
             placeholder="До"
             defaultValue={currentPriceMax}

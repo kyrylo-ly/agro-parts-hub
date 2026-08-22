@@ -85,7 +85,7 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
     async (prevState: FormState, formData: FormData) => {
       // imageUrl is managed in React state, we need to append it to formData before submitting
       formData.set("imageUrl", imageUrl);
-      
+
       const result = await boundAction(prevState, formData);
       if (!result.error) {
         toast.success(isEditing ? "Категорію оновлено" : "Категорію створено");
@@ -152,9 +152,9 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
 
       <div className="space-y-4">
         <Label>Зображення</Label>
-        
+
         <div className="flex flex-col gap-4">
-          <SingleImageUploader 
+          <SingleImageUploader
             folder="categories"
             currentImageUrl={imageUrl}
             onUpload={(url) => setImageUrl(url)}
@@ -175,7 +175,7 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                 <DialogHeader>
                   <DialogTitle>Оберіть зображення</DialogTitle>
                 </DialogHeader>
-                
+
                 {isLoadingImages ? (
                   <div className="flex justify-center py-8">
                     <Loader2 className="size-8 animate-spin text-muted-foreground" />
@@ -187,7 +187,7 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                 ) : (
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 pt-4">
                     {productImages.map((imgUrl, i) => (
-                      <div 
+                      <div
                         key={i}
                         className="cursor-pointer border rounded-md overflow-hidden aspect-square hover:ring-2 hover:ring-primary transition-all"
                         onClick={() => {
@@ -217,7 +217,11 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
           defaultValue={category?.parentId?.toString() ?? ""}
         >
           <SelectTrigger id="parentId">
-            <SelectValue placeholder="Немає (коренева)" />
+            <SelectValue placeholder="Немає (коренева)">
+              {(val: string | null) =>
+                val ? categories.find(c => c.id.toString() === val)?.name : "Немає (коренева)"
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {categories.map((cat) => (

@@ -112,7 +112,7 @@ export default async function CategoryPage({
 
   // Get filter data
   const [brandsResult, attributesResult] = await Promise.all([
-    getPublicBrands(),
+    getPublicBrands([cat.id, ...(cat.children?.map(c => c.id) || [])]),
     getCategoryAttributeFilters(cat.id),
   ]);
 

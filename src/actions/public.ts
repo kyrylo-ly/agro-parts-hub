@@ -249,12 +249,16 @@ export async function getPublicCollections() {
 
 // ─── Brands ──────────────────────────────────────────────────────────────────
 
-/** Get all brands with product counts */
-export async function getPublicBrands() {
+export async function getPublicBrands(categoryIds?: number[]) {
   try {
     const brands = await db.query.brand.findMany({
       orderBy: (brands, { asc }) => [asc(brands.name)],
     });
+
+    const conditions = [eq(product.isActive, true)];
+    if (categoryIds && categoryIds.length > 0) {
+      conditions.push(inArray(product.categoryId, categoryIds));
+    }
 
     const productCounts = await db
       .select({
@@ -262,7 +266,7 @@ export async function getPublicBrands() {
         count: count(),
       })
       .from(product)
-      .where(eq(product.isActive, true))
+      .where(and(...conditions))
       .groupBy(product.brandId);
 
     const countMap = new Map(
@@ -531,12 +535,12 @@ async function getFilteredProducts(params: InternalFilterParams) {
     }
   }
 
-  // Price range filter
+  // Price range filter (cast strings to numeric in Postgres)
   if (priceMin !== undefined) {
-    conditions.push(gte(product.price, String(priceMin)));
+    conditions.push(sql`${product.price}::numeric >= ${String(priceMin)}::numeric`);
   }
   if (priceMax !== undefined) {
-    conditions.push(lte(product.price, String(priceMax)));
+    conditions.push(sql`${product.price}::numeric <= ${String(priceMax)}::numeric`);
   }
 
   // In-stock filter
