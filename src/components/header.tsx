@@ -89,16 +89,6 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
 
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-4 ml-auto">
-            <Button
-              variant="ghost"
-              className="hover:bg-muted/50 hidden sm:flex gap-1.5 px-2"
-              render={<Link href="/favorites" />}
-              nativeButton={false}
-            >
-              <Heart className="size-5" />
-              <span className="sr-only">Улюблене</span>
-            </Button>
-
             <CompareIndicator />
 
             {email ? (
@@ -110,7 +100,6 @@ export function Header({ name, email, avatar, role, categories = [] }: HeaderPro
                 render={<Link href="/login" className="flex items-center" />}
                 nativeButton={false}
               >
-                <Heart className="size-5" />
                 Увійти
               </Button>
             )}
