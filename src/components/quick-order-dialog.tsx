@@ -39,8 +39,9 @@ export function QuickOrderDialog({
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const phone = formData.get("phone") as string;
+    const turnstileToken = formData.get("cf-turnstile-response") as string | null;
 
-    const result = await createQuickOrder({ productId, name, phone });
+    const result = await createQuickOrder({ productId, name, phone, turnstileToken });
 
     if (result.success) {
       setSuccess(true);
@@ -124,6 +125,11 @@ export function QuickOrderDialog({
               {error && (
                 <p className="text-sm text-destructive">{error}</p>
               )}
+
+              <div 
+                className="cf-turnstile" 
+                data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+              ></div>
 
               <Button
                 type="submit"

@@ -7,6 +7,7 @@ import { db } from "@/db/db";
 import { productImage } from "@/db/schema/store";
 import { uploadToR2, deleteFromR2, getKeyFromUrl } from "@/lib/r2";
 import { requireAdmin } from "./admin-auth";
+import { rateLimitUpload } from "@/lib/ratelimit";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
@@ -14,6 +15,12 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 export async function uploadProductImage(productId: string, formData: FormData) {
   try {
     await requireAdmin();
+    
+    try {
+      await rateLimitUpload();
+    } catch (error: any) {
+      return { success: false as const, error: error.message };
+    }
 
     const file = formData.get("file") as File | null;
     if (!file) {

@@ -71,8 +71,11 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
 
+    const turnstileToken = document.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value || null;
+
     const result = await createOrder({
       ...formData,
+      turnstileToken,
       items: items.map(i => ({ productId: i.id, quantity: i.quantity }))
     });
 
@@ -302,13 +305,19 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <Button
-              className="w-full h-12 text-base font-semibold"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Оформлення...</> : "Підтвердити замовлення"}
-            </Button>
+            <div className="pt-4 border-t flex flex-col gap-4">
+              <div 
+                className="cf-turnstile self-center min-h-[65px]" 
+                data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+              ></div>
+              <Button
+                className="w-full h-12 text-base font-semibold"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Оформлення...</> : "Підтвердити замовлення"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

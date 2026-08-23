@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Inter } from "next/font/google";
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Toaster />
         <SpeedInsights />
         <Analytics />
+        <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
       </body>
     </html>
   );

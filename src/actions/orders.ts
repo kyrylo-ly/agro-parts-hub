@@ -5,6 +5,8 @@ import { order, orderItem, product } from "@/db/schema/store";
 import { eq, sql, and, inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { rateLimitOrder } from "@/lib/ratelimit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 // ─── Quick Order (Buy in 1 click) ──────────────────────────────────────────
 
@@ -14,8 +16,9 @@ export async function createQuickOrder(data: {
   productId: string;
   name: string;
   phone: string;
+  turnstileToken: string | null;
 }) {
-  const { productId, name, phone } = data;
+  const { productId, name, phone, turnstileToken } = data;
 
   if (!name.trim() || name.trim().length < 2) {
     return { success: false as const, error: "Введіть ваше ім'я" };
@@ -23,6 +26,17 @@ export async function createQuickOrder(data: {
 
   if (!phoneRegex.test(phone)) {
     return { success: false as const, error: "Невірний номер телефону" };
+  }
+
+  const isValidTurnstile = await verifyTurnstileToken(turnstileToken);
+  if (!isValidTurnstile) {
+    return { success: false as const, error: "Перевірка безпеки не пройдена. Будь ласка, оновіть сторінку і спробуйте знову." };
+  }
+
+  try {
+    await rateLimitOrder();
+  } catch (error: any) {
+    return { success: false as const, error: error.message };
   }
 
   try {
@@ -106,12 +120,24 @@ interface CheckoutData {
   paymentMethod: "cash_on_delivery" | "card_prepayment" | "mono_pay";
   comment?: string;
   items: { productId: string; quantity: number }[];
+  turnstileToken: string | null;
 }
 
 export async function createOrder(data: CheckoutData) {
   // Validation
   if (!data.firstName.trim() || !data.lastName.trim()) {
     return { success: false as const, error: "Заповніть ім'я та прізвище" };
+  }
+
+  const isValidTurnstile = await verifyTurnstileToken(data.turnstileToken);
+  if (!isValidTurnstile) {
+    return { success: false as const, error: "Перевірка безпеки не пройдена. Будь ласка, оновіть сторінку і спробуйте знову." };
+  }
+
+  try {
+    await rateLimitOrder();
+  } catch (error: any) {
+    return { success: false as const, error: error.message };
   }
   if (!phoneRegex.test(data.phone)) {
     return { success: false as const, error: "Невірний номер телефону" };
@@ -219,8 +245,8 @@ export async function createOrder(data: CheckoutData) {
       return newOrder.id;
     });
 
-    const redirectUrl = data.paymentMethod === "mono_pay" 
-      ? `/mock-payment?orderId=${newOrderId}` 
+    const redirectUrl = data.paymentMethod === "mono_pay"
+      ? `/mock-payment?orderId=${newOrderId}`
       : `/checkout/success?orderId=${newOrderId}`;
 
     return { success: true as const, orderId: newOrderId, redirectUrl };
