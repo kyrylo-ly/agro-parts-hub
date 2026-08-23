@@ -47,12 +47,11 @@ const benefits = [
 ];
 
 export default async function Home() {
-  const { newArrivals: newArrivalsResult, bestsellers: bestsellersResult, popular: popularResult, categories: categoriesResult, collections: collectionsResult, brands: brandsResult } =
+  const { newArrivals: newArrivalsResult, bestsellers: bestsellersResult, categories: categoriesResult, collections: collectionsResult, brands: brandsResult } =
     await getHomepageData();
 
   const newArrivals = newArrivalsResult.success ? newArrivalsResult.data : [];
   const bestsellers = bestsellersResult.success ? bestsellersResult.data : [];
-  const popular = popularResult.success ? popularResult.data : [];
   const categories = categoriesResult.success ? categoriesResult.data : [];
   const collections = collectionsResult.success ? collectionsResult.data : [];
   const brands = brandsResult.success ? brandsResult.data : [];
@@ -243,19 +242,6 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Popular Products */}
-      {popular.length > 0 && (
-        <section className="bg-muted/20">
-          <div className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
-            <SectionHeader
-              title="Популярні товари"
-              subtitle="За кількістю переглядів"
-              href="/popular"
-            />
-            <ProductGrid products={popular} />
-          </div>
-        </section>
-      )}
     </>
   );
 }

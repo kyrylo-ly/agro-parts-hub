@@ -33,7 +33,7 @@ export interface ProductFilterParams {
   inStock?: boolean;
   isPromotion?: boolean;
   attributes?: Record<string, string[]>; // e.g. { "inner_diameter": ["30mm", "35mm"] }
-  sort?: "price_asc" | "price_desc" | "newest" | "popular" | "bestsellers";
+  sort?: "price_asc" | "price_desc" | "newest" | "bestsellers";
   page?: number;
   limit?: number;
 }
@@ -156,13 +156,6 @@ export async function getPublicProductBySlug(slug: string) {
     if (!foundProduct) {
       return { success: false as const, error: "Product not found" };
     }
-
-    // Increment view count (fire-and-forget, don't block response)
-    db.update(product)
-      .set({ viewCount: sql`${product.viewCount} + 1` })
-      .where(eq(product.id, foundProduct.id))
-      .then(() => { })
-      .catch(() => { });
 
     return { success: true as const, data: foundProduct };
   } catch (error) {
@@ -368,38 +361,6 @@ export const getNewArrivals = unstable_cache(
   { revalidate: 7200, tags: ["products", "new-arrivals"] }
 );
 
-/** Popular products — by viewCount */
-async function _getPopularProductsRaw(limit = 8) {
-  try {
-    const products = await db.query.product.findMany({
-      where: eq(product.isActive, true),
-      limit,
-      orderBy: (products, { desc }) => [desc(products.viewCount)],
-      with: {
-        brand: true,
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1,
-        },
-      },
-    });
-
-    return { success: true as const, data: products };
-  } catch (error) {
-    console.error("Failed to get popular products:", error);
-    return {
-      success: false as const,
-      error: "Failed to fetch popular products",
-    };
-  }
-}
-
-export const getPopularProducts = unstable_cache(
-  _getPopularProductsRaw,
-  ["popular-products"],
-  { revalidate: 7200, tags: ["products", "popular"] }
-);
-
 /** Bestsellers — by salesCount */
 async function _getBestsellersRaw(limit = 8) {
   try {
@@ -438,21 +399,20 @@ export const getBestsellers = unstable_cache(
  */
 export const getHomepageData = unstable_cache(
   async function _getHomepageData() {
-    const [newArrivals, bestsellers, popular, categories, collections, brands] =
+    const [newArrivals, bestsellers, categories, collections, brands] =
       await Promise.all([
         _getNewArrivalsRaw(8),
         _getBestsellersRaw(8),
-        _getPopularProductsRaw(8),
         _getPublicCategoriesRaw(),
         _getPublicCollectionsRaw(),
         _getPublicBrandsRaw(),
       ]);
-    return { newArrivals, bestsellers, popular, categories, collections, brands };
+    return { newArrivals, bestsellers, categories, collections, brands };
   },
   ["homepage-data"],
   {
     revalidate: 7200,
-    tags: ["products", "categories", "brands", "collections", "new-arrivals", "popular", "bestsellers"],
+    tags: ["products", "categories", "brands", "collections", "new-arrivals", "bestsellers"],
   }
 );
 
@@ -662,9 +622,6 @@ async function getFilteredProducts(params: InternalFilterParams) {
       break;
     case "price_desc":
       orderBy = [desc(product.price)];
-      break;
-    case "popular":
-      orderBy = [desc(product.viewCount)];
       break;
     case "bestsellers":
       orderBy = [desc(product.salesCount)];

@@ -146,7 +146,6 @@ export async function createProduct(input: ProductInput) {
     revalidateTag("products", "max");
     revalidateTag("new-arrivals", "max");
     revalidateTag("bestsellers", "max");
-    revalidateTag("popular", "max");
     return { success: true as const, data: newProduct };
   } catch (error) {
     console.error("Failed to create product:", error);
@@ -219,7 +218,6 @@ export async function updateProduct(id: string, input: ProductInput) {
     revalidateTag("products", "max");
     revalidateTag("new-arrivals", "max");
     revalidateTag("bestsellers", "max");
-    revalidateTag("popular", "max");
     return { success: true as const, data: updatedProduct };
   } catch (error) {
     console.error("Failed to update product:", error);
@@ -258,7 +256,6 @@ export async function deleteProduct(id: string) {
     revalidateTag("products", "max");
     revalidateTag("new-arrivals", "max");
     revalidateTag("bestsellers", "max");
-    revalidateTag("popular", "max");
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete product:", error);

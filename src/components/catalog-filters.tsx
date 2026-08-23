@@ -46,7 +46,6 @@ const sortOptions = [
   { value: "newest", label: "Новинки" },
   { value: "price_asc", label: "Ціна ↑" },
   { value: "price_desc", label: "Ціна ↓" },
-  { value: "popular", label: "Популярні" },
   { value: "bestsellers", label: "Хіти продажу" },
 ] as const;
 

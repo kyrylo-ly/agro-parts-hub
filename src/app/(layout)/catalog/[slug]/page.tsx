@@ -68,7 +68,6 @@ function parseSearchParams(
     sort === "price_asc" ||
     sort === "price_desc" ||
     sort === "newest" ||
-    sort === "popular" ||
     sort === "bestsellers"
   ) {
     filters.sort = sort;

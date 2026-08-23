@@ -19,12 +19,12 @@ import { cn } from "@/lib/utils";
 export const revalidate = 7200;
 
 export async function generateStaticParams() {
-  // Pre-render top 100 most viewed products
+  // Pre-render top 100 most sold products
   const products = await db
     .select({ slug: product.slug })
     .from(product)
     .where(eq(product.isActive, true))
-    .orderBy(desc(product.viewCount))
+    .orderBy(desc(product.salesCount))
     .limit(100);
   return products.map((p) => ({ slug: p.slug }));
 }

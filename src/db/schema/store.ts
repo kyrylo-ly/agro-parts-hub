@@ -104,7 +104,6 @@ export const product = pgTable(
         compareAtPrice: numeric("compare_at_price"), // For Sale case
         stock: integer("stock").notNull().default(0),
         attributes: jsonb("attributes"), // Dynamic attributes e.g. {"diameter": "12mm"}
-        viewCount: integer("view_count").default(0).notNull(), // For Popular case
         salesCount: integer("sales_count").default(0).notNull(), // For Best Sellers case
         isActive: boolean("is_active").default(true).notNull(),
         createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
@@ -121,7 +120,6 @@ export const product = pgTable(
         index("product_sku_idx").on(table.sku),
         index("product_slug_idx").on(table.slug),
         index("product_salesCount_idx").on(table.salesCount),
-        index("product_viewCount_idx").on(table.viewCount),
         index("product_attributes_gin_idx").using("gin", table.attributes),
     ]
 );

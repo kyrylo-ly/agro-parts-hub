@@ -27,7 +27,6 @@ export const bottomNav: NavItem[] = [
   { label: "Акції", icon: Percent, href: "/promotions" },
   { label: "Новинки", icon: Sparkles, href: "/new" },
   { label: "Хіти продажу", icon: Flame, href: "/bestsellers" },
-  { label: "Найпопулярніші", icon: TrendingUp, href: "/popular" },
   { label: "Бренди", icon: Tag, href: "/brands" },
 ];
 

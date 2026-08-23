@@ -55,7 +55,7 @@ export default async function BrandPage({
 
   const result = await getPublicBrandBySlug(slug, {
     page,
-    sort: sort as "newest" | "price_asc" | "price_desc" | "popular" | "bestsellers",
+    sort: sort as "newest" | "price_asc" | "price_desc" | "bestsellers",
   });
 
   if (!result.success || !result.data || !("brand" in result.data)) {
