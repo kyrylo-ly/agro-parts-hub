@@ -278,27 +278,6 @@ function HomepageSkeleton() {
           ))}
         </div>
       </section>
-
-      {/* New Arrivals Skeleton */}
-      <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
-        <div className="mb-8 flex flex-col gap-2">
-          <div className="h-8 w-48 rounded bg-muted" />
-          <div className="h-4 w-64 rounded bg-muted" />
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-3 rounded-xl border bg-card p-4">
-              <div className="aspect-square rounded-xl bg-muted" />
-              <div className="mt-2 h-4 w-3/4 rounded bg-muted" />
-              <div className="h-4 w-1/2 rounded bg-muted" />
-              <div className="mt-4 flex items-center justify-between">
-                <div className="h-6 w-20 rounded bg-muted" />
-                <div className="size-9 rounded-full bg-muted" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
