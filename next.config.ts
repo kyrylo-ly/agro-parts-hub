@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   experimental: {
-    // every ssr query rebuildall css inline
+    // every ssr query rebuil dall css inline
     // inlineCss: true,
   },
   images: {

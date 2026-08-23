@@ -10,6 +10,7 @@ import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
 import { handleDbError } from "@/lib/db-errors";
+import { escapeLike } from "@/lib/escape-like";
 
 interface GetProductsOptions {
   page?: number;
@@ -26,8 +27,8 @@ export async function getProducts({ page = 1, limit = 10, search }: GetProductsO
     if (search) {
       conditions.push(
         or(
-          ilike(product.name, `%${search}%`),
-          ilike(product.sku, `%${search}%`),
+          ilike(product.name, `%${escapeLike(search)}%`),
+          ilike(product.sku, `%${escapeLike(search)}%`),
         )
       );
     }

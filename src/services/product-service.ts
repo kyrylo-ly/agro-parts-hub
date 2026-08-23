@@ -5,6 +5,7 @@ import { db } from "@/db/db";
 import { product, brand } from "@/db/schema/store";
 import { ProductFilterParams } from "./types";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
+import { escapeLike } from "@/lib/escape-like";
 
 export async function getPublicProductBySlug(slug: string) {
   try {
@@ -123,8 +124,8 @@ export async function searchProductsQuick(query: string) {
       where: and(
         eq(product.isActive, true),
         or(
-          ilike(product.name, `%${trimmed}%`),
-          ilike(product.sku, `%${trimmed}%`)
+          ilike(product.name, `%${escapeLike(trimmed)}%`),
+          ilike(product.sku, `%${escapeLike(trimmed)}%`)
         )
       ),
       limit: 5,
