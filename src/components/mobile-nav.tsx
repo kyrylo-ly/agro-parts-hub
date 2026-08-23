@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Phone, Truck } from "lucide-react";
+import { Menu, Phone, Tractor, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -42,13 +42,8 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
         <SheetHeader className="px-4 pt-4">
           <SheetTitle className="flex items-center gap-2">
             <div className="flex aspect-square size-8 items-center justify-center rounded-sm bg-primary">
-              <Image
-                src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblocks-logo.svg"
-                alt="Агро Літ"
-                width={24}
-                height={24}
-                priority
-                className="size-6 invert dark:invert-0"
+              <Tractor
+                className="text-primary-foreground"
               />
             </div>
             Агро Літ

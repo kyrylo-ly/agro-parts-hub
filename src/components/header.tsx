@@ -4,10 +4,9 @@ import {
   Phone,
   Sparkles,
   Tag,
-  TrendingUp,
+  Tractor,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 import { SearchBar } from "@/components/search-bar";
 import { CartButton } from "@/components/cart-button";
@@ -29,12 +28,6 @@ export const bottomNav: NavItem[] = [
   { label: "Хіти продажу", icon: Flame, href: "/bestsellers" },
   { label: "Бренди", icon: Tag, href: "/brands" },
 ];
-
-const appLogo = {
-  src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblocks-logo.svg",
-  alt: "Агро Літ",
-  title: "Агро Літ",
-};
 
 export interface HeaderProps {
   categories?: {
@@ -59,17 +52,12 @@ export function Header({ categories = [] }: HeaderProps) {
             {/* Logo */}
             <Link href="/" className="flex shrink-0 items-center gap-2">
               <div className="flex aspect-square size-9 lg:size-10 items-center justify-center rounded-lg bg-primary">
-                <Image
-                  src={appLogo.src}
-                  alt={appLogo.alt}
-                  width={28}
-                  height={28}
-                  priority
-                  className="size-6 lg:size-7 invert dark:invert-0"
+                <Tractor
+                  className="text-primary-foreground"
                 />
               </div>
               <span className="hidden font-bold text-xl tracking-tight sm:inline-block">
-                {appLogo.title}
+                Агро Літ
               </span>
             </Link>
           </div>

@@ -6,12 +6,6 @@ import { ReactNode } from "react";
 
 export interface AuthLayoutProps {
   heading: string;
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title?: string;
-  };
   googleText: string;
   bottomText: string;
   bottomLinkText: string;
@@ -24,12 +18,6 @@ export interface AuthLayoutProps {
 
 export function AuthLayout({
   heading,
-  logo = {
-    url: "https://www.shadcnblocks.com",
-    src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-wordmark.svg",
-    alt: "logo",
-    title: "shadcnblocks.com",
-  },
   googleText,
   bottomText,
   bottomLinkText,
@@ -44,7 +32,7 @@ export function AuthLayout({
       <div className="flex h-full items-center justify-center">
         {/* Logo */}
         <div className="flex flex-col items-center gap-6 lg:justify-start">
-          <Link href={logo.url}>
+          <Link href="/">
           </Link>
           <div className="flex w-full max-w-sm min-w-sm flex-col items-center gap-y-4 rounded-md border border-muted bg-background px-6 py-8 shadow-md">
             {heading && <h1 className="text-xl font-semibold">{heading}</h1>}
