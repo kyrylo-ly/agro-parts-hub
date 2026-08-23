@@ -47,6 +47,7 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
                 alt="Агро Літ"
                 width={24}
                 height={24}
+                priority
                 className="size-6 invert dark:invert-0"
               />
             </div>

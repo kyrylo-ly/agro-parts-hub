@@ -64,6 +64,7 @@ export function Header({ categories = [] }: HeaderProps) {
                   alt={appLogo.alt}
                   width={28}
                   height={28}
+                  priority
                   className="size-6 lg:size-7 invert dark:invert-0"
                 />
               </div>
