@@ -5,7 +5,9 @@ import Link from "next/link";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function CheckoutSuccessPage() {
+import { Suspense } from "react";
+
+function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
@@ -44,5 +46,13 @@ export default function CheckoutSuccessPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div className="container py-16 flex flex-col items-center justify-center min-h-[60vh]">Завантаження...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
