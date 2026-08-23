@@ -1,6 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { getPublicCategories } from "@/actions/public";
+import { getPublicCategories } from "@/services/category-service";
 
 export const revalidate = 7200;
 

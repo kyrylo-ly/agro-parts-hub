@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGallery } from "@/components/product-gallery";
 import { AddToCartButton } from "@/components/add-to-cart-button";
-import { getPublicProductBySlug } from "@/actions/public";
+import { getPublicProductBySlug } from "@/services/product-service";
 import { db } from "@/db/db";
 import { product } from "@/db/schema/store";
 import { eq, desc } from "drizzle-orm";

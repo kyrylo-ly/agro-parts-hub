@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { getPublicBrands } from "@/actions/public";
+import { getPublicBrands } from "@/services/brand-service";
 
 export const metadata: Metadata = {
   title: "Бренди",

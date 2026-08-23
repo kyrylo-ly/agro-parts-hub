@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { searchProducts } from "@/actions/public";
+import { searchProducts } from "@/services/product-service";
 
 export async function generateMetadata({
   searchParams,

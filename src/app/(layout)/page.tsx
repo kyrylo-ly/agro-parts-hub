@@ -13,7 +13,7 @@ import { SectionHeader } from "@/components/section-header";
 import { ProductGrid } from "@/components/product-grid";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getHomepageData } from "@/actions/public";
+import { getHomepageData } from "@/services/homepage-service";
 import { Suspense } from "react";
 
 export const revalidate = 7200;

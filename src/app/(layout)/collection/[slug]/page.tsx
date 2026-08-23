@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { getPublicCollectionBySlug } from "@/actions/public";
+import { getPublicCollectionBySlug } from "@/services/collection-service";
 import { db } from "@/db/db";
 import { collection } from "@/db/schema/store";
 

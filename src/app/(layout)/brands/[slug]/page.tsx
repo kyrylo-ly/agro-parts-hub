@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { getPublicBrandBySlug } from "@/actions/public";
+import { getPublicBrandBySlug } from "@/services/brand-service";
 import { db } from "@/db/db";
 import { brand } from "@/db/schema/store";
 

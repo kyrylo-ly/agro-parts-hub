@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Truck } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { getPublicCategories } from "@/actions/public";
+import { getPublicCategories } from "@/services/category-service";
 
 export const metadata: Metadata = {
   title: "Каталог запчастин",

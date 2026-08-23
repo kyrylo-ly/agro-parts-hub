@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Loader2, Package, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { searchProductsQuick } from "@/actions/public";
+import { searchProductsQuick } from "@/actions/client";
 
 type QuickResult = {
   id: string;

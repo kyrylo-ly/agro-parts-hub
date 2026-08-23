@@ -2,25 +2,14 @@
 
 import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { db } from "@/db/db";
 import { product, productToCollection, productImage } from "@/db/schema/store";
 import { productSchema, type ProductInput } from "@/lib/validations";
 import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
-
-function handleProductDbError(error: unknown, defaultMessage: string) {
-  if (error instanceof Error && error.message.includes("unique")) {
-    if (error.message.includes("sku")) {
-      return { success: false as const, error: "Продукт з таким SKU вже існує" };
-    }
-    if (error.message.includes("slug")) {
-      return { success: false as const, error: "Продукт з таким slug вже існує" };
-    }
-    return { success: false as const, error: "Дублювання даних" };
-  }
-  return { success: false as const, error: defaultMessage };
-}
+import { handleDbError } from "@/lib/db-errors";
 
 interface GetProductsOptions {
   page?: number;
@@ -156,13 +145,13 @@ export async function createProduct(input: ProductInput) {
 
     revalidatePath("/admin/products");
     // Invalidate public ISR cache
-    revalidateTag("products", "max");
-    revalidateTag("new-arrivals", "max");
-    revalidateTag("bestsellers", "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);
+    revalidateTag(CACHE_TAGS.NEW_ARRIVALS, "max" as any);
+    revalidateTag(CACHE_TAGS.BESTSELLERS, "max" as any);
     return { success: true as const, data: newProduct };
   } catch (error) {
     console.error("Failed to create product:", error);
-    return handleProductDbError(error, "Failed to create product");
+    return handleDbError(error, "Failed to create product");
   }
 }
 
@@ -219,13 +208,13 @@ export async function updateProduct(id: string, input: ProductInput) {
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
     // Invalidate public ISR cache
-    revalidateTag("products", "max");
-    revalidateTag("new-arrivals", "max");
-    revalidateTag("bestsellers", "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);
+    revalidateTag(CACHE_TAGS.NEW_ARRIVALS, "max" as any);
+    revalidateTag(CACHE_TAGS.BESTSELLERS, "max" as any);
     return { success: true as const, data: updatedProduct };
   } catch (error) {
     console.error("Failed to update product:", error);
-    return handleProductDbError(error, "Failed to update product");
+    return handleDbError(error, "Failed to update product");
   }
 }
 
@@ -248,9 +237,9 @@ export async function deleteProduct(id: string) {
     await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
     // Invalidate public ISR cache
-    revalidateTag("products", "max");
-    revalidateTag("new-arrivals", "max");
-    revalidateTag("bestsellers", "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);
+    revalidateTag(CACHE_TAGS.NEW_ARRIVALS, "max" as any);
+    revalidateTag(CACHE_TAGS.BESTSELLERS, "max" as any);
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete product:", error);

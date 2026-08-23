@@ -5,12 +5,10 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { CatalogFilters } from "@/components/catalog-filters";
-import {
-  getPublicCategoryBySlug,
-  getPublicBrands,
-  getCategoryAttributeFilters,
-  type ProductFilterParams,
-} from "@/actions/public";
+import { getPublicCategoryBySlug } from "@/services/category-service";
+import { getCategoryAttributeFilters } from "@/services/product-service";
+import { getPublicBrands } from "@/services/brand-service";
+import { type ProductFilterParams } from "@/services/types";
 import { db } from "@/db/db";
 import { category } from "@/db/schema/store";
 
