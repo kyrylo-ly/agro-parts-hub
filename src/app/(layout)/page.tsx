@@ -113,13 +113,16 @@ export default function Home() {
         </div>
       </section>
 
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center py-32 text-muted-foreground">
-            <RefreshCw className="size-8 animate-spin" />
-          </div>
-        }
-      >
+      {/* Categories Header - Static to prevent CLS */}
+      <section className="container mx-auto max-w-[1400px] px-4 pt-10 lg:px-8 lg:pt-14">
+        <SectionHeader
+          title="Категорії"
+          subtitle="Знайдіть потрібні запчастини"
+          href="/catalog"
+        />
+      </section>
+
+      <Suspense fallback={<HomepageSkeleton />}>
         <HomepageDynamicContent />
       </Suspense>
     </>
@@ -142,12 +145,7 @@ async function HomepageDynamicContent() {
     <>
       {/* Categories Grid */}
       {topCategories.length > 0 && (
-        <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
-          <SectionHeader
-            title="Категорії"
-            subtitle="Знайдіть потрібні запчастини"
-            href="/catalog"
-          />
+        <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-14">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {topCategories.map((cat) => (
               <Link
@@ -260,5 +258,47 @@ async function HomepageDynamicContent() {
         </section>
       )}
     </>
+  );
+}
+
+function HomepageSkeleton() {
+  return (
+    <div className="animate-pulse">
+      {/* Categories Grid Skeleton */}
+      <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-14">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center gap-3 rounded-xl border bg-card p-4 lg:p-6"
+            >
+              <div className="size-14 rounded-xl bg-muted lg:size-16" />
+              <div className="h-4 w-24 rounded bg-muted mt-1" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* New Arrivals Skeleton */}
+      <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+        <div className="mb-8 flex flex-col gap-2">
+          <div className="h-8 w-48 rounded bg-muted" />
+          <div className="h-4 w-64 rounded bg-muted" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+              <div className="aspect-square rounded-xl bg-muted" />
+              <div className="mt-2 h-4 w-3/4 rounded bg-muted" />
+              <div className="h-4 w-1/2 rounded bg-muted" />
+              <div className="mt-4 flex items-center justify-between">
+                <div className="h-6 w-20 rounded bg-muted" />
+                <div className="size-9 rounded-full bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }

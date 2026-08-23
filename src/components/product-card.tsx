@@ -56,12 +56,12 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Badges */}
       <div className="absolute left-2 top-2 z-10 flex flex-col gap-1">
         {hasDiscount && discount > 0 && (
-          <Badge className="bg-red-500 text-white hover:bg-red-500 text-xs font-semibold px-2 py-0.5">
+          <Badge className="bg-red-600 text-white hover:bg-red-700 text-xs font-semibold px-2 py-0.5">
             -{discount}%
           </Badge>
         )}
         {isNew && (
-          <Badge className="bg-emerald-500 text-white hover:bg-emerald-500 text-xs font-semibold px-2 py-0.5">
+          <Badge className="bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-semibold px-2 py-0.5">
             Новинка
           </Badge>
         )}
