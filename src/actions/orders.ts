@@ -43,39 +43,51 @@ export async function createQuickOrder(data: {
     const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user.id ?? null;
 
-    // Create order
-    const [newOrder] = await db
-      .insert(order)
-      .values({
-        userId,
-        status: "pending",
-        totalPrice: p.price,
-        paymentMethod: "callback",
-        paymentStatus: "unpaid",
-        shippingDetails: { name: name.trim(), phone: phone.trim() },
-      })
-      .returning({ id: order.id });
+    const newOrderId = await db.transaction(async (tx) => {
+      // Create order
+      const [newOrder] = await tx
+        .insert(order)
+        .values({
+          userId,
+          status: "pending",
+          totalPrice: p.price,
+          paymentMethod: "callback",
+          paymentStatus: "unpaid",
+          shippingDetails: { name: name.trim(), phone: phone.trim() },
+        })
+        .returning({ id: order.id });
 
-    // Create order item
-    await db.insert(orderItem).values({
-      orderId: newOrder.id,
-      productId,
-      quantity: 1,
-      priceAtPurchase: p.price,
+      // Create order item
+      await tx.insert(orderItem).values({
+        orderId: newOrder.id,
+        productId,
+        quantity: 1,
+        priceAtPurchase: p.price,
+      });
+
+      // Decrement stock, increment salesCount
+      const [updated] = await tx
+        .update(product)
+        .set({
+          stock: sql`${product.stock} - 1`,
+          salesCount: sql`${product.salesCount} + 1`,
+        })
+        .where(and(eq(product.id, productId), sql`${product.stock} >= 1`))
+        .returning({ id: product.id });
+
+      if (!updated) {
+        throw new Error("OUT_OF_STOCK");
+      }
+
+      return newOrder.id;
     });
 
-    // Decrement stock, increment salesCount
-    await db
-      .update(product)
-      .set({
-        stock: sql`${product.stock} - 1`,
-        salesCount: sql`${product.salesCount} + 1`,
-      })
-      .where(eq(product.id, productId));
-
-    return { success: true as const, orderId: newOrder.id };
+    return { success: true as const, orderId: newOrderId };
   } catch (error) {
     console.error("createQuickOrder error:", error);
+    if (error instanceof Error && error.message === "OUT_OF_STOCK") {
+      return { success: false as const, error: "Товар щойно закінчився на складі" };
+    }
     return { success: false as const, error: "Помилка створення замовлення" };
   }
 }
@@ -149,61 +161,74 @@ export async function createOrder(data: CheckoutData) {
     const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user.id ?? null;
 
-    // Create order
-    const [newOrder] = await db
-      .insert(order)
-      .values({
-        userId,
-        status: "pending",
-        totalPrice: totalPrice.toFixed(2),
-        paymentMethod: data.paymentMethod,
-        paymentStatus: "unpaid",
-        shippingDetails: {
-          firstName: data.firstName.trim(),
-          lastName: data.lastName.trim(),
-          phone: data.phone.trim(),
-          email: data.email?.trim() || undefined,
-          deliveryType: data.deliveryType,
-          city: data.city?.trim(),
-          warehouse: data.warehouse?.trim(),
-          zipCode: data.zipCode?.trim(),
-          comment: data.comment?.trim() || undefined,
-        },
-      })
-      .returning({ id: order.id });
+    const newOrderId = await db.transaction(async (tx) => {
+      // Create order
+      const [newOrder] = await tx
+        .insert(order)
+        .values({
+          userId,
+          status: "pending",
+          totalPrice: totalPrice.toFixed(2),
+          paymentMethod: data.paymentMethod,
+          paymentStatus: "unpaid",
+          shippingDetails: {
+            firstName: data.firstName.trim(),
+            lastName: data.lastName.trim(),
+            phone: data.phone.trim(),
+            email: data.email?.trim() || undefined,
+            deliveryType: data.deliveryType,
+            city: data.city?.trim(),
+            warehouse: data.warehouse?.trim(),
+            zipCode: data.zipCode?.trim(),
+            comment: data.comment?.trim() || undefined,
+          },
+        })
+        .returning({ id: order.id });
 
-    // Create order items
-    const orderItems = data.items.map((item) => {
-      const p = products.find((pr) => pr.id === item.productId)!;
-      return {
-        orderId: newOrder.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        priceAtPurchase: p.price,
-      };
-    });
-    await db.insert(orderItem).values(orderItems);
+      // Create order items
+      const orderItems = data.items.map((item) => {
+        const p = products.find((pr) => pr.id === item.productId)!;
+        return {
+          orderId: newOrder.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          priceAtPurchase: p.price,
+        };
+      });
+      await tx.insert(orderItem).values(orderItems);
 
-    // Update stock and salesCount concurrently
-    await Promise.all(
-      data.items.map((item) =>
-        db
+      // Update stock and salesCount
+      for (const item of data.items) {
+        const [updated] = await tx
           .update(product)
           .set({
             stock: sql`${product.stock} - ${item.quantity}`,
             salesCount: sql`${product.salesCount} + ${item.quantity}`,
           })
-          .where(eq(product.id, item.productId))
-      )
-    );
+          .where(and(
+            eq(product.id, item.productId),
+            sql`${product.stock} >= ${item.quantity}`
+          ))
+          .returning({ id: product.id });
+
+        if (!updated) {
+          throw new Error("OUT_OF_STOCK");
+        }
+      }
+
+      return newOrder.id;
+    });
 
     const redirectUrl = data.paymentMethod === "mono_pay" 
-      ? `/mock-payment?orderId=${newOrder.id}` 
-      : `/checkout/success?orderId=${newOrder.id}`;
+      ? `/mock-payment?orderId=${newOrderId}` 
+      : `/checkout/success?orderId=${newOrderId}`;
 
-    return { success: true as const, orderId: newOrder.id, redirectUrl };
+    return { success: true as const, orderId: newOrderId, redirectUrl };
   } catch (error) {
     console.error("createOrder error:", error);
+    if (error instanceof Error && error.message === "OUT_OF_STOCK") {
+      return { success: false as const, error: "Один з товарів щойно закінчився на складі" };
+    }
     return { success: false as const, error: "Помилка створення замовлення" };
   }
 }
@@ -253,44 +278,57 @@ export async function createQuickCartOrder(data: {
     const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user.id ?? null;
 
-    const [newOrder] = await db
-      .insert(order)
-      .values({
-        userId,
-        status: "pending",
-        totalPrice: totalPrice.toFixed(2),
-        paymentMethod: "callback", // default for quick order
-        paymentStatus: "unpaid",
-        shippingDetails: { firstName: name.trim(), lastName: "", phone: phone.trim() },
-      })
-      .returning({ id: order.id });
+    const newOrderId = await db.transaction(async (tx) => {
+      const [newOrder] = await tx
+        .insert(order)
+        .values({
+          userId,
+          status: "pending",
+          totalPrice: totalPrice.toFixed(2),
+          paymentMethod: "callback", // default for quick order
+          paymentStatus: "unpaid",
+          shippingDetails: { firstName: name.trim(), lastName: "", phone: phone.trim() },
+        })
+        .returning({ id: order.id });
 
-    const orderItems = items.map((item) => {
-      const p = products.find((pr) => pr.id === item.productId)!;
-      return {
-        orderId: newOrder.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        priceAtPurchase: p.price,
-      };
-    });
-    await db.insert(orderItem).values(orderItems);
+      const orderItems = items.map((item) => {
+        const p = products.find((pr) => pr.id === item.productId)!;
+        return {
+          orderId: newOrder.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          priceAtPurchase: p.price,
+        };
+      });
+      await tx.insert(orderItem).values(orderItems);
 
-    await Promise.all(
-      items.map((item) =>
-        db
+      for (const item of items) {
+        const [updated] = await tx
           .update(product)
           .set({
             stock: sql`${product.stock} - ${item.quantity}`,
             salesCount: sql`${product.salesCount} + ${item.quantity}`,
           })
-          .where(eq(product.id, item.productId))
-      )
-    );
+          .where(and(
+            eq(product.id, item.productId),
+            sql`${product.stock} >= ${item.quantity}`
+          ))
+          .returning({ id: product.id });
 
-    return { success: true as const, orderId: newOrder.id };
+        if (!updated) {
+          throw new Error("OUT_OF_STOCK");
+        }
+      }
+
+      return newOrder.id;
+    });
+
+    return { success: true as const, orderId: newOrderId };
   } catch (error) {
     console.error("createQuickCartOrder error:", error);
+    if (error instanceof Error && error.message === "OUT_OF_STOCK") {
+      return { success: false as const, error: "Один з товарів щойно закінчився на складі" };
+    }
     return { success: false as const, error: "Помилка створення замовлення" };
   }
 }
