@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -40,6 +41,11 @@ const navItems = [
     title: "Колекції",
     href: "/admin/collections",
     icon: Layers,
+  },
+  {
+    title: "Замовлення",
+    href: "/admin/orders",
+    icon: ClipboardList,
   },
 ];
 

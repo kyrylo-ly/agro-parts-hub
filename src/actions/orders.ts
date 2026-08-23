@@ -29,7 +29,7 @@ export async function createQuickOrder(data: {
     // Check product exists and in stock
     const p = await db.query.product.findFirst({
       where: and(eq(product.id, productId), eq(product.isActive, true)),
-      columns: { id: true, price: true, stock: true },
+      columns: { id: true, price: true, stock: true, name: true },
     });
 
     if (!p) {

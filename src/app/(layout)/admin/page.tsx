@@ -1,20 +1,27 @@
 import Link from "next/link";
-import { Package, FolderTree, Tag, Layers } from "lucide-react";
+import { Package, FolderTree, Tag, Layers, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db/db";
-import { product, category, brand, collection } from "@/db/schema/store";
+import { product, category, brand, collection, order } from "@/db/schema/store";
 import { count } from "drizzle-orm";
 
 export default async function AdminPage() {
-  const [[productCount], [categoryCount], [brandCount], [collectionCount]] =
+  const [[productCount], [categoryCount], [brandCount], [collectionCount], [orderCount]] =
     await Promise.all([
       db.select({ count: count() }).from(product),
       db.select({ count: count() }).from(category),
       db.select({ count: count() }).from(brand),
       db.select({ count: count() }).from(collection),
+      db.select({ count: count() }).from(order),
     ]);
 
   const stats = [
+    {
+      title: "Замовлення",
+      count: orderCount.count,
+      href: "/admin/orders",
+      icon: ClipboardList,
+    },
     {
       title: "Продукти",
       count: productCount.count,
