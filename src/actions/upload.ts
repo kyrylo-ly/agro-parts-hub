@@ -35,7 +35,7 @@ export async function uploadProductImage(productId: string, formData: FormData) 
 
     const optimizedBuffer = await sharp(buffer)
       .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80 })
+      .webp({ quality: 80, effort: 4 })
       .toBuffer();
 
     const key = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;

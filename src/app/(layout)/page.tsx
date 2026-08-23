@@ -145,30 +145,35 @@ async function HomepageDynamicContent() {
     <>
       {/* Categories Grid */}
       {topCategories.length > 0 && (
-        <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-14">
+        <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-12">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {topCategories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/catalog/${cat.slug}`}
-                className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-4 text-center transition-all hover:border-primary/30 hover:shadow-md lg:p-6"
+                className="group relative flex h-36 sm:h-44 flex-col items-center justify-end overflow-hidden rounded-lg border bg-card text-center transition-all hover:border-primary hover:shadow-lg"
               >
-                <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary overflow-hidden transition-colors group-hover:bg-primary group-hover:text-primary-foreground lg:size-16">
-                  {cat.imageUrl ? (
-                    <Image
-                      src={cat.imageUrl}
-                      alt={cat.name}
-                      width={64}
-                      height={64}
-                      className="size-full object-cover transition-transform group-hover:scale-110"
-                      priority={true}
-                    />
-                  ) : (
-                    <Truck className="size-7 lg:size-8" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold line-clamp-2">
+                {cat.imageUrl ? (
+                  <Image
+                    src={cat.imageUrl}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    priority={true}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-muted text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <Truck className="size-12 opacity-30" />
+                  </div>
+                )}
+
+                {/* Gradient Overlay for Text Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity group-hover:opacity-100" />
+
+                {/* Content */}
+                <div className="relative z-10 w-full p-4">
+                  <p className="text-sm sm:text-base font-extrabold uppercase tracking-tight text-white line-clamp-2 drop-shadow-md">
                     {cat.name}
                   </p>
                 </div>
