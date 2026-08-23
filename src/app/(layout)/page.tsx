@@ -14,6 +14,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getHomepageData } from "@/actions/public";
+import { Suspense } from "react";
 
 export const revalidate = 7200;
 
@@ -46,18 +47,7 @@ const benefits = [
   },
 ];
 
-export default async function Home() {
-  const { newArrivals: newArrivalsResult, bestsellers: bestsellersResult, categories: categoriesResult, collections: collectionsResult, brands: brandsResult } =
-    await getHomepageData();
-
-  const newArrivals = newArrivalsResult.success ? newArrivalsResult.data : [];
-  const bestsellers = bestsellersResult.success ? bestsellersResult.data : [];
-  const categories = categoriesResult.success ? categoriesResult.data : [];
-  const collections = collectionsResult.success ? collectionsResult.data : [];
-  const brands = brandsResult.success ? brandsResult.data : [];
-
-  const topCategories = categories.filter((c) => !c.parent);
-
+export default function Home() {
   return (
     <>
       {/* Hero Section */}
@@ -123,6 +113,33 @@ export default async function Home() {
         </div>
       </section>
 
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-32 text-muted-foreground">
+            <RefreshCw className="size-8 animate-spin" />
+          </div>
+        }
+      >
+        <HomepageDynamicContent />
+      </Suspense>
+    </>
+  );
+}
+
+async function HomepageDynamicContent() {
+  const { newArrivals: newArrivalsResult, bestsellers: bestsellersResult, categories: categoriesResult, collections: collectionsResult, brands: brandsResult } =
+    await getHomepageData();
+
+  const newArrivals = newArrivalsResult.success ? newArrivalsResult.data : [];
+  const bestsellers = bestsellersResult.success ? bestsellersResult.data : [];
+  const categories = categoriesResult.success ? categoriesResult.data : [];
+  const collections = collectionsResult.success ? collectionsResult.data : [];
+  const brands = brandsResult.success ? brandsResult.data : [];
+
+  const topCategories = categories.filter((c) => !c.parent);
+
+  return (
+    <>
       {/* Categories Grid */}
       {topCategories.length > 0 && (
         <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
@@ -146,6 +163,7 @@ export default async function Home() {
                       width={64}
                       height={64}
                       className="size-full object-cover transition-transform group-hover:scale-110"
+                      priority={true}
                     />
                   ) : (
                     <Truck className="size-7 lg:size-8" />
@@ -241,7 +259,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
     </>
   );
 }
