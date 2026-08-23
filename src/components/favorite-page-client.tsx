@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getProductsForFavorites } from "@/actions/public";
+import { getProductsByIds } from "@/actions/public";
 import { ProductGrid } from "@/components/product-grid";
 
 export function FavoritePageClient() {
@@ -20,7 +20,7 @@ export function FavoritePageClient() {
         setIsLoading(false);
         return;
       }
-      const result = await getProductsForFavorites(ids);
+      const result = await getProductsByIds(ids);
       if (result.success) {
         setProducts(result.data as any[]);
       }

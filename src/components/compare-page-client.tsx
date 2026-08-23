@@ -7,7 +7,7 @@ import { Package, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getProductsForCompare } from "@/actions/public";
+import { getProductsByIds } from "@/actions/public";
 
 type CompareProduct = {
   id: string;
@@ -37,7 +37,7 @@ export function ComparePageClient() {
         setIsLoading(false);
         return;
       }
-      const result = await getProductsForCompare(ids);
+      const result = await getProductsByIds(ids, 4);
       if (result.success) {
         setProducts(result.data as CompareProduct[]);
       }

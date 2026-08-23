@@ -9,6 +9,19 @@ import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
 
+function handleProductDbError(error: unknown, defaultMessage: string) {
+  if (error instanceof Error && error.message.includes("unique")) {
+    if (error.message.includes("sku")) {
+      return { success: false as const, error: "Продукт з таким SKU вже існує" };
+    }
+    if (error.message.includes("slug")) {
+      return { success: false as const, error: "Продукт з таким slug вже існує" };
+    }
+    return { success: false as const, error: "Дублювання даних" };
+  }
+  return { success: false as const, error: defaultMessage };
+}
+
 interface GetProductsOptions {
   page?: number;
   limit?: number;
@@ -149,16 +162,7 @@ export async function createProduct(input: ProductInput) {
     return { success: true as const, data: newProduct };
   } catch (error) {
     console.error("Failed to create product:", error);
-    if (error instanceof Error && error.message.includes("unique")) {
-      if (error.message.includes("sku")) {
-        return { success: false as const, error: "Продукт з таким SKU вже існує" };
-      }
-      if (error.message.includes("slug")) {
-        return { success: false as const, error: "Продукт з таким slug вже існує" };
-      }
-      return { success: false as const, error: "Дублювання даних" };
-    }
-    return { success: false as const, error: "Failed to create product" };
+    return handleProductDbError(error, "Failed to create product");
   }
 }
 
@@ -221,16 +225,7 @@ export async function updateProduct(id: string, input: ProductInput) {
     return { success: true as const, data: updatedProduct };
   } catch (error) {
     console.error("Failed to update product:", error);
-    if (error instanceof Error && error.message.includes("unique")) {
-      if (error.message.includes("sku")) {
-        return { success: false as const, error: "Продукт з таким SKU вже існує" };
-      }
-      if (error.message.includes("slug")) {
-        return { success: false as const, error: "Продукт з таким slug вже існує" };
-      }
-      return { success: false as const, error: "Дублювання даних" };
-    }
-    return { success: false as const, error: "Failed to update product" };
+    return handleProductDbError(error, "Failed to update product");
   }
 }
 

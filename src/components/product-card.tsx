@@ -22,22 +22,7 @@ interface ProductCardProps {
   };
 }
 
-function isNewProduct(createdAt: Date): boolean {
-  const fourteenDaysAgo = new Date();
-  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-  return createdAt > fourteenDaysAgo;
-}
-
-function calculateDiscount(price: string, compareAtPrice: string): number {
-  const p = parseFloat(price);
-  const cp = parseFloat(compareAtPrice);
-  if (cp <= 0 || p >= cp) return 0;
-  return Math.round(((cp - p) / cp) * 100);
-}
-
-function formatPrice(price: string): string {
-  return parseFloat(price).toLocaleString("uk-UA");
-}
+import { isNewProduct, calculateDiscount, formatPrice } from "@/lib/domain/product";
 
 export function ProductCard({ product }: ProductCardProps) {
   const hasDiscount =

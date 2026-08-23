@@ -160,7 +160,7 @@ export function ProductForm({
       if (!result.success) {
         return {
           error: result.error,
-          fieldErrors: "fieldErrors" in result ? result.fieldErrors : undefined,
+          fieldErrors: ("fieldErrors" in result ? result.fieldErrors : undefined) as Record<string, string[] | undefined> | undefined,
         };
       }
 

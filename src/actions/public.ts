@@ -507,7 +507,7 @@ interface InternalFilterParams extends ProductFilterParams {
   searchQuery?: string;
 }
 
-async function getFilteredProducts(params: InternalFilterParams) {
+async function buildProductWhereClause(params: InternalFilterParams) {
   const {
     categoryIds,
     brandIds,
@@ -517,32 +517,24 @@ async function getFilteredProducts(params: InternalFilterParams) {
     inStock,
     isPromotion,
     attributes,
-    sort = "newest",
-    page = 1,
-    limit = 12,
     productIds,
     searchQuery,
   } = params;
 
-  const offset = (page - 1) * limit;
   const conditions = [eq(product.isActive, true)];
 
-  // Category filter
   if (categoryIds && categoryIds.length > 0) {
     conditions.push(inArray(product.categoryId, categoryIds));
   }
 
-  // Product IDs filter (for collections)
   if (productIds && productIds.length > 0) {
     conditions.push(inArray(product.id, productIds));
   }
 
-  // Brand filter by IDs
   if (brandIds && brandIds.length > 0) {
     conditions.push(inArray(product.brandId, brandIds));
   }
 
-  // Brand filter by slugs
   if (brandSlugs && brandSlugs.length > 0) {
     const brandResults = await db
       .select({ id: brand.id })
@@ -553,15 +545,10 @@ async function getFilteredProducts(params: InternalFilterParams) {
     if (resolvedBrandIds.length > 0) {
       conditions.push(inArray(product.brandId, resolvedBrandIds));
     } else {
-      // No matching brands — return empty
-      return {
-        products: [],
-        meta: { total: 0, page, limit, totalPages: 0 },
-      };
+      return null;
     }
   }
 
-  // Price range filter (cast strings to numeric in Postgres)
   if (priceMin !== undefined) {
     conditions.push(sql`${product.price}::numeric >= ${String(priceMin)}::numeric`);
   }
@@ -569,23 +556,19 @@ async function getFilteredProducts(params: InternalFilterParams) {
     conditions.push(sql`${product.price}::numeric <= ${String(priceMax)}::numeric`);
   }
 
-  // In-stock filter
   if (inStock) {
     conditions.push(sql`${product.stock} > 0`);
   }
 
-  // Promotion filter
   if (isPromotion) {
     conditions.push(
       sql`${product.compareAtPrice} IS NOT NULL AND ${product.compareAtPrice}::numeric > ${product.price}::numeric`
     );
   }
 
-  // Attribute filters (JSONB) — use parameterized queries
   if (attributes) {
     for (const [key, values] of Object.entries(attributes)) {
       if (values.length > 0) {
-        // attributes->>$key IN ($values) — uses Drizzle sql template for safety
         conditions.push(
           sql`${product.attributes}->>${key} IN (${sql.join(
             values.map((v) => sql`${v}`),
@@ -596,7 +579,6 @@ async function getFilteredProducts(params: InternalFilterParams) {
     }
   }
 
-  // Search
   if (searchQuery) {
     conditions.push(
       or(
@@ -606,7 +588,21 @@ async function getFilteredProducts(params: InternalFilterParams) {
     );
   }
 
-  const whereClause = and(...conditions);
+  return and(...conditions);
+}
+
+async function getFilteredProducts(params: InternalFilterParams) {
+  const { sort = "newest", page = 1, limit = 12 } = params;
+  const offset = (page - 1) * limit;
+
+  const whereClause = await buildProductWhereClause(params);
+
+  if (whereClause === null) {
+    return {
+      products: [],
+      meta: { total: 0, page, limit, totalPages: 0 },
+    };
+  }
 
   // Count total
   const [totalCount] = await db
@@ -713,10 +709,8 @@ export async function searchProductsQuick(query: string) {
   }
 }
 
-// ─── Products for Comparison ────────────────────────────────────────────────
-
-export async function getProductsForCompare(ids: string[]) {
-  if (ids.length === 0 || ids.length > 4) {
+export async function getProductsByIds(ids: string[], maxLimit = 100) {
+  if (ids.length === 0 || ids.length > maxLimit) {
     return { success: true as const, data: [] };
   }
 
@@ -739,36 +733,7 @@ export async function getProductsForCompare(ids: string[]) {
 
     return { success: true as const, data: products };
   } catch (error) {
-    console.error("getProductsForCompare error:", error);
-    return { success: false as const, error: "Помилка завантаження" };
-  }
-}
-
-export async function getProductsForFavorites(ids: string[]) {
-  if (ids.length === 0) {
-    return { success: true as const, data: [] };
-  }
-
-  try {
-    const products = await db.query.product.findMany({
-      where: and(
-        eq(product.isActive, true),
-        inArray(product.id, ids)
-      ),
-      with: {
-        brand: { columns: { name: true, slug: true } },
-        category: { columns: { name: true, slug: true } },
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1,
-          columns: { url: true },
-        },
-      },
-    });
-
-    return { success: true as const, data: products };
-  } catch (error) {
-    console.error("getProductsForFavorites error:", error);
+    console.error("getProductsByIds error:", error);
     return { success: false as const, error: "Помилка завантаження" };
   }
 }
