@@ -87,10 +87,11 @@ interface CheckoutData {
   lastName: string;
   phone: string;
   email?: string;
-  deliveryType: "nova_poshta" | "pickup";
+  deliveryType: "nova_poshta" | "ukrposhta" | "pickup";
   city?: string;
   warehouse?: string;
-  paymentMethod: "cash_on_delivery" | "card_prepayment";
+  zipCode?: string;
+  paymentMethod: "cash_on_delivery" | "card_prepayment" | "mono_pay";
   comment?: string;
   items: { productId: string; quantity: number }[];
 }
@@ -107,7 +108,10 @@ export async function createOrder(data: CheckoutData) {
     return { success: false as const, error: "Кошик порожній" };
   }
   if (data.deliveryType === "nova_poshta" && (!data.city?.trim() || !data.warehouse?.trim())) {
-    return { success: false as const, error: "Заповніть місто та відділення" };
+    return { success: false as const, error: "Заповніть місто та відділення для Нової Пошти" };
+  }
+  if (data.deliveryType === "ukrposhta" && (!data.city?.trim() || !data.warehouse?.trim() || !data.zipCode?.trim())) {
+    return { success: false as const, error: "Заповніть місто, відділення та індекс для Укрпошти" };
   }
 
   try {
@@ -162,6 +166,7 @@ export async function createOrder(data: CheckoutData) {
           deliveryType: data.deliveryType,
           city: data.city?.trim(),
           warehouse: data.warehouse?.trim(),
+          zipCode: data.zipCode?.trim(),
           comment: data.comment?.trim() || undefined,
         },
       })
@@ -192,7 +197,11 @@ export async function createOrder(data: CheckoutData) {
       )
     );
 
-    return { success: true as const, orderId: newOrder.id };
+    const redirectUrl = data.paymentMethod === "mono_pay" 
+      ? `/mock-payment?orderId=${newOrder.id}` 
+      : `/checkout/success?orderId=${newOrder.id}`;
+
+    return { success: true as const, orderId: newOrder.id, redirectUrl };
   } catch (error) {
     console.error("createOrder error:", error);
     return { success: false as const, error: "Помилка створення замовлення" };
@@ -354,5 +363,33 @@ export async function getUserOrders(page = 1, limit = 10) {
   } catch (error) {
     console.error("getUserOrders error:", error);
     return { success: false as const, error: "Помилка завантаження" };
+  }
+}
+
+// ─── Mock Payment Action ───────────────────────────────────────────────────
+
+export async function confirmMockPayment(orderId: string, status: "paid" | "cancelled") {
+  try {
+    const o = await db.query.order.findFirst({
+      where: eq(order.id, orderId),
+      columns: { id: true, status: true },
+    });
+
+    if (!o) return { success: false as const, error: "Замовлення не знайдено" };
+
+    if (status === "paid") {
+      await db.update(order)
+        .set({ paymentStatus: "paid", status: "processing" })
+        .where(eq(order.id, orderId));
+      return { success: true as const, redirectUrl: `/checkout/success?orderId=${orderId}` };
+    } else {
+      await db.update(order)
+        .set({ status: "cancelled" })
+        .where(eq(order.id, orderId));
+      return { success: true as const, redirectUrl: `/checkout?error=payment_cancelled` };
+    }
+  } catch (error) {
+    console.error("confirmMockPayment error:", error);
+    return { success: false as const, error: "Помилка оновлення статусу оплати" };
   }
 }

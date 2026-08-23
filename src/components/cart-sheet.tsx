@@ -174,9 +174,24 @@ export function CartSheet({ children }: CartSheetProps) {
                   <Input id="cart-phone" name="phone" type="tel" required placeholder="+380 XX XXX XX XX" />
                 </div>
                 <Button type="submit" disabled={isSubmitting} className="w-full mt-2 h-11 text-base">
-                  {isSubmitting ? "Оформлення..." : "Оформити замовлення"}
+                  {isSubmitting ? "Оформлення..." : "Швидке замовлення (в 1 клік)"}
                 </Button>
               </form>
+              
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Або</span>
+                </div>
+              </div>
+
+              <Link href="/checkout" className="w-full" onClick={() => setOpen(false)}>
+                <Button variant="outline" className="w-full h-11 text-base">
+                  Перейти до повного оформлення
+                </Button>
+              </Link>
             </div>
           </>
         )}

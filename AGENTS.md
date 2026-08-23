@@ -20,5 +20,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 1. **Zero Cost**: Maintain a completely free infrastructure (Vercel free tier, Neon free tier, Cloudflare R2).
 2. **Server Optimization**: Fast TTFB, efficient DB queries, optimal rendering strategies (SSR/SSG/ISR).
 3. **SEO**: Server-rendered content, proper metadata, semantics.
-4. **Minimal JS Bundle**: Avoid heavy client-side libraries.
 5. **Client Optimization**: Fast LCP, CLS, smooth interactions.
+
+## UI Components Rules
+- **Base UI vs Radix**: This project uses `@base-ui/react` (MUI Base UI) for UI primitives (like Dialog, Sheet, etc.), not Radix UI.
+- **DO NOT use `asChild`**: Base UI components do NOT support the `asChild` prop. Instead, they use a `render` prop.
+  - ❌ WRONG: `<SheetClose asChild><Link href="/">...</Link></SheetClose>`
+  - ✅ CORRECT: `<SheetClose render={<Link href="/">...</Link>} />`
