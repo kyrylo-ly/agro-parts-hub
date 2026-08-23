@@ -1,3 +1,4 @@
+import "server-only";
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { _getNewArrivalsRaw, _getBestsellersRaw } from "./product-service";

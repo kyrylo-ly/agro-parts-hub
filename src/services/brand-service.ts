@@ -1,3 +1,4 @@
+import "server-only";
 import { eq, count, and, inArray } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "@/db/db";

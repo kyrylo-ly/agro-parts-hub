@@ -4,7 +4,11 @@ import * as React from "react";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/use-cart";
-import { CartSheet } from "./cart-sheet";
+import dynamic from "next/dynamic";
+
+const CartSheet = dynamic(() => import("./cart-sheet").then((mod) => mod.CartSheet), {
+  ssr: false,
+});
 
 export function CartButton() {
   const items = useCartStore((state) => state.items);

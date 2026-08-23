@@ -54,11 +54,29 @@ export async function generateMetadata({
       description: p.description || undefined,
       images: imageUrl ? [{ url: imageUrl }] : undefined,
     },
+    alternates: {
+      canonical: `/product/${p.slug}`,
+    },
   };
 }
 
 function formatPrice(price: string): string {
   return parseFloat(price).toLocaleString("uk-UA");
+}
+
+function getDiscountInfo(price: string, compareAtPrice: string | null) {
+  const hasDiscount =
+    compareAtPrice !== null &&
+    compareAtPrice !== "" &&
+    parseFloat(compareAtPrice) > parseFloat(price);
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((parseFloat(compareAtPrice!) - parseFloat(price)) /
+          parseFloat(compareAtPrice!)) *
+          100
+      )
+    : 0;
+  return { hasDiscount, discountPercentage };
 }
 
 export default async function ProductPage({
@@ -74,17 +92,10 @@ export default async function ProductPage({
   }
 
   const p = result.data;
-  const hasDiscount =
-    p.compareAtPrice !== null &&
-    p.compareAtPrice !== "" &&
-    parseFloat(p.compareAtPrice) > parseFloat(p.price);
-  const discount = hasDiscount
-    ? Math.round(
-      ((parseFloat(p.compareAtPrice!) - parseFloat(p.price)) /
-        parseFloat(p.compareAtPrice!)) *
-      100
-    )
-    : 0;
+  const { hasDiscount, discountPercentage: discount } = getDiscountInfo(
+    p.price,
+    p.compareAtPrice
+  );
   const inStock = p.stock > 0;
   const attributes = (p.attributes as Record<string, string>) || {};
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
@@ -133,11 +144,28 @@ export default async function ProductPage({
     },
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      item: item.href
+        ? `${siteUrl}${item.href}`
+        : `${siteUrl}/product/${p.slug}`,
+    })),
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
