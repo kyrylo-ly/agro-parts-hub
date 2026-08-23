@@ -3,31 +3,35 @@
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useCartStore } from "@/store/use-cart";
 
 interface AddToCartButtonProps {
   productId: string;
   productName: string;
+  price: string;
+  slug: string;
+  imageUrl?: string;
+  className?: string;
 }
 
-export function AddToCartButton({ productId, productName }: AddToCartButtonProps) {
+export function AddToCartButton({ 
+  productId, 
+  productName, 
+  price, 
+  slug, 
+  imageUrl,
+  className = "size-9"
+}: AddToCartButtonProps) {
+  const { addItem } = useCartStore();
+
   function handleAddToCart() {
-    // Read current cart from localStorage
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]") as {
-      productId: string;
-      quantity: number;
-    }[];
-
-    const existing = cart.find((item) => item.productId === productId);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      cart.push({ productId, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    // Dispatch event so CartButton in header can update
-    window.dispatchEvent(new CustomEvent("cart-updated"));
+    addItem({
+      id: productId,
+      name: productName,
+      price,
+      slug,
+      imageUrl
+    });
 
     toast.success(`${productName} додано до кошика`);
   }
@@ -36,7 +40,7 @@ export function AddToCartButton({ productId, productName }: AddToCartButtonProps
     <Button
       size="icon"
       variant="outline"
-      className="size-9 shrink-0 rounded-lg border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+      className={`shrink-0 rounded-lg border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-colors ${className}`}
       onClick={handleAddToCart}
       aria-label={`Додати ${productName} до кошика`}
     >

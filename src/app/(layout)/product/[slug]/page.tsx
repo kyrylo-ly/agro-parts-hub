@@ -209,7 +209,14 @@ export default async function ProductPage({
             {/* Actions */}
             {inStock && (
               <div className="flex flex-wrap gap-3 mt-2">
-                <AddToCartButton productId={p.id} productName={p.name} />
+                <AddToCartButton 
+                  productId={p.id} 
+                  productName={p.name} 
+                  price={p.price}
+                  slug={p.slug}
+                  imageUrl={p.images?.[0]?.url}
+                  className="size-10" // Make it slightly larger here if needed, or keep default
+                />
                 <Button variant="outline" className="gap-2 rounded-lg flex-1 sm:flex-none">
                   <Zap className="size-4" />
                   Замовлення в 1 клік

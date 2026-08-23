@@ -199,6 +199,93 @@ export async function createOrder(data: CheckoutData) {
   }
 }
 
+// ─── Quick Cart Order (Checkout from Sidebar) ────────────────────────────────
+
+export async function createQuickCartOrder(data: {
+  name: string;
+  phone: string;
+  items: { productId: string; quantity: number }[];
+}) {
+  const { name, phone, items } = data;
+
+  if (!name.trim() || name.trim().length < 2) {
+    return { success: false as const, error: "Введіть ваше ім'я" };
+  }
+  if (!phoneRegex.test(phone)) {
+    return { success: false as const, error: "Невірний номер телефону" };
+  }
+  if (!items || items.length === 0) {
+    return { success: false as const, error: "Кошик порожній" };
+  }
+
+  try {
+    const productIds = items.map((i) => i.productId);
+    const products = await db.query.product.findMany({
+      where: and(eq(product.isActive, true), inArray(product.id, productIds)),
+      columns: { id: true, price: true, stock: true, name: true },
+    });
+
+    for (const item of items) {
+      const p = products.find((pr) => pr.id === item.productId);
+      if (!p) return { success: false as const, error: "Товар не знайдено" };
+      if (p.stock < item.quantity) {
+        return {
+          success: false as const,
+          error: `Недостатньо товару "${p.name}" (є ${p.stock})`,
+        };
+      }
+    }
+
+    const totalPrice = items.reduce((sum, item) => {
+      const p = products.find((pr) => pr.id === item.productId)!;
+      return sum + parseFloat(p.price) * item.quantity;
+    }, 0);
+
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user.id ?? null;
+
+    const [newOrder] = await db
+      .insert(order)
+      .values({
+        userId,
+        status: "pending",
+        totalPrice: totalPrice.toFixed(2),
+        paymentMethod: "callback", // default for quick order
+        paymentStatus: "unpaid",
+        shippingDetails: { firstName: name.trim(), lastName: "", phone: phone.trim() },
+      })
+      .returning({ id: order.id });
+
+    const orderItems = items.map((item) => {
+      const p = products.find((pr) => pr.id === item.productId)!;
+      return {
+        orderId: newOrder.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtPurchase: p.price,
+      };
+    });
+    await db.insert(orderItem).values(orderItems);
+
+    await Promise.all(
+      items.map((item) =>
+        db
+          .update(product)
+          .set({
+            stock: sql`${product.stock} - ${item.quantity}`,
+            salesCount: sql`${product.salesCount} + ${item.quantity}`,
+          })
+          .where(eq(product.id, item.productId))
+      )
+    );
+
+    return { success: true as const, orderId: newOrder.id };
+  } catch (error) {
+    console.error("createQuickCartOrder error:", error);
+    return { success: false as const, error: "Помилка створення замовлення" };
+  }
+}
+
 // ─── Get Order ──────────────────────────────────────────────────────────────
 
 export async function getOrderById(id: string) {

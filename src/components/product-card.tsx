@@ -156,6 +156,9 @@ export function ProductCard({ product }: ProductCardProps) {
               <AddToCartButton
                 productId={product.id}
                 productName={product.name}
+                price={product.price}
+                slug={product.slug}
+                imageUrl={imageUrl}
               />
             )}
           </div>
