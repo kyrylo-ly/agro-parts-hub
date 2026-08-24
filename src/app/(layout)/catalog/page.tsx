@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     "Повний каталог запчастин для тракторів та сільськогосподарської техніки. Підшипники, фільтри, запчастини для двигунів.",
 };
 
+export const revalidate = 7200;
+
+
 export default async function CatalogPage() {
   const result = await getPublicCategories();
   const categories = result.success ? result.data : [];

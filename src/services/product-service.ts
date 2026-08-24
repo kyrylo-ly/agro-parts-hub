@@ -4,10 +4,10 @@ import { unstable_cache } from "next/cache";
 import { db } from "@/db/db";
 import { product, brand } from "@/db/schema/store";
 import { ProductFilterParams } from "./types";
-import { CACHE_TAGS } from "@/lib/constants/cache-tags";
+import { CACHE_TAGS, getProductTag } from "@/lib/constants/cache-tags";
 import { escapeLike } from "@/lib/escape-like";
 
-export async function getPublicProductBySlug(slug: string) {
+export async function _getPublicProductBySlugRaw(slug: string) {
   try {
     const foundProduct = await db.query.product.findFirst({
       where: and(eq(product.slug, slug), eq(product.isActive, true)),
@@ -38,6 +38,18 @@ export async function getPublicProductBySlug(slug: string) {
     console.error("Failed to get product by slug:", error);
     return { success: false as const, error: "Failed to fetch product" };
   }
+}
+
+export async function getPublicProductBySlug(slug: string) {
+  const cachedFn = unstable_cache(
+    async () => _getPublicProductBySlugRaw(slug),
+    [`public-product-${slug}`],
+    {
+      revalidate: 7200,
+      tags: [CACHE_TAGS.PRODUCTS, getProductTag(slug)],
+    }
+  );
+  return cachedFn();
 }
 
 export async function getCategoryAttributeFilters(categoryId: number) {
