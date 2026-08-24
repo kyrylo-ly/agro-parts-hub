@@ -61,19 +61,25 @@ export default function Home() {
           className="object-cover object-center -z-10"
           sizes="100vw"
         />
+        {/* Dark overlay to make text readable against both dark and bright areas */}
+        <div className="absolute inset-0 bg-black/30 -z-10" />
+
         <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl text-white drop-shadow-md">
               Запчастини для{" "}
-              <span className="text-accent">сільгосптехніки</span>
+              <span className="text-accent drop-shadow-lg">сільгосптехніки</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl sm:text-xl">
+            <p className="text-lg text-white max-w-2xl sm:text-xl drop-shadow">
               Підшипники, фільтри, запчастини для тракторів МТЗ та іншої
               техніки. Великий асортимент, доступні ціни.
             </p>
             <Link
               href="/catalog"
-              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8 bg-accent text-accent-foreground")}
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "rounded-full px-8 bg-accent text-accent-foreground hover:bg-accent/90 border-none"
+              )}
             >
               Перейти до каталогу
               <ArrowRight className="ml-2 size-4" />
