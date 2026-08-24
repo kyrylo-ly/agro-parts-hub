@@ -1,9 +1,9 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useCartStore } from "@/store/use-cart";
+import { useCartActions } from "@/hooks/use-cart-actions";
+import { cn } from "@/lib/utils";
 
 interface AddToCartButtonProps {
   productId: string;
@@ -22,29 +22,35 @@ export function AddToCartButton({
   imageUrl,
   className = "size-9"
 }: AddToCartButtonProps) {
-  const { addItem } = useCartStore();
+  const { addToCart, isPending } = useCartActions();
 
   function handleAddToCart() {
-    addItem({
+    addToCart({
       id: productId,
       name: productName,
       price,
       slug,
       imageUrl
     });
-
-    toast.success(`${productName} додано до кошика`);
   }
 
   return (
     <Button
       size="icon"
       variant="outline"
-      className={`shrink-0 rounded-lg border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-colors ${className}`}
+      className={cn(
+        "shrink-0 rounded-lg border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-colors",
+        className
+      )}
       onClick={handleAddToCart}
+      disabled={isPending}
       aria-label={`Додати ${productName} до кошика`}
     >
-      <ShoppingCart className="size-4" />
+      {isPending ? (
+        <Loader2 className="size-4 animate-spin" />
+      ) : (
+        <ShoppingCart className="size-4" />
+      )}
     </Button>
   );
 }

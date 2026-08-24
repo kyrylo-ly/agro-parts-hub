@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingCart, CheckCircle } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,8 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/store/use-cart";
-import { createQuickCartOrder } from "@/actions/orders";
+import { useStoreHydration } from "@/hooks/use-store-hydration";
+import { useCartActions } from "@/hooks/use-cart-actions";
 import { toast } from "sonner";
 
 interface CartSheetProps {
@@ -25,15 +26,12 @@ interface CartSheetProps {
 
 export function CartSheet({ children }: CartSheetProps) {
   const [open, setOpen] = React.useState(false);
-  const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCartStore();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
 
-  // Hydration mismatch fix for Zustand
-  const [isMounted, setIsMounted] = React.useState(false);
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // Use hydration hook instead of manual isMounted
+  const cartState = useStoreHydration(useCartStore, (state) => state);
+  const { removeFromCart, updateQuantity, checkoutCart } = useCartActions();
 
   function handleOpenChange(newOpen: boolean) {
     setOpen(newOpen);
@@ -47,17 +45,9 @@ export function CartSheet({ children }: CartSheetProps) {
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const phone = formData.get("phone") as string;
-
-    const result = await createQuickCartOrder({
-      name,
-      phone,
-      items: items.map(i => ({ productId: i.id, quantity: i.quantity }))
-    });
+    const result = await checkoutCart(formData);
 
     if (result.success) {
-      clearCart();
       setIsSuccess(true);
     } else {
       toast.error(result.error);
@@ -69,10 +59,11 @@ export function CartSheet({ children }: CartSheetProps) {
     return Number(p).toLocaleString("uk-UA");
   }
 
-  if (!isMounted) {
+  if (!cartState) {
     return <>{children}</>;
   }
 
+  const { items, getTotalPrice } = cartState;
   const totalPrice = getTotalPrice();
 
   return (
@@ -149,7 +140,7 @@ export function CartSheet({ children }: CartSheetProps) {
                     </div>
                   </div>
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeFromCart(item.id)}
                     className="absolute top-2 right-2 p-1 text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <Trash2 className="size-4" />
