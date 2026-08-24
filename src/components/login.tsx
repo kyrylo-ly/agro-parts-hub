@@ -3,12 +3,7 @@ import { AuthLayout } from "./auth-layout";
 
 interface LoginProps {
   heading?: string;
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title?: string;
-  };
+
   buttonText?: string;
   googleText?: string;
   signupText?: string;
@@ -20,7 +15,7 @@ interface LoginProps {
 
 const Login = ({
   heading = "Вхід",
-  logo,
+
   buttonText = "Увійти",
   googleText = "Увійти через Google",
   signupText = "Немає акаунту?",
@@ -32,7 +27,7 @@ const Login = ({
   return (
     <AuthLayout
       heading={heading}
-      logo={logo}
+
       googleText={googleText}
       bottomText={signupText}
       bottomLinkText="Зареєструватись"
