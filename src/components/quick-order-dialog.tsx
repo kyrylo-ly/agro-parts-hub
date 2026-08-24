@@ -67,7 +67,7 @@ export function QuickOrderDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button variant="outline" className="gap-2 rounded-lg flex-1 sm:flex-none" />
+          <Button variant="outline" className="h-10 gap-2 rounded-lg flex-1 sm:flex-none" />
         }
       >
         <Zap className="size-4" />

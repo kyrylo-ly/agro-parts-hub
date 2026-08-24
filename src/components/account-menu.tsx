@@ -32,7 +32,7 @@ export function AccountMenu({ name, email, avatar, role }: AccountMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" className="gap-2 px-2 hover:bg-muted/50" />}
+        render={<Button variant="ghost" className="h-10 gap-2 px-2 hover:bg-muted/50" />}
       >
         <Avatar className="size-8">
           <AvatarImage src={avatar} alt={name} />

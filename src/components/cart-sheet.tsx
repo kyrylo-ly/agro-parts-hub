@@ -127,7 +127,7 @@ export function CartSheet({ children }: CartSheetProps) {
                     <Link href={`/product/${item.slug}`} className="text-sm font-medium line-clamp-2 hover:text-primary transition-colors pr-6" onClick={() => setOpen(false)}>
                       {item.name}
                     </Link>
-                    <div className="mt-auto flex items-center justify-between pt-2">
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
                       <span className="font-bold text-base whitespace-nowrap">{formatPrice(item.price)} ₴</span>
 
                       <div className="flex items-center bg-muted rounded-lg h-8 border">
@@ -158,7 +158,7 @@ export function CartSheet({ children }: CartSheetProps) {
               ))}
             </div>
 
-            <div className="p-4 border-t bg-card shrink-0">
+            <div className="p-4 pb-24 border-t bg-card shrink-0">
               <div className="flex justify-between items-center mb-4">
                 <span className="font-medium text-muted-foreground">Всього:</span>
                 <span className="text-xl font-bold">{formatPrice(totalPrice)} ₴</span>
