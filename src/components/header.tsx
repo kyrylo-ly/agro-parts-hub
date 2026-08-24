@@ -50,7 +50,7 @@ export function Header({ categories = [] }: HeaderProps) {
             <MobileNav categories={categories} />
 
             {/* Logo */}
-            <Link href="/" className="flex shrink-0 items-center gap-2">
+            <Link href="/" aria-label="Агро Літ" className="flex shrink-0 items-center gap-2">
               <div className="flex aspect-square size-9 lg:size-10 items-center justify-center rounded-lg bg-primary">
                 <Tractor
                   className="text-primary-foreground"
