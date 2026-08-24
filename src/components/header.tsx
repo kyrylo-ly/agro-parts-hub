@@ -7,15 +7,24 @@ import {
   Tractor,
 } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 import { SearchBar } from "@/components/search-bar";
 import { CartButton } from "@/components/cart-button";
-import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
-import { CategoryMenu } from "@/components/category-menu";
 import { CompareIndicator } from "@/components/compare-indicator";
 import { FavoriteIndicator } from "@/components/favorite-indicator";
 import { Logo } from "@/components/logo";
+
+// Code-split heavy interactive components — they pull in Base UI Sheet/Popover/ScrollArea
+const MobileNav = dynamic(
+  () => import("@/components/mobile-nav").then((mod) => mod.MobileNav),
+  { loading: () => <div className="size-9 lg:hidden" /> }
+);
+const CategoryMenu = dynamic(
+  () => import("@/components/category-menu").then((mod) => mod.CategoryMenu),
+  { loading: () => <div className="hidden lg:block h-10 w-36 animate-pulse rounded-md bg-muted" /> }
+);
 export type NavItem = {
   label: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;

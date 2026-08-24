@@ -50,7 +50,7 @@ const benefits = [
 ];
 
 export default function Home() {
-  const common = { alt: "Запчастини для сільгосптехніки", fill: true, fetchPriority: "high" as const, sizes: "100vw", className: "object-cover object-center" };
+  const common = { alt: "Запчастини для сільгосптехніки", fill: true, fetchPriority: "high" as const, loading: "eager" as const, sizes: "100vw", className: "object-cover object-center" };
   const {
     props: { srcSet: desktopSrcSet, ...desktopProps },
   } = getImageProps({
@@ -63,6 +63,10 @@ export default function Home() {
     ...common,
     src: "/hero-mobile.avif",
   });
+
+  // Preload hero images in <head> — browser will download only the matching media query
+  preload(desktopProps.src!, { as: "image", imageSrcSet: desktopSrcSet, media: "(min-width: 768px)", fetchPriority: "high" });
+  preload(mobileProps.src!, { as: "image", imageSrcSet: mobileSrcSet, media: "(max-width: 767px)", fetchPriority: "high" });
 
   return (
     <>
