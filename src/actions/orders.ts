@@ -245,6 +245,7 @@ export async function createOrder(data: CheckoutData) {
             reference: newOrderId,
             destination: `Оплата замовлення №${newOrderId.slice(0, 8)}`,
             webHookUrl: `${appUrl}/api/webhooks/monopay`,
+            redirectUrl: `${appUrl}/checkout/success?orderId=${newOrderId}`,
           }),
         });
 

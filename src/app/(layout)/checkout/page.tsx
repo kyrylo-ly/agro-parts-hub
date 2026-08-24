@@ -49,6 +49,12 @@ export default function CheckoutPage() {
     searchWarehouses(formData.city, "").then(setWarehouses);
   }, [formData.city, formData.deliveryType]);
 
+  const filteredWarehouses = React.useMemo(() => {
+    if (!formData.warehouse) return warehouses.slice(0, 50);
+    const search = formData.warehouse.toLowerCase();
+    return warehouses.filter(w => w.toLowerCase().includes(search)).slice(0, 50);
+  }, [warehouses, formData.warehouse]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -76,19 +82,14 @@ export default function CheckoutPage() {
       items: items.map(i => ({ productId: i.id, quantity: i.quantity }))
     });
 
-    if (result.success) {
+    if (result.success && result.redirectUrl) {
       clearCart();
-      if (result.redirectUrl) {
-        if (formData.paymentMethod === "mono_pay") {
-          window.open(result.redirectUrl, "_blank", "noopener,noreferrer");
-          router.push(`/checkout/success?orderId=${result.orderId}`);
-        } else {
-          router.push(result.redirectUrl);
-        }
+      if (formData.paymentMethod === "mono_pay") {
+        window.location.href = result.redirectUrl;
       } else {
-        router.push(`/checkout/success?orderId=${result.orderId}`);
+        router.push(result.redirectUrl);
       }
-    } else {
+    } else if (!result.success) {
       toast.error(result.error);
       setIsSubmitting(false);
     }
@@ -206,7 +207,7 @@ export default function CheckoutPage() {
                     list="warehouse-options"
                   />
                   <datalist id="warehouse-options">
-                    {warehouses.map(w => <option key={w} value={w} />)}
+                    {filteredWarehouses.map(w => <option key={w} value={w} />)}
                   </datalist>
                 </div>
 
