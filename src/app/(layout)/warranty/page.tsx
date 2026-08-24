@@ -3,7 +3,7 @@ import { ShieldCheck, FileCheck, Wrench, Settings } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Гарантія | Агро Літ",
+  title: "Гарантія",
   description: "Офіційна гарантія на запчастини для сільгосптехніки.",
 };
 

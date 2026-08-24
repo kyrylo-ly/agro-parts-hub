@@ -21,12 +21,12 @@ interface ProductCardProps {
     brand: { name: string; slug: string } | null;
     images: { url: string }[];
   };
-  priority?: boolean;
+  preload?: boolean;
 }
 
 import { isNewProduct, calculateDiscount, formatPrice } from "@/lib/domain/product";
 
-export function ProductCard({ product, priority = false }: ProductCardProps) {
+export function ProductCard({ product, preload = false }: ProductCardProps) {
   const hasDiscount =
     product.compareAtPrice !== null &&
     product.compareAtPrice !== "" &&
@@ -77,7 +77,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            priority={priority}
+            preload={preload}
             containerClassName="w-full h-full"
             className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
           />

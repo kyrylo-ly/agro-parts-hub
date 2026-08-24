@@ -3,7 +3,7 @@ import { RefreshCw, Clock, ShieldAlert, CheckCircle2, AlertCircle } from "lucide
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Обмін та повернення | Агро Літ",
+  title: "Обмін та повернення",
   description: "Інформація про умови обміну та повернення товарів.",
 };
 

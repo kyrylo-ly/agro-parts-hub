@@ -3,7 +3,7 @@ import { Phone, Mail, MapPin, Clock, MessageSquare, ExternalLink } from "lucide-
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Контакти | Агро Літ",
+  title: "Контакти",
   description: "Зв'яжіться з нами для консультації та замовлення запчастин.",
 };
 

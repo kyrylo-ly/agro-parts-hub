@@ -31,7 +31,7 @@ export function ProductGrid({
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
       {products.map((product, index) => (
-        <ProductCard key={product.id} product={product} priority={index < 4} />
+        <ProductCard key={product.id} product={product} preload={index < 4} />
       ))}
     </div>
   );

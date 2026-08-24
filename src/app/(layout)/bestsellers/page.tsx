@@ -7,7 +7,7 @@ import { getPublicProducts } from "@/services/product-service";
 export const revalidate = 7200;
 
 export const metadata: Metadata = {
-  title: "Хіти продажу | Агро Літ",
+  title: "Хіти продажу",
   description: "Найпопулярніші товари, які найчастіше купують. Хіти продажу серед запчастин для сільгосптехніки.",
   alternates: {
     canonical: "/bestsellers",

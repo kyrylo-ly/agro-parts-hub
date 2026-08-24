@@ -3,7 +3,7 @@ import { Users, Tractor, Settings2, ShieldCheck, HeartHandshake, Zap } from "luc
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Про компанію | Агро Літ",
+  title: "Про компанію",
   description: "Агро Літ — надійний постачальник запчастин для тракторів та сільгосптехніки.",
 };
 

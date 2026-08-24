@@ -58,7 +58,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
           alt={productName}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
-          priority
+          preload
           className="object-contain p-6 transition-transform duration-300 group-hover:scale-110"
         />
       </div>

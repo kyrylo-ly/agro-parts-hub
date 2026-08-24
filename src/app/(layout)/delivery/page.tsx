@@ -3,7 +3,7 @@ import { Truck, CreditCard, Wallet, Banknote, MapPin, Package } from "lucide-rea
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Доставка і оплата | Агро Літ",
+  title: "Доставка і оплата",
   description: "Умови доставки та оплати запчастин для сільгосптехніки.",
 };
 

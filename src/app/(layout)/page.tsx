@@ -50,17 +50,18 @@ const benefits = [
 ];
 
 export default function Home() {
-  preload("/hero-mobile.avif", {
-    as: "image",
-    type: "image/avif",
-    fetchPriority: "high",
-    media: "(max-width: 767px)",
+  const common = { alt: "Запчастини для сільгосптехніки", fill: true, preload: true, sizes: "100vw", className: "object-cover object-center" };
+  const {
+    props: { srcSet: desktopSrcSet, ...desktopProps },
+  } = getImageProps({
+    ...common,
+    src: "/hero.avif",
   });
-  preload("/hero.avif", {
-    as: "image",
-    type: "image/avif",
-    fetchPriority: "high",
-    media: "(min-width: 768px)",
+  const {
+    props: { srcSet: mobileSrcSet, ...mobileProps },
+  } = getImageProps({
+    ...common,
+    src: "/hero-mobile.avif",
   });
 
   return (
@@ -68,15 +69,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <picture className="absolute inset-0 -z-10 h-full w-full">
-          <source media="(max-width: 767px)" srcSet="/hero-mobile.avif" type="image/avif" />
-          <source media="(min-width: 768px)" srcSet="/hero.avif" type="image/avif" />
+          <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
+          <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
           <img
-            src="/hero.avif"
+            {...desktopProps}
             alt="Запчастини для сільгосптехніки"
             className="h-full w-full object-cover object-center"
-            fetchPriority="high"
-            loading="eager"
-            decoding="async"
           />
         </picture>
         {/* Dark overlay to make text readable against both dark and bright areas */}

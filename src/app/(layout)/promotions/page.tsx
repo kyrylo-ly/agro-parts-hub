@@ -7,7 +7,7 @@ import { getPublicProducts } from "@/services/product-service";
 export const revalidate = 7200;
 
 export const metadata: Metadata = {
-  title: "Акції та знижки | Агро Літ",
+  title: "Акції та знижки",
   description: "Акційні пропозиції та знижки на запчастини для сільгосптехніки. Вигідні ціни на тракторні запчастини та підшипники.",
   alternates: {
     canonical: "/promotions",

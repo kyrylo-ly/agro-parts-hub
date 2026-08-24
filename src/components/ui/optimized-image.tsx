@@ -17,22 +17,24 @@ export function OptimizedImage({
   alt,
   ...props
 }: OptimizedImageProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!props.preload);
 
   return (
     <div className={cn("relative overflow-hidden", containerClassName)}>
-      {isLoading && (
+      {isLoading && !props.preload && (
         fallback ? fallback : (
           <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
         )
       )}
       <Image
         className={cn(
-          "transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
+          !props.preload && "transition-opacity duration-300",
+          (!props.preload && isLoading) ? "opacity-0" : "opacity-100",
           className
         )}
-        onLoad={() => setIsLoading(false)}
+        onLoad={() => {
+          if (!props.preload) setIsLoading(false);
+        }}
         alt={alt}
         {...props}
       />

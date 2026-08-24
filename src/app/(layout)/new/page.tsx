@@ -7,7 +7,7 @@ import { getPublicProducts } from "@/services/product-service";
 export const revalidate = 7200;
 
 export const metadata: Metadata = {
-  title: "Новинки | Агро Літ",
+  title: "Новинки",
   description: "Нові надходження запчастин для тракторів та сільгосптехніки. Останні додані товари в інтернет-магазині Агро Літ.",
   alternates: {
     canonical: "/new",
