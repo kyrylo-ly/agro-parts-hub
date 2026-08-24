@@ -228,7 +228,7 @@ export async function createOrder(data: CheckoutData) {
         return { success: false as const, error: "Помилка оплати: токен не налаштовано." };
       }
 
-      const appUrl = process.env.NEXT_PUBLIC_SITE_URL;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
       try {
         const monoResponse = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {

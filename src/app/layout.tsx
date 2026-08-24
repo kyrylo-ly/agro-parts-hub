@@ -11,7 +11,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL!;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

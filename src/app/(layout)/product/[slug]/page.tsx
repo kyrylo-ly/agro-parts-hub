@@ -96,7 +96,7 @@ export default async function ProductPage({
   );
   const inStock = p.stock > 0;
   const attributes = (p.attributes as Record<string, string>) || {};
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL!;
 
   // Breadcrumbs
   const breadcrumbItems: { label: string; href?: string }[] = [

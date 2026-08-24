@@ -4,7 +4,7 @@ import { product, category, collection, brand } from "@/db/schema/store";
 import { eq } from "drizzle-orm";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL!;
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
