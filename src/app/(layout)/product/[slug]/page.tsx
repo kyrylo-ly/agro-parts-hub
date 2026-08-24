@@ -101,18 +101,18 @@ export default async function ProductPage({
   // Breadcrumbs
   const breadcrumbItems: { label: string; href?: string }[] = [
     { label: "Головна", href: "/" },
-    { label: "Каталог", href: "/catalog" },
+    { label: "Каталог", href: "/categories" },
   ];
   if (p.category) {
     if (p.category.parent) {
       breadcrumbItems.push({
         label: p.category.parent.name,
-        href: `/catalog/${p.category.parent.slug}`,
+        href: `/categories/${p.category.parent.slug}`,
       });
     }
     breadcrumbItems.push({
       label: p.category.name,
-      href: `/catalog/${p.category.slug}`,
+      href: `/categories/${p.category.slug}`,
     });
   }
   breadcrumbItems.push({ label: p.name });

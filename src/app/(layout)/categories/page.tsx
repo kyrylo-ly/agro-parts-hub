@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export const revalidate = 7200;
 
 
-export default async function CatalogPage() {
+export default async function CategoriesPage() {
   const result = await getPublicCategories();
   const categories = result.success ? result.data : [];
   const topCategories = categories.filter((c) => !c.parent);
@@ -46,7 +46,7 @@ export default async function CatalogPage() {
           return (
             <Link
               key={cat.id}
-              href={`/catalog/${cat.slug}`}
+              href={`/categories/${cat.slug}`}
               className="group flex flex-col items-center gap-2 sm:gap-3 rounded-xl border bg-card p-2 sm:p-4 text-center transition-all hover:border-primary/30 hover:shadow-md lg:p-6"
             >
               <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary overflow-hidden transition-colors group-hover:bg-primary group-hover:text-primary-foreground lg:size-16">

@@ -35,7 +35,7 @@ export default async function OrdersPage() {
         <p className="text-muted-foreground max-w-md">
           Зробіть своє перше замовлення, і воно з'явиться тут.
         </p>
-        <Link href="/catalog" className="mt-4">
+        <Link href="/categories" className="mt-4">
           <span className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-12 px-8">
             Перейти до каталогу
           </span>
@@ -101,31 +101,32 @@ export default async function OrdersPage() {
                     const productUrl = product?.slug ? `/product/${product.slug}` : "#";
 
                     return (
-                    <div key={item.id} className="flex gap-4">
-                      <Link href={productUrl} className="shrink-0 block">
-                        <div className="relative size-20 bg-white rounded-xl border p-1 overflow-hidden">
-                          {product?.images?.[0]?.url ? (
-                            <Image src={product.images[0].url} alt={productName} fill sizes="80px" className="object-contain" />
-                          ) : (
-                            <Box className="size-8 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/30" />
-                          )}
-                        </div>
-                      </Link>
-                      <div className="flex flex-col flex-1 min-w-0 py-1">
-                        <Link href={productUrl} className={`font-medium line-clamp-2 transition-colors ${product ? 'hover:text-primary' : 'pointer-events-none text-muted-foreground'}`}>
-                          {productName}
+                      <div key={item.id} className="flex gap-4">
+                        <Link href={productUrl} className="shrink-0 block">
+                          <div className="relative size-20 bg-white rounded-xl border p-1 overflow-hidden">
+                            {product?.images?.[0]?.url ? (
+                              <Image src={product.images[0].url} alt={productName} fill sizes="80px" className="object-contain" />
+                            ) : (
+                              <Box className="size-8 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/30" />
+                            )}
+                          </div>
                         </Link>
-                        <div className="mt-auto flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            {item.quantity} шт x {Number(item.priceAtPurchase).toLocaleString("uk-UA")} ₴
-                          </span>
-                          <span className="font-semibold">
-                            {(Number(item.priceAtPurchase) * item.quantity).toLocaleString("uk-UA")} ₴
-                          </span>
+                        <div className="flex flex-col flex-1 min-w-0 py-1">
+                          <Link href={productUrl} className={`font-medium line-clamp-2 transition-colors ${product ? 'hover:text-primary' : 'pointer-events-none text-muted-foreground'}`}>
+                            {productName}
+                          </Link>
+                          <div className="mt-auto flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              {item.quantity} шт x {Number(item.priceAtPurchase).toLocaleString("uk-UA")} ₴
+                            </span>
+                            <span className="font-semibold">
+                              {(Number(item.priceAtPurchase) * item.quantity).toLocaleString("uk-UA")} ₴
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )})}
+                    )
+                  })}
                 </div>
               </div>
             </div>

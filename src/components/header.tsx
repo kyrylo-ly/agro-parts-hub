@@ -53,7 +53,7 @@ export function Header({ categories = [] }: HeaderProps) {
             <Logo hideTextOnMobile />
           </div>
 
-          {/* Catalog Button */}
+          {/* Categories Button */}
           <div className="hidden lg:block">
             <CategoryMenu categories={categories} />
           </div>

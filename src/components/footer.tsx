@@ -67,7 +67,7 @@ export function Footer() {
             <ul className="space-y-2.5">
               <li>
                 <Link
-                  href="/catalog"
+                  href="/categories"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   Усі категорії

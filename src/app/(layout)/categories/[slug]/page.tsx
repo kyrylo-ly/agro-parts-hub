@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { CatalogFilters } from "@/components/catalog-filters";
+import { CategoriesFilters } from "@/components/categories-filters";
 import { getPublicCategoryBySlug } from "@/services/category-service";
 import { getCategoryAttributeFilters } from "@/services/product-service";
 import { getPublicBrands } from "@/services/brand-service";
@@ -123,12 +123,12 @@ export default async function CategoryPage({
   // Breadcrumbs
   const breadcrumbItems: { label: string; href?: string }[] = [
     { label: "Головна", href: "/" },
-    { label: "Каталог", href: "/catalog" },
+    { label: "Каталог", href: "/categories" },
   ];
   if (cat.parent) {
     breadcrumbItems.push({
       label: cat.parent.name,
-      href: `/catalog/${cat.parent.slug}`,
+      href: `/categories/${cat.parent.slug}`,
     });
   }
   breadcrumbItems.push({ label: cat.name });
@@ -155,10 +155,10 @@ export default async function CategoryPage({
         </div>
 
         {/* Mobile filters trigger */}
-        <CatalogFilters
+        <CategoriesFilters
           brands={brands}
           attributes={attributeFilters}
-          basePath={`/catalog/${slug}`}
+          basePath={`/categories/${slug}`}
           variant="mobile"
         />
       </div>
@@ -169,7 +169,7 @@ export default async function CategoryPage({
           {cat.children.map((sub) => (
             <a
               key={sub.id}
-              href={`/catalog/${sub.slug}`}
+              href={`/categories/${sub.slug}`}
               className="rounded-full border bg-card px-4 py-1.5 text-sm font-medium transition-colors hover:border-primary hover:bg-primary/5"
             >
               {sub.name}
@@ -181,10 +181,10 @@ export default async function CategoryPage({
       {/* Content: sidebar + grid */}
       <div className="mt-6 flex gap-6">
         {/* Desktop sidebar */}
-        <CatalogFilters
+        <CategoriesFilters
           brands={brands}
           attributes={attributeFilters}
-          basePath={`/catalog/${slug}`}
+          basePath={`/categories/${slug}`}
           variant="desktop"
         />
 
@@ -194,7 +194,7 @@ export default async function CategoryPage({
           <Pagination
             currentPage={currentPage}
             totalPages={meta.totalPages}
-            baseUrl={`/catalog/${slug}`}
+            baseUrl={`/categories/${slug}`}
             searchParams={resolvedSearchParams as Record<string, string | string[] | undefined>}
           />
         </div>

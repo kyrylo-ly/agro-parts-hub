@@ -16,9 +16,9 @@ function SuccessContent() {
       <div className="size-24 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-500">
         <CheckCircle className="size-12" />
       </div>
-      
+
       <h1 className="text-4xl font-bold">Дякуємо за замовлення!</h1>
-      
+
       <div className="max-w-md space-y-4 text-muted-foreground">
         <p>
           Ваше замовлення успішно оформлено. Ми вже почали його обробляти.
@@ -34,7 +34,7 @@ function SuccessContent() {
       </div>
 
       <div className="flex gap-4 mt-4">
-        <Link href="/catalog">
+        <Link href="/categories">
           <Button size="lg" className="h-12 px-8">
             Продовжити покупки
           </Button>

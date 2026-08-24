@@ -39,7 +39,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
       <Button
         variant="default"
         className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
-        render={<Link href="/catalog" />}
+        render={<Link href="/categories" />}
         nativeButton={false}
       >
         <Grid2X2 className="size-4" />
@@ -126,7 +126,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
                       {activeCategory.name}
                     </h3>
                     <Link
-                      href={`/catalog/${activeCategory.slug}`}
+                      href={`/categories/${activeCategory.slug}`}
                       onClick={() => setIsOpen(false)}
                       className="text-sm text-primary hover:underline"
                     >
@@ -138,7 +138,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
                       {activeCategory.children.map((sub) => (
                         <Link
                           key={sub.id}
-                          href={`/catalog/${sub.slug}`}
+                          href={`/categories/${sub.slug}`}
                           onClick={() => setIsOpen(false)}
                           className="group flex items-center gap-3 rounded-lg border bg-card p-4 text-sm font-medium transition-colors hover:border-primary hover:bg-muted/50"
                         >

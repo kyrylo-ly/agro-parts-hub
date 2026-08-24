@@ -35,7 +35,7 @@ interface FilterAttribute {
   values: string[];
 }
 
-interface CatalogFiltersProps {
+interface CategoriesFiltersProps {
   brands: FilterBrand[];
   attributes: FilterAttribute[];
   basePath: string;
@@ -49,12 +49,12 @@ const sortOptions = [
   { value: "bestsellers", label: "Хіти продажу" },
 ] as const;
 
-export function CatalogFilters({
+export function CategoriesFilters({
   brands,
   attributes,
   basePath,
   variant = "both",
-}: CatalogFiltersProps) {
+}: CategoriesFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -115,7 +115,7 @@ export function CatalogFilters({
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Сортування">
-              {(val: string | null) => 
+              {(val: string | null) =>
                 val ? sortOptions.find(o => o.value === val)?.label : "Сортування"
               }
             </SelectValue>

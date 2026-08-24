@@ -111,7 +111,7 @@ export default function CheckoutPage() {
         <p className="text-muted-foreground max-w-md">
           Схоже, ви ще не додали товари. Перейдіть до каталогу, щоб знайти потрібні запчастини.
         </p>
-        <Link href="/catalog">
+        <Link href="/categories">
           <Button size="lg">Перейти до каталогу</Button>
         </Link>
       </div>

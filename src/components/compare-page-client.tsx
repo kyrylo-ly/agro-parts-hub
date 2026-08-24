@@ -81,7 +81,7 @@ export function ComparePageClient() {
           Немає товарів для порівняння
         </p>
         <Button
-          render={<Link href="/catalog" />}
+          render={<Link href="/categories" />}
           nativeButton={false}
         >
           Перейти до каталогу
@@ -217,7 +217,7 @@ export function ComparePageClient() {
               {products.map((p) => (
                 <td key={p.id} className="p-4 text-center text-sm">
                   {p.category ? (
-                    <Link href={`/catalog/${p.category.slug}`} className="text-primary hover:underline">
+                    <Link href={`/categories/${p.category.slug}`} className="text-primary hover:underline">
                       {p.category.name}
                     </Link>
                   ) : "—"}

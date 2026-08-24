@@ -93,7 +93,7 @@ export default function Home() {
               техніки. Великий асортимент, доступні ціни.
             </p>
             <Link
-              href="/catalog"
+              href="/categories"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "rounded-full px-8 bg-accent text-accent-foreground hover:bg-accent/90 border-none"
@@ -140,7 +140,7 @@ export default function Home() {
         <SectionHeader
           title="Категорії"
           subtitle="Знайдіть потрібні запчастини"
-          href="/catalog"
+          href="/categories"
         />
       </section>
 
@@ -198,18 +198,18 @@ async function HomepageDynamicContent() {
   const collections = collectionsResult.success ? collectionsResult.data : [];
   const brands = brandsResult.success ? brandsResult.data : [];
 
-  const topCategories = categories.filter((c) => !c.parent);
+  const topCategories = categories.filter((c) => !c.parent).slice(0, 4);
 
   return (
     <>
       {/* Categories Grid */}
       {topCategories.length > 0 && (
         <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-12">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {topCategories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/catalog/${cat.slug}`}
+                href={`/categories/${cat.slug}`}
                 className="group relative flex h-36 sm:h-44 flex-col items-center justify-end overflow-hidden rounded-lg border bg-card text-center transition-all hover:border-primary hover:shadow-lg"
               >
                 {cat.imageUrl ? (
@@ -331,8 +331,8 @@ function HomepageSkeleton() {
     <div className="animate-pulse">
       {/* Categories Grid Skeleton */}
       <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-14">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {Array.from({ length: 10 }).map((_, i) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
               className="flex flex-col items-center gap-3 rounded-xl border bg-card p-4 lg:p-6"

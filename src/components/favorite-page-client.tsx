@@ -29,9 +29,9 @@ export function FavoritePageClient() {
     load();
 
     const handleUpdate = () => {
-        load();
+      load();
     };
-    
+
     window.addEventListener("favorites-updated", handleUpdate);
     return () => window.removeEventListener("favorites-updated", handleUpdate);
   }, []);
@@ -51,7 +51,7 @@ export function FavoritePageClient() {
           У вас немає улюблених товарів
         </p>
         <Button
-          render={<Link href="/catalog" />}
+          render={<Link href="/categories" />}
           nativeButton={false}
         >
           Перейти до каталогу

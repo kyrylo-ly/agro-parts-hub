@@ -57,7 +57,7 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
-                    href={`/catalog/${cat.slug}`}
+                    href={`/categories/${cat.slug}`}
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-muted"
                   >
