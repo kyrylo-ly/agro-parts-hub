@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import {
   Truck,
   ShieldCheck,
@@ -49,20 +49,42 @@ const benefits = [
 ];
 
 export default function Home() {
+  const common = {
+    alt: "Запчастини для сільгосптехніки",
+    sizes: "100vw",
+    priority: true,
+    fetchPriority: "high" as const,
+    loading: "eager" as const,
+  };
+
+  const {
+    props: { srcSet: mobileSrcSet },
+  } = getImageProps({
+    ...common,
+    src: "/hero-mobile.avif",
+    quality: 60,
+  });
+
+  const {
+    props: { srcSet: desktopSrcSet, ...restProps },
+  } = getImageProps({
+    ...common,
+    src: "/hero.avif",
+    quality: 80,
+  });
+
   return (
     <>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <Image
-          src="/hero.avif"
-          alt="Запчастини для сільгосптехніки"
-          fill
-          priority
-          fetchPriority="high"
-          loading="eager"
-          className="object-cover object-center -z-10"
-          sizes="100vw"
-        />
+        <picture className="absolute inset-0 -z-10 h-full w-full">
+          <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
+          <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
+          <img
+            {...restProps}
+            className="h-full w-full object-cover object-center"
+          />
+        </picture>
         {/* Dark overlay to make text readable against both dark and bright areas */}
         <div className="absolute inset-0 bg-black/30 -z-10" />
 
