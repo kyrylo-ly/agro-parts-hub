@@ -25,12 +25,12 @@ export function CartButton() {
       <Button
         variant="default"
         aria-label="Кошик"
-        className="gap-2 rounded-full pl-3 pr-4 h-10 bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90"
+        className="gap-2 rounded-full pl-3 pr-4 h-10 bg-primary/10 text-primary hover:bg-primary/20"
       >
         <div className="relative">
           <ShoppingCart className="size-5" />
           {count > 0 && (
-            <span className="absolute -right-2 -top-2 flex size-4.5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground dark:bg-background dark:text-foreground">
+            <span className="absolute -right-2 -top-2 flex size-4.5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
               {count > 99 ? "99+" : count}
             </span>
           )}

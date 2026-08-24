@@ -113,7 +113,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <p
           className={cn(
             "text-xs font-medium",
-            inStock ? "text-emerald-700 dark:text-emerald-500" : "text-red-500"
+            inStock ? "text-emerald-700" : "text-red-500"
           )}
         >
           {inStock ? "В наявності" : "Немає в наявності"}

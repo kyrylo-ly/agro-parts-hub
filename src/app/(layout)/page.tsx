@@ -7,11 +7,12 @@ import {
   Headphones,
   RefreshCw,
   ArrowRight,
+  MessageCircle,
 } from "lucide-react";
 
 import { SectionHeader } from "@/components/section-header";
 import { ProductGrid } from "@/components/product-grid";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getHomepageData } from "@/services/homepage-service";
 import { Suspense } from "react";
@@ -51,7 +52,15 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
+      <section className="relative overflow-hidden">
+        <Image
+          src="/hero.avif"
+          alt="Запчастини для сільгосптехніки"
+          fill
+          priority
+          className="object-cover object-center -z-10"
+          sizes="100vw"
+        />
         <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
@@ -62,21 +71,13 @@ export default function Home() {
               Підшипники, фільтри, запчастини для тракторів МТЗ та іншої
               техніки. Великий асортимент, доступні ціни.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link
-                href="/catalog"
-                className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
-              >
-                Перейти до каталогу
-                <ArrowRight className="ml-2 size-4" />
-              </Link>
-              <Link
-                href="/brands"
-                className={cn(buttonVariants({ size: "lg", variant: "outline" }), "rounded-full px-8")}
-              >
-                Бренди
-              </Link>
-            </div>
+            <Link
+              href="/catalog"
+              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
+            >
+              Перейти до каталогу
+              <ArrowRight className="ml-2 size-4" />
+            </Link>
           </div>
         </div>
         {/* Decorative gradient blobs */}
@@ -125,6 +126,41 @@ export default function Home() {
       <Suspense fallback={<HomepageSkeleton />}>
         <HomepageDynamicContent />
       </Suspense>
+      {/* Trust Banner (Viber Expert) */}
+      <section className="bg-primary text-primary-foreground border-y-4 border-accent my-6">
+        <div className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1 space-y-4">
+              <h2 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tight">
+                Не знаєте номер деталі?
+              </h2>
+              <p className="text-lg text-primary-foreground/90 max-w-xl font-medium">
+                Сфотографуйте зламану деталь, маркування або розміри та скиньте нам у Viber. Наш експерт підбере точний аналог за 5 хвилин!
+              </p>
+              <div className="pt-2 flex flex-col sm:flex-row gap-4">
+                <a
+                  href="viber://chat?number=%2B380000000000"
+                  className={cn(buttonVariants({ size: "lg" }), "bg-[#5946D2] text-white hover:bg-[#4A3AB5] font-bold text-base px-8 uppercase")}
+                >
+                  <MessageCircle className="mr-2 size-5" />
+                  Написати у Viber
+                </a>
+              </div>
+            </div>
+            <div className="flex-1 w-full flex justify-center md:justify-end">
+              <div className="relative w-full max-w-sm aspect-video rounded-lg overflow-hidden border-4 border-accent/20 bg-secondary flex items-center justify-center">
+                <Image
+                  src="/sklad.avif"
+                  alt="Наш склад"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 384px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
