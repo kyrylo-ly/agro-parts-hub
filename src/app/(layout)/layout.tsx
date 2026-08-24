@@ -9,6 +9,27 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
 
   // Transform categories into tree structure for navigation
   const allCategories = categoriesResult.success ? categoriesResult.data : [];
+  
+  type ChildCategory = { id: number; name: string; slug: string; imageUrl: string | null };
+  const childrenMap = new Map<number, ChildCategory[]>();
+  
+  for (const cat of allCategories) {
+    if (cat.parent) {
+      const parentId = cat.parent.id;
+      const childData = {
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        imageUrl: cat.imageUrl,
+      };
+      if (!childrenMap.has(parentId)) {
+        childrenMap.set(parentId, [childData]);
+      } else {
+        childrenMap.get(parentId)!.push(childData);
+      }
+    }
+  }
+
   const topLevelCategories = allCategories
     .filter((c) => !c.parent)
     .map((cat) => ({
@@ -16,14 +37,7 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
       name: cat.name,
       slug: cat.slug,
       imageUrl: cat.imageUrl,
-      children: allCategories
-        .filter((child) => child.parent?.id === cat.id)
-        .map((child) => ({
-          id: child.id,
-          name: child.name,
-          slug: child.slug,
-          imageUrl: child.imageUrl,
-        })),
+      children: childrenMap.get(cat.id) || [],
     }));
 
   return (
