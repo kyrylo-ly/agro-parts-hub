@@ -14,6 +14,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **ORM**: Drizzle ORM.
 - **Storage**: Cloudflare R2 for images.
 - **Styling**: Tailwind CSS. (Note: we use Shadcn UI design patterns, but replace Radix UI primitives with `@base-ui/react` — see UI Components Rules).
+- **Client State**: Zustand with `persist` middleware (localStorage). Server state/data fetching should use Drizzle + Next.js `unstable_cache`.
 - **Hosting**: Vercel (Hobby/Free tier).
 
 ## Priorities (Strict Order)
@@ -30,6 +31,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Security & Architecture
 - **Proxy vs Middleware**: In Next.js 16.3, use `proxy.ts`. `middleware.ts` is deprecated.
+- **Monolith Architecture**: Fullstack Next.js monolith. No microservices, no external CMS (e.g. Strapi). The Admin panel is custom-built in `/admin`.
+- **Database Design**: Store specific dynamic product characteristics in the `JSONB` `attributes` column (GIN indexed), rather than creating complex EAV tables.
+- **Pagination**: Always use URL-based pagination (e.g., `?page=2`) instead of infinite scroll to ensure good SEO indexing and footer accessibility.
 
 ## Knowledge & Rules Management
 - **Updating Rules**: If you establish a new architectural pattern, discover a significant gotcha, or make a major project-wide decision, you MUST document it in this file (`AGENTS.md`) so future agents are aware of it.
