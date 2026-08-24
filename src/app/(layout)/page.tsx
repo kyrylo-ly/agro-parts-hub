@@ -232,8 +232,8 @@ async function HomepageDynamicContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity group-hover:opacity-100" />
 
                 {/* Content */}
-                <div className="relative z-10 w-full p-4">
-                  <p className="text-sm sm:text-base font-extrabold uppercase tracking-tight text-white line-clamp-2 drop-shadow-md">
+                <div className="relative z-10 w-full p-2 sm:p-4">
+                  <p className="text-xs sm:text-sm md:text-base font-extrabold uppercase tracking-tight text-white line-clamp-3 sm:line-clamp-2 drop-shadow-md">
                     {cat.name}
                   </p>
                 </div>

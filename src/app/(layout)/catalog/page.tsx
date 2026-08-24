@@ -47,7 +47,7 @@ export default async function CatalogPage() {
             <Link
               key={cat.id}
               href={`/catalog/${cat.slug}`}
-              className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-4 text-center transition-all hover:border-primary/30 hover:shadow-md lg:p-6"
+              className="group flex flex-col items-center gap-2 sm:gap-3 rounded-xl border bg-card p-2 sm:p-4 text-center transition-all hover:border-primary/30 hover:shadow-md lg:p-6"
             >
               <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary overflow-hidden transition-colors group-hover:bg-primary group-hover:text-primary-foreground lg:size-16">
                 {cat.imageUrl ? (
@@ -62,10 +62,10 @@ export default async function CatalogPage() {
                   <Truck className="size-7 lg:size-8" />
                 )}
               </div>
-              <div>
-                <p className="text-sm font-semibold line-clamp-2">{cat.name}</p>
+              <div className="w-full">
+                <p className="text-xs sm:text-sm font-semibold line-clamp-3 sm:line-clamp-2">{cat.name}</p>
                 {childCategories.length > 0 && (
-                  <p className="mt-1 text-xs text-primary">
+                  <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-primary">
                     {childCategories.length} підкатегорій
                   </p>
                 )}
