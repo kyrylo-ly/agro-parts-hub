@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, Zap } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGallery } from "@/components/product-gallery";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { QuickOrderDialog } from "@/components/quick-order-dialog";
 import { getPublicProductBySlug } from "@/services/product-service";
 import { db } from "@/db/db";
 import { product } from "@/db/schema/store";
@@ -71,10 +69,10 @@ function getDiscountInfo(price: string, compareAtPrice: string | null) {
     parseFloat(compareAtPrice) > parseFloat(price);
   const discountPercentage = hasDiscount
     ? Math.round(
-        ((parseFloat(compareAtPrice!) - parseFloat(price)) /
-          parseFloat(compareAtPrice!)) *
-          100
-      )
+      ((parseFloat(compareAtPrice!) - parseFloat(price)) /
+        parseFloat(compareAtPrice!)) *
+      100
+    )
     : 0;
   return { hasDiscount, discountPercentage };
 }
@@ -237,18 +235,19 @@ export default async function ProductPage({
             {/* Actions */}
             {inStock && (
               <div className="flex flex-wrap gap-3 mt-2">
-                <AddToCartButton 
-                  productId={p.id} 
-                  productName={p.name} 
+                <AddToCartButton
+                  productId={p.id}
+                  productName={p.name}
                   price={p.price}
                   slug={p.slug}
                   imageUrl={p.images?.[0]?.url}
                   className="size-10" // Make it slightly larger here if needed, or keep default
                 />
-                <Button variant="outline" className="gap-2 rounded-lg flex-1 sm:flex-none">
-                  <Zap className="size-4" />
-                  Замовлення в 1 клік
-                </Button>
+                <QuickOrderDialog
+                  productId={p.id}
+                  productName={p.name}
+                  price={p.price}
+                />
               </div>
             )}
 
