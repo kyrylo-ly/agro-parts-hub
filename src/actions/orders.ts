@@ -219,9 +219,48 @@ export async function createOrder(data: CheckoutData) {
       return newOrder.id;
     });
 
-    const redirectUrl = data.paymentMethod === "mono_pay" 
-      ? `/mock-payment?orderId=${newOrderId}` 
-      : `/checkout/success?orderId=${newOrderId}`;
+    let redirectUrl = `/checkout/success?orderId=${newOrderId}`;
+
+    if (data.paymentMethod === "mono_pay") {
+      const monoToken = process.env.MONO_TOKEN;
+      if (!monoToken) {
+        console.error("MONO_TOKEN is not set.");
+        return { success: false as const, error: "Помилка оплати: токен не налаштовано." };
+      }
+
+      // We determine the base URL for the webhook
+      // Usually you set NEXT_PUBLIC_APP_URL in your env
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.com";
+
+      try {
+        const monoResponse = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Token": monoToken,
+          },
+          body: JSON.stringify({
+            amount: Math.round(totalPrice * 100), // in kopecks
+            ccy: 980, // UAH
+            reference: newOrderId,
+            destination: `Оплата замовлення №${newOrderId.slice(0, 8)}`,
+            webHookUrl: `${appUrl}/api/webhooks/monopay`,
+          }),
+        });
+
+        if (!monoResponse.ok) {
+          const errData = await monoResponse.text();
+          console.error("Monobank API Error:", errData);
+          throw new Error("Не вдалося створити платіж у Monobank");
+        }
+
+        const monoData = await monoResponse.json();
+        redirectUrl = monoData.pageUrl;
+      } catch (err) {
+        console.error("Monobank integration error:", err);
+        return { success: false as const, error: "Сервіс оплати тимчасово недоступний" };
+      }
+    }
 
     return { success: true as const, orderId: newOrderId, redirectUrl };
   } catch (error) {

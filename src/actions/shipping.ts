@@ -1,52 +1,83 @@
 "use server";
 
-// Mocked data for cities
-const MOCK_CITIES = [
-  "Київ",
-  "Львів",
-  "Одеса",
-  "Дніпро",
-  "Харків",
-  "Запоріжжя",
-  "Вінниця",
-  "Івано-Франківськ",
-  "Тернопіль",
-  "Хмельницький",
-  "Полтава",
-  "Черкаси",
-  "Житомир",
-  "Чернівці",
-  "Рівне",
-];
-
-// Mocked data for warehouses (branches)
-const MOCK_WAREHOUSES = Array.from({ length: 150 }, (_, i) => `Відділення №${i + 1}`);
-
 export async function searchCities(query: string) {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  if (!query) {
-    return MOCK_CITIES.slice(0, 10);
+  if (!query || query.length < 2) {
+    return [];
   }
 
-  const lowerQuery = query.toLowerCase();
-  return MOCK_CITIES.filter((city) => city.toLowerCase().includes(lowerQuery));
-}
-
-export async function searchWarehouses(city: string, query: string) {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  if (!city) return [];
-
-  // Randomize available warehouses a bit based on city length to make it look "dynamic"
-  const availableWarehouses = MOCK_WAREHOUSES.filter((_, i) => i % (city.length % 3 + 1) === 0);
-
-  if (!query) {
-    return availableWarehouses.slice(0, 20);
+  const apiKey = process.env.NOVA_POSHTA_API_KEY;
+  if (!apiKey) {
+    console.error("NOVA_POSHTA_API_KEY is not set.");
+    return [];
   }
 
-  const lowerQuery = query.toLowerCase();
-  return availableWarehouses.filter((w) => w.toLowerCase().includes(lowerQuery));
+  try {
+    const response = await fetch("https://api.novaposhta.ua/v2.0/json/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiKey,
+        modelName: "Address",
+        calledMethod: "searchSettlements",
+        methodProperties: {
+          CityName: query,
+          Limit: "15",
+          Page: "1"
+        }
+      })
+    });
+
+    const data = await response.json();
+    if (data.success && data.data && data.data.length > 0 && data.data[0].Addresses) {
+      return data.data[0].Addresses.map((addr: any) => addr.Present);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching cities from Nova Poshta:", error);
+    return [];
+  }
 }
+
+export async function searchWarehouses(cityPresentString: string, query: string) {
+  if (!cityPresentString) return [];
+
+  const apiKey = process.env.NOVA_POSHTA_API_KEY;
+  if (!apiKey) {
+    console.error("NOVA_POSHTA_API_KEY is not set.");
+    return [];
+  }
+
+  // cityPresentString format is usually "м. Київ, Київська обл."
+  // We need just the name "Київ" for getWarehouses API.
+  let cityName = cityPresentString.split(",")[0].trim();
+  cityName = cityName.replace(/^(м\.|с\.|смт\.|селище|село|місто)\s*/i, "").trim();
+
+  try {
+    const response = await fetch("https://api.novaposhta.ua/v2.0/json/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiKey,
+        modelName: "Address",
+        calledMethod: "getWarehouses",
+        methodProperties: {
+          CityName: cityName,
+          FindByString: query,
+          Limit: "50",
+          Page: "1",
+          Language: "UA"
+        }
+      })
+    });
+
+    const data = await response.json();
+    if (data.success && data.data) {
+      return data.data.map((warehouse: any) => warehouse.Description);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching warehouses from Nova Poshta:", error);
+    return [];
+  }
+}
+

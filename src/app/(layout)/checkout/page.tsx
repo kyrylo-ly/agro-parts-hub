@@ -97,7 +97,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container py-16 flex flex-col items-center justify-center text-center gap-6 min-h-[50vh]">
+      <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center gap-6 min-h-[50vh]">
         <div className="size-24 rounded-full bg-muted flex items-center justify-center">
           <ShoppingCart className="size-10 text-muted-foreground" />
         </div>
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
       <h1 className="text-3xl font-bold mb-8">Оформлення замовлення</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -229,7 +229,7 @@ export default function CheckoutPage() {
 
             <div className="flex flex-col gap-4">
               {[
-                { id: "mono_pay", label: "Mono Pay (Передоплата)" },
+                { id: "mono_pay", label: "Оплата онлайн (Apple Pay, Google Pay, Картка)" },
                 { id: "cash_on_delivery", label: "При отриманні (Накладений платіж)" },
                 { id: "card_prepayment", label: "Переказ на картку" }
               ].map(type => (
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                 <div key={item.id} className="flex gap-4">
                   <div className="relative size-16 bg-muted rounded-lg shrink-0 overflow-hidden">
                     {item.imageUrl ? (
-                      <Image src={item.imageUrl} alt={item.name} fill className="object-contain p-1" />
+                      <Image src={item.imageUrl} alt={item.name} fill sizes="64px" className="object-contain p-1" />
                     ) : (
                       <ShoppingCart className="size-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/30" />
                     )}
