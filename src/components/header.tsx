@@ -56,7 +56,7 @@ export function Header({ categories = [] }: HeaderProps) {
                   className="text-primary-foreground"
                 />
               </div>
-              <span className="hidden font-bold text-xl tracking-tight sm:inline-block">
+              <span className="hidden font-bold text-xl text-primary tracking-tight sm:inline-block">
                 Агро Літ
               </span>
             </Link>

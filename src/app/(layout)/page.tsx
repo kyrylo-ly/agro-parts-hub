@@ -63,9 +63,9 @@ export default function Home() {
         />
         <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl text-primary-foreground">
               Запчастини для{" "}
-              <span className="text-primary">сільгосптехніки</span>
+              <span className="text-accent">сільгосптехніки</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl sm:text-xl">
               Підшипники, фільтри, запчастини для тракторів МТЗ та іншої
@@ -73,16 +73,13 @@ export default function Home() {
             </p>
             <Link
               href="/catalog"
-              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
+              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8 bg-accent text-accent-foreground")}
             >
               Перейти до каталогу
               <ArrowRight className="ml-2 size-4" />
             </Link>
           </div>
         </div>
-        {/* Decorative gradient blobs */}
-        <div className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-primary/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 size-96 rounded-full bg-primary/5 blur-3xl" />
       </section>
 
       {/* Benefits Bar */}

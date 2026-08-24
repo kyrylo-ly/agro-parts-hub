@@ -38,7 +38,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
     return (
       <Button
         variant="default"
-        className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
         render={<Link href="/catalog" />}
         nativeButton={false}
       >
@@ -55,7 +55,7 @@ export function CategoryMenu({ categories = [] }: CategoryMenuProps) {
         render={
           <Button
             variant="default"
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
           />
         }
       >

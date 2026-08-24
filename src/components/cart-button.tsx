@@ -23,9 +23,9 @@ export function CartButton() {
   return (
     <CartSheet>
       <Button
-        variant="default"
+        variant="outline"
         aria-label="Кошик"
-        className="gap-2 rounded-full pl-3 pr-4 h-10 bg-primary/10 text-primary hover:bg-primary/20"
+        className="gap-2 rounded-full pl-3 pr-4 h-10"
       >
         <div className="relative">
           <ShoppingCart className="size-5" />
