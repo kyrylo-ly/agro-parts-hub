@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     // inlineCss: true,
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: r2Domain.protocol.replace(":", "") as "https",
