@@ -63,7 +63,7 @@ export async function searchWarehouses(cityPresentString: string, query: string)
         methodProperties: {
           CityName: cityName,
           FindByString: query,
-          Limit: "50",
+          Limit: "1000",
           Page: "1",
           Language: "UA"
         }

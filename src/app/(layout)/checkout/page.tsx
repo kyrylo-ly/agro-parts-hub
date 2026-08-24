@@ -46,8 +46,8 @@ export default function CheckoutPage() {
 
   React.useEffect(() => {
     if (formData.deliveryType === "pickup" || !formData.city) return;
-    searchWarehouses(formData.city, formData.warehouse).then(setWarehouses);
-  }, [formData.city, formData.warehouse, formData.deliveryType]);
+    searchWarehouses(formData.city, "").then(setWarehouses);
+  }, [formData.city, formData.deliveryType]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -79,9 +79,14 @@ export default function CheckoutPage() {
     if (result.success) {
       clearCart();
       if (result.redirectUrl) {
-        router.push(result.redirectUrl);
+        if (formData.paymentMethod === "mono_pay") {
+          window.open(result.redirectUrl, "_blank", "noopener,noreferrer");
+          router.push(`/checkout/success?orderId=${result.orderId}`);
+        } else {
+          router.push(result.redirectUrl);
+        }
       } else {
-        router.push(`/checkout/success?orderId=\${result.orderId}`);
+        router.push(`/checkout/success?orderId=${result.orderId}`);
       }
     } else {
       toast.error(result.error);
