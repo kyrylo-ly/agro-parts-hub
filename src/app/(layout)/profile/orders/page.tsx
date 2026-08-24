@@ -14,7 +14,7 @@ export default async function OrdersPage() {
 
   if (!result.success) {
     return (
-      <div className="container py-16">
+      <div className="container mx-auto px-4 py-8 lg:py-16 max-w-5xl">
         <h1 className="text-3xl font-bold mb-8">Мої замовлення</h1>
         <div className="bg-destructive/10 text-destructive p-4 rounded-xl">
           {result.error}
@@ -27,7 +27,7 @@ export default async function OrdersPage() {
 
   if (!orders || orders.length === 0) {
     return (
-      <div className="container py-16 flex flex-col items-center justify-center min-h-[50vh] text-center gap-6">
+      <div className="container mx-auto px-4 py-8 lg:py-16 flex flex-col items-center justify-center min-h-[50vh] text-center gap-6">
         <div className="size-24 bg-muted rounded-full flex items-center justify-center text-muted-foreground">
           <Package className="size-10" />
         </div>
@@ -58,7 +58,7 @@ export default async function OrdersPage() {
   };
 
   return (
-    <div className="container py-16 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 lg:py-16 max-w-5xl">
       <h1 className="text-3xl font-bold mb-8">Мої замовлення</h1>
       <div className="space-y-6">
         {orders.map((order) => {
