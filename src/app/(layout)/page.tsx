@@ -58,6 +58,8 @@ export default function Home() {
           alt="Запчастини для сільгосптехніки"
           fill
           priority
+          fetchPriority="high"
+          loading="eager"
           className="object-cover object-center -z-10"
           sizes="100vw"
         />
