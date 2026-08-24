@@ -15,7 +15,7 @@ import { UserMenu } from "@/components/user-menu";
 import { CategoryMenu } from "@/components/category-menu";
 import { CompareIndicator } from "@/components/compare-indicator";
 import { FavoriteIndicator } from "@/components/favorite-indicator";
-
+import { Logo } from "@/components/logo";
 export type NavItem = {
   label: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -50,16 +50,7 @@ export function Header({ categories = [] }: HeaderProps) {
             <MobileNav categories={categories} />
 
             {/* Logo */}
-            <Link href="/" aria-label="Агро Літ" className="flex shrink-0 items-center gap-2">
-              <div className="flex aspect-square size-9 lg:size-10 items-center justify-center rounded-lg bg-primary">
-                <Tractor
-                  className="text-primary-foreground"
-                />
-              </div>
-              <span className="hidden font-bold text-xl text-primary tracking-tight sm:inline-block">
-                Агро Літ
-              </span>
-            </Link>
+            <Logo hideTextOnMobile />
           </div>
 
           {/* Catalog Button */}

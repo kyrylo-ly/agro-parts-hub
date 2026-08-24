@@ -18,6 +18,8 @@ import {
 import { bottomNav } from "@/components/header";
 import { cn } from "@/lib/utils";
 
+import { Logo } from "@/components/logo";
+
 interface MobileNavProps {
   categories?: {
     id: number;
@@ -40,13 +42,8 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
       </SheetTrigger>
       <SheetContent side="left" className="w-80 p-0">
         <SheetHeader className="px-4 pt-4">
-          <SheetTitle className="flex items-center gap-2">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-sm bg-primary">
-              <Tractor
-                className="text-primary-foreground"
-              />
-            </div>
-            Агро Літ
+          <SheetTitle className="m-0 p-0">
+            <Logo onClick={() => setOpen(false)} />
           </SheetTitle>
         </SheetHeader>
         <ScrollArea className="min-h-0 flex-1">
