@@ -228,9 +228,7 @@ export async function createOrder(data: CheckoutData) {
         return { success: false as const, error: "Помилка оплати: токен не налаштовано." };
       }
 
-      // We determine the base URL for the webhook
-      // Usually you set NEXT_PUBLIC_APP_URL in your env
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.com";
+      const appUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
       try {
         const monoResponse = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
