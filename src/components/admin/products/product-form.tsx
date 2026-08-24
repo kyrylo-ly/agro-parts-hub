@@ -351,7 +351,7 @@ export function ProductForm({
             {collections.map((col) => (
               <label
                 key={col.id}
-                className="flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer hover:bg-accent transition-colors"
+                className="flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer hover:bg-muted transition-colors"
               >
                 <Checkbox
                   checked={selectedCollectionIds.includes(col.id)}

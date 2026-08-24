@@ -68,7 +68,7 @@ export function AdminSidebar() {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
         </button>
@@ -88,7 +88,7 @@ export function AdminSidebar() {
                 "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
               title={collapsed ? item.title : undefined}
             >
