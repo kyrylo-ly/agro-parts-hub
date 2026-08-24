@@ -1,4 +1,5 @@
-import Image from "next/image";
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -20,11 +21,12 @@ interface ProductCardProps {
     brand: { name: string; slug: string } | null;
     images: { url: string }[];
   };
+  priority?: boolean;
 }
 
 import { isNewProduct, calculateDiscount, formatPrice } from "@/lib/domain/product";
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, priority = false }: ProductCardProps) {
   const hasDiscount =
     product.compareAtPrice !== null &&
     product.compareAtPrice !== "" &&
@@ -70,11 +72,13 @@ export function ProductCard({ product }: ProductCardProps) {
         className="relative aspect-square overflow-hidden bg-muted/30"
       >
         {imageUrl ? (
-          <Image
+          <OptimizedImage
             src={imageUrl}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={priority}
+            containerClassName="w-full h-full"
             className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
@@ -147,6 +151,24 @@ export function ProductCard({ product }: ProductCardProps) {
               />
             )}
           </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <article className="group relative flex flex-col overflow-hidden rounded-xl border bg-card p-3 sm:p-4 gap-3">
+      <Skeleton className="w-full aspect-square rounded-xl" />
+      <div className="flex flex-col gap-2 mt-2">
+        <Skeleton className="h-4 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/4 mt-2" />
+        <div className="mt-4 flex justify-between items-end gap-2">
+          <Skeleton className="h-6 w-1/2" />
+          <Skeleton className="h-10 w-10 sm:w-32 rounded-md" />
         </div>
       </div>
     </article>

@@ -35,6 +35,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: "#F8F9FA",
+};
+
 // JSON-LD structured data for Organization + WebSite
 function JsonLd() {
   const organizationSchema = {
