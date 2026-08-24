@@ -1,11 +1,11 @@
-import { getBrands } from "@/actions/brands";
+import { getAllBrands } from "@/services/brand-service";
 import { BrandsTable } from "@/components/admin/brands/brands-table";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default async function BrandsPage() {
-  const result = await getBrands();
+  const result = await getAllBrands();
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getProducts } from "@/actions/products";
+import { getAdminProducts } from "@/services/product-service";
 import { ProductsTable } from "@/components/admin/products/products-table";
 import { ProductSearch } from "@/components/admin/products/product-search";
 
@@ -13,7 +13,7 @@ export default async function ProductsPage({
   const { page, search } = await searchParams;
   const currentPage = parseInt(page ?? "1", 10);
 
-  const result = await getProducts({
+  const result = await getAdminProducts({
     page: currentPage,
     limit: 20,
     search: search ?? undefined,

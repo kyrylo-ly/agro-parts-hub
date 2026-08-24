@@ -79,3 +79,15 @@ export async function getPublicBrandBySlug(
     return { success: false as const, error: "Failed to fetch brand" };
   }
 }
+
+export async function getAllBrands() {
+  try {
+    const brands = await db.query.brand.findMany({
+      orderBy: (brands, { asc }) => [asc(brands.name)],
+    });
+    return { success: true as const, data: brands };
+  } catch (error) {
+    console.error("Failed to get brands:", error);
+    return { success: false as const, error: "Failed to fetch brands" };
+  }
+}

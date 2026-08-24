@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCategoryById, getCategories } from "@/actions/categories";
+import { getCategoryById, getAllCategories } from "@/services/category-service";
 import { CategoryForm } from "@/components/admin/categories/category-form";
 
 export default async function EditCategoryPage({
@@ -16,7 +16,7 @@ export default async function EditCategoryPage({
 
   const [categoryResult, categoriesResult] = await Promise.all([
     getCategoryById(categoryId),
-    getCategories(),
+    getAllCategories(),
   ]);
 
   if (!categoryResult.success) {

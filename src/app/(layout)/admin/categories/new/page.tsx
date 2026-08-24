@@ -1,8 +1,8 @@
-import { getCategories } from "@/actions/categories";
+import { getAllCategories } from "@/services/category-service";
 import { CategoryForm } from "@/components/admin/categories/category-form";
 
 export default async function NewCategoryPage() {
-  const result = await getCategories();
+  const result = await getAllCategories();
   const categories = result.success ? result.data : [];
 
   return (

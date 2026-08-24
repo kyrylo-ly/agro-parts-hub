@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 1. **Zero Cost**: Maintain a completely free infrastructure (Vercel free tier, Neon free tier, Cloudflare R2).
 2. **Server Optimization**: Fast TTFB, efficient DB queries, optimal rendering strategies (SSR/SSG/ISR).
 3. **SEO**: Server-rendered content, proper metadata, semantics.
-5. **Client Optimization**: Fast LCP, CLS, smooth interactions.
+4. **Client Optimization**: Fast LCP, CLS, smooth interactions.
 
 ## UI Components Rules
 - **Base UI vs Radix**: This project uses `@base-ui/react` (MUI Base UI) for UI primitives (like Dialog, Sheet, etc.), not Radix UI.

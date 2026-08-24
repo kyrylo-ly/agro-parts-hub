@@ -9,42 +9,6 @@ import { categorySchema, type CategoryInput } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
 
-export async function getCategories() {
-  try {
-    const categories = await db.query.category.findMany({
-      orderBy: (categories, { asc }) => [asc(categories.name)],
-      with: {
-        children: true,
-        parent: true,
-      },
-    });
-    return { success: true as const, data: categories };
-  } catch (error) {
-    console.error("Failed to get categories:", error);
-    return { success: false as const, error: "Failed to fetch categories" };
-  }
-}
-
-export async function getCategoryById(id: number) {
-  try {
-    const foundCategory = await db.query.category.findFirst({
-      where: eq(category.id, id),
-      with: {
-        children: true,
-        parent: true,
-      },
-    });
-
-    if (!foundCategory) {
-      return { success: false as const, error: "Category not found" };
-    }
-
-    return { success: true as const, data: foundCategory };
-  } catch (error) {
-    console.error("Failed to get category:", error);
-    return { success: false as const, error: "Failed to fetch category" };
-  }
-}
 
 export async function createCategory(input: CategoryInput) {
   try {
@@ -192,3 +156,4 @@ export async function getCategoryProductImages(categoryId: number) {
     return { success: false as const, error: "Failed to fetch images" };
   }
 }
+

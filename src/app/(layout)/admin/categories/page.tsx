@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCategories } from "@/actions/categories";
+import { getAllCategories } from "@/services/category-service";
 import { CategoriesTable } from "@/components/admin/categories/categories-table";
 
 export default async function CategoriesPage() {
-  const result = await getCategories();
+  const result = await getAllCategories();
 
   return (
     <div>

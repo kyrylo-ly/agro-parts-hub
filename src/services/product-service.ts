@@ -399,3 +399,91 @@ export const getBestsellers = unstable_cache(
   ["bestsellers"],
   { revalidate: 7200, tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.BESTSELLERS] }
 );
+
+interface GetProductsOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export async function getAdminProducts({ page = 1, limit = 10, search }: GetProductsOptions = {}) {
+  try {
+    const offset = (page - 1) * limit;
+
+    const conditions = [];
+
+    if (search) {
+      conditions.push(
+        or(
+          ilike(product.name, `%${escapeLike(search)}%`),
+          ilike(product.sku, `%${escapeLike(search)}%`),
+        )
+      );
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [totalCount] = await db
+      .select({ count: count() })
+      .from(product)
+      .where(whereClause);
+
+    const products = await db.query.product.findMany({
+      where: whereClause,
+      limit,
+      offset,
+      orderBy: (products, { desc }) => [desc(products.createdAt)],
+      with: {
+        category: true,
+        brand: true,
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+          limit: 1, // Only first image for list view
+        },
+      },
+    });
+
+    return {
+      success: true as const,
+      data: products,
+      meta: {
+        total: totalCount.count,
+        page,
+        limit,
+        totalPages: Math.ceil(totalCount.count / limit),
+      },
+    };
+  } catch (error) {
+    console.error("Failed to get products:", error);
+    return { success: false as const, error: "Failed to fetch products" };
+  }
+}
+
+export async function getAdminProductById(id: string) {
+  try {
+    const foundProduct = await db.query.product.findFirst({
+      where: eq(product.id, id),
+      with: {
+        category: true,
+        brand: true,
+        images: {
+          orderBy: (images, { asc }) => [asc(images.orderIndex)],
+        },
+        collections: {
+          with: {
+            collection: true,
+          },
+        },
+      },
+    });
+
+    if (!foundProduct) {
+      return { success: false as const, error: "Product not found" };
+    }
+
+    return { success: true as const, data: foundProduct };
+  } catch (error) {
+    console.error("Failed to get product:", error);
+    return { success: false as const, error: "Failed to fetch product" };
+  }
+}

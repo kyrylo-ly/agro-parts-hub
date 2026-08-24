@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { getProductById } from "@/actions/products";
-import { getCategories } from "@/actions/categories";
-import { getBrands } from "@/actions/brands";
+import { getAdminProductById } from "@/services/product-service";
+import { getAllCategories } from "@/services/category-service";
+import { getAllBrands } from "@/services/brand-service";
 import { getCollections } from "@/actions/collections";
 import { ProductForm } from "@/components/admin/products/product-form";
 
@@ -14,9 +14,9 @@ export default async function EditProductPage({
 
   const [productResult, categoriesResult, brandsResult, collectionsResult] =
     await Promise.all([
-      getProductById(id),
-      getCategories(),
-      getBrands(),
+      getAdminProductById(id),
+      getAllCategories(),
+      getAllBrands(),
       getCollections(),
     ]);
 
