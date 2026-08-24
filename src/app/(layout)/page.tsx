@@ -50,7 +50,7 @@ const benefits = [
 ];
 
 export default function Home() {
-  const common = { alt: "Запчастини для сільгосптехніки", fill: true, preload: true, sizes: "100vw", className: "object-cover object-center" };
+  const common = { alt: "Запчастини для сільгосптехніки", fill: true, fetchPriority: "high" as const, sizes: "100vw", className: "object-cover object-center" };
   const {
     props: { srcSet: desktopSrcSet, ...desktopProps },
   } = getImageProps({
