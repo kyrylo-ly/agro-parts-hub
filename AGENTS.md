@@ -7,33 +7,3 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
-
-## Project Context & Tech Stack
-- **Framework**: Next.js 16.3 (App Router) with TypeScript. **CRITICAL:** This is a new version with breaking changes. Always verify Next.js 16+ specific APIs, server/client boundaries, and conventions. If unsure, refer to `node_modules/next/dist/docs/` before assuming outdated approaches.
-- **Database**: PostgreSQL hosted on Neon.tech (Free tier).
-- **ORM**: Drizzle ORM.
-- **Storage**: Cloudflare R2 for images.
-- **Styling**: Tailwind CSS. (Note: we use Shadcn UI design patterns, but replace Radix UI primitives with `@base-ui/react` — see UI Components Rules).
-- **Client State**: Zustand with `persist` middleware (localStorage). Server state/data fetching should use Drizzle + Next.js `unstable_cache`.
-- **Hosting**: Vercel (Hobby/Free tier).
-
-## Priorities (Strict Order)
-1. **Zero Cost**: Maintain a completely free infrastructure (Vercel free tier, Neon free tier, Cloudflare R2).
-2. **Server Optimization**: Fast TTFB, efficient DB queries, optimal rendering strategies (SSR/SSG/ISR).
-3. **SEO**: Server-rendered content, proper metadata, semantics.
-4. **Client Optimization**: Fast LCP, CLS, smooth interactions.
-
-## UI Components Rules
-- **Base UI vs Radix**: This project uses `@base-ui/react` (MUI Base UI) for UI primitives (like Dialog, Sheet, etc.), not Radix UI.
-- **DO NOT use `asChild`**: Base UI components do NOT support the `asChild` prop. Instead, they use a `render` prop.
-  - ❌ WRONG: `<SheetClose asChild><Link href="/">...</Link></SheetClose>`
-  - ✅ CORRECT: `<SheetClose render={<Link href="/">...</Link>} />`
-
-## Security & Architecture
-- **Proxy vs Middleware**: In Next.js 16.3, use `proxy.ts`. `middleware.ts` is deprecated.
-- **Monolith Architecture**: Fullstack Next.js monolith. No microservices, no external CMS (e.g. Strapi). The Admin panel is custom-built in `/admin`.
-- **Database Design**: Store specific dynamic product characteristics in the `JSONB` `attributes` column (GIN indexed), rather than creating complex EAV tables.
-- **Pagination**: Always use URL-based pagination (e.g., `?page=2`) instead of infinite scroll to ensure good SEO indexing and footer accessibility.
-
-## Knowledge & Rules Management
-- **Updating Rules**: If you establish a new architectural pattern, discover a significant gotcha, or make a major project-wide decision, you MUST document it in this file (`AGENTS.md`) so future agents are aware of it.
