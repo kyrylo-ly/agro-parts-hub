@@ -14,7 +14,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **ORM**: Drizzle ORM.
 - **Storage**: Cloudflare R2 for images.
 - **Styling**: Tailwind CSS. (Note: we use Shadcn UI design patterns, but replace Radix UI primitives with `@base-ui/react` — see UI Components Rules).
-- **Client State**: Zustand with `persist` middleware (localStorage). Server state/data fetching should use Drizzle + Next.js `unstable_cache`.
+- **State & Data Fetching**: No client state libraries (no Zustand/React Query). Use URL `searchParams` for UI state. Server state/data fetching must use Drizzle + Next.js `'use cache'` directive (Cache Components).
 - **Hosting**: Vercel (Hobby/Free tier).
 
 ## Priorities (Strict Order)
@@ -31,8 +31,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Security & Architecture
 - **Proxy vs Middleware**: In Next.js 16.3, use `proxy.ts`. `middleware.ts` is deprecated.
-- **Monolith Architecture**: Fullstack Next.js monolith. No microservices, no external CMS (e.g. Strapi). The Admin panel is custom-built in `/admin`.
-- **Database Design**: Store specific dynamic product characteristics in the `JSONB` `attributes` column (GIN indexed), rather than creating complex EAV tables.
+- **Monolith Architecture**: Fullstack Next.js monolith using **Domain-Driven Design (DDD)** principles. Code is grouped into `src/modules/<domain>/` with strict layers: `domain`, `infrastructure` (DAL/DB), `application` (Server Actions), and `presentation` (UI).
+- **Database Design**: Hybrid approach. Use relational tables (`attribute`, `category_attribute`, `product_attribute_value`) for mandatory category characteristics. Use the `JSONB` `attributes` column only for unstructured/arbitrary notes. Categories use a Many-to-Many relationship with products (`product_to_category`) for polyhierarchy (faceted navigation).
 - **Pagination**: Always use URL-based pagination (e.g., `?page=2`) instead of infinite scroll to ensure good SEO indexing and footer accessibility.
 
 ## Knowledge & Rules Management
