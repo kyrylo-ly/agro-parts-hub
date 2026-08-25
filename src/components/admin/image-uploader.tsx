@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Loader2, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import imageCompression from 'browser-image-compression';
 import { uploadProductImage, deleteProductImage, reorderProductImages } from "@/actions/upload";
 
 interface ProductImageData {
@@ -28,12 +29,26 @@ export function ImageUploader({ productId, images, onImagesChange }: ImageUpload
 
     setUploading(true);
     for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
+      try {
+        const options = {
+          maxSizeMB: 0.3,
+          maxWidthOrHeight: 1200,
+          useWebWorker: true,
+          fileType: "image/webp" as const,
+          initialQuality: 0.8,
+        };
+        const compressedFile = await imageCompression(file, options);
 
-      const result = await uploadProductImage(productId, formData);
-      if (!result.success) {
-        toast.error(result.error);
+        const formData = new FormData();
+        formData.append("file", compressedFile);
+
+        const result = await uploadProductImage(productId, formData);
+        if (!result.success) {
+          toast.error(result.error);
+        }
+      } catch (error) {
+        console.error("Error compressing image:", error);
+        toast.error("Помилка обробки зображення");
       }
     }
     setUploading(false);

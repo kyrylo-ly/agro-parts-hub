@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import imageCompression from 'browser-image-compression';
 import { uploadSingleImage } from "@/actions/upload";
 
 interface SingleImageUploaderProps {
@@ -26,17 +27,31 @@ export function SingleImageUploader({
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    const file = files[0];
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const file = files[0];
+      const options = {
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+        fileType: "image/webp" as const,
+        initialQuality: 0.8,
+      };
+      const compressedFile = await imageCompression(file, options);
 
-    const result = await uploadSingleImage(folder, formData);
-    if (!result.success) {
-      toast.error(result.error);
-    } else {
-      onUpload(result.data.url);
+      const formData = new FormData();
+      formData.append("file", compressedFile);
+
+      const result = await uploadSingleImage(folder, formData);
+      if (!result.success) {
+        toast.error(result.error);
+      } else {
+        onUpload(result.data.url);
+      }
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      toast.error("Помилка обробки зображення");
     }
-    
+
     setUploading(false);
   }
 

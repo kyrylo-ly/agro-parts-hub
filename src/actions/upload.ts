@@ -2,7 +2,6 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import sharp from "sharp";
 import { db } from "@/db/db";
 import { productImage } from "@/db/schema/store";
 import { uploadToR2, deleteFromR2, getKeyFromUrl } from "@/lib/r2";
@@ -30,17 +29,12 @@ export async function uploadProductImage(productId: string, formData: FormData) 
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const contentType = "image/webp";
-    const ext = "webp";
-
-    const optimizedBuffer = await sharp(buffer)
-      .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80, effort: 4 })
-      .toBuffer();
+    const contentType = file.type || "image/webp";
+    const ext = contentType.includes("webp") ? "webp" : contentType.includes("jpeg") ? "jpg" : contentType.includes("png") ? "png" : "webp";
 
     const key = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    const url = await uploadToR2(optimizedBuffer, key, contentType);
+    const url = await uploadToR2(buffer, key, contentType);
 
     // Get current max order index
     const existingImages = await db.query.productImage.findMany({
@@ -86,17 +80,12 @@ export async function uploadSingleImage(folder: string, formData: FormData) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const contentType = "image/webp";
-    const ext = "webp";
-
-    const optimizedBuffer = await sharp(buffer)
-      .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toBuffer();
+    const contentType = file.type || "image/webp";
+    const ext = contentType.includes("webp") ? "webp" : contentType.includes("jpeg") ? "jpg" : contentType.includes("png") ? "png" : "webp";
 
     const key = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    const url = await uploadToR2(optimizedBuffer, key, contentType);
+    const url = await uploadToR2(buffer, key, contentType);
 
     return { success: true as const, data: { url } };
   } catch (error) {
