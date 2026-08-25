@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, count } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { db } from "@/db/db";
 import { brand, product } from "@/db/schema/store";
@@ -37,7 +37,7 @@ export async function createBrand(input: BrandInput) {
 
     revalidatePath("/admin/brands");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.BRANDS, "max" as any);
+    updateTag(CACHE_TAGS.BRANDS);
     return { success: true as const, data: newBrand };
   } catch (error) {
     console.error("Failed to create brand:", error);
@@ -76,7 +76,7 @@ export async function updateBrand(id: number, input: BrandInput) {
 
     revalidatePath("/admin/brands");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.BRANDS, "max" as any);
+    updateTag(CACHE_TAGS.BRANDS);
     return { success: true as const, data: updatedBrand };
   } catch (error) {
     console.error("Failed to update brand:", error);
@@ -107,7 +107,7 @@ export async function deleteBrand(id: number) {
     await db.delete(brand).where(eq(brand.id, id));
     revalidatePath("/admin/brands");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.BRANDS, "max" as any);
+    updateTag(CACHE_TAGS.BRANDS);
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete brand:", error);

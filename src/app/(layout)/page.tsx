@@ -18,7 +18,7 @@ import { getHomepageData } from "@/services/homepage-service";
 import { Suspense } from "react";
 import { preload } from "react-dom";
 
-export const revalidate = 7200;
+
 
 export const metadata: Metadata = {
   title: "Агро Літ — Запчастини для тракторів та сільгосптехніки",
@@ -48,6 +48,8 @@ const benefits = [
     description: "Консультація спеціалістів",
   },
 ];
+
+export const instant = false;
 
 export default function Home() {
   const common = { alt: "Запчастини для сільгосптехніки", fill: true, fetchPriority: "high" as const, loading: "eager" as const, sizes: "100vw", className: "object-cover object-center" };

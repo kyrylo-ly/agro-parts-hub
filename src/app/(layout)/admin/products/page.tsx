@@ -4,21 +4,14 @@ import { Button } from "@/components/ui/button";
 import { getAdminProducts } from "@/services/product-service";
 import { ProductsTable } from "@/components/admin/products/products-table";
 import { ProductSearch } from "@/components/admin/products/product-search";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function ProductsPage({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string; search?: string }>;
 }) {
-  const { page, search } = await searchParams;
-  const currentPage = parseInt(page ?? "1", 10);
-
-  const result = await getAdminProducts({
-    page: currentPage,
-    limit: 20,
-    search: search ?? undefined,
-  });
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -31,6 +24,47 @@ export default async function ProductsPage({
         </Link>
       </div>
 
+      <Suspense fallback={<AdminProductsSkeleton />}>
+        <AdminProductsContent searchParamsPromise={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+function AdminProductsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-full max-w-sm" />
+      <div className="border rounded-lg p-4 space-y-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex gap-4">
+            <Skeleton className="h-12 w-12" />
+            <Skeleton className="h-12 flex-1" />
+            <Skeleton className="h-12 w-24" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function AdminProductsContent({
+  searchParamsPromise,
+}: {
+  searchParamsPromise: Promise<{ page?: string; search?: string }>;
+}) {
+  const searchParams = await searchParamsPromise;
+  const { page, search } = searchParams;
+  const currentPage = parseInt(page ?? "1", 10);
+
+  const result = await getAdminProducts({
+    page: currentPage,
+    limit: 20,
+    search: search ?? undefined,
+  });
+
+  return (
+    <>
       <div className="mb-4">
         <ProductSearch defaultValue={search ?? ""} />
       </div>
@@ -44,6 +78,6 @@ export default async function ProductsPage({
       ) : (
         <p className="text-destructive">{result.error}</p>
       )}
-    </div>
+    </>
   );
 }

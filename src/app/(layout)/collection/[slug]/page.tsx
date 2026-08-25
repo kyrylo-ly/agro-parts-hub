@@ -5,17 +5,6 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { getPublicCollectionBySlug } from "@/services/collection-service";
-import { db } from "@/db/db";
-import { collection } from "@/db/schema/store";
-
-export const revalidate = 7200;
-
-export async function generateStaticParams() {
-  const collections = await db
-    .select({ slug: collection.slug })
-    .from(collection);
-  return collections.map((c) => ({ slug: c.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -38,15 +27,56 @@ export async function generateMetadata({
   };
 }
 
-export default async function CollectionPage({
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function CollectionPage({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
+  return (
+    <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+      <Suspense fallback={<CollectionSkeleton />}>
+        <CollectionContent paramsPromise={params} searchParamsPromise={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+function CollectionSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <Skeleton className="h-6 w-1/4" />
+      <Skeleton className="h-8 w-64 mt-4" />
+      <Skeleton className="h-4 w-96 mt-2" />
+      <Skeleton className="h-4 w-32 mt-1" />
+      <div className="mt-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="space-y-4">
+              <Skeleton className="aspect-square w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function CollectionContent({
+  paramsPromise,
+  searchParamsPromise,
+}: {
+  paramsPromise: Promise<{ slug: string }>;
+  searchParamsPromise: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { slug } = await paramsPromise;
+  const resolvedSearchParams = await searchParamsPromise;
   const page = Number(
     Array.isArray(resolvedSearchParams.page)
       ? resolvedSearchParams.page[0]
@@ -62,7 +92,7 @@ export default async function CollectionPage({
   const { collection: col, products, meta } = result.data;
 
   return (
-    <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+    <>
       <Breadcrumbs
         items={[
           { label: "Головна", href: "/" },
@@ -90,6 +120,6 @@ export default async function CollectionPage({
           baseUrl={`/collection/${slug}`}
         />
       </div>
-    </div>
+    </>
   );
 }

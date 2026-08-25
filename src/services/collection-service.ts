@@ -1,6 +1,6 @@
 import "server-only";
 import { eq, count } from "drizzle-orm";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db/db";
 import { collection, productToCollection } from "@/db/schema/store";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
@@ -11,6 +11,9 @@ export async function getPublicCollectionBySlug(
   slug: string,
   filters: ProductFilterParams = {}
 ) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.COLLECTIONS);
   try {
     const foundCollection = await db.query.collection.findFirst({
       where: eq(collection.slug, slug),
@@ -56,7 +59,11 @@ export async function getPublicCollectionBySlug(
   }
 }
 
-export async function _getPublicCollectionsRaw() {
+export async function getPublicCollections() {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.COLLECTIONS);
+
   try {
     const collections = await db.query.collection.findMany({
       orderBy: (collections, { desc }) => [desc(collections.createdAt)],
@@ -85,9 +92,3 @@ export async function _getPublicCollectionsRaw() {
     return { success: false as const, error: "Failed to fetch collections" };
   }
 }
-
-export const getPublicCollections = unstable_cache(
-  _getPublicCollectionsRaw,
-  ["public-collections"],
-  { revalidate: 7200, tags: [CACHE_TAGS.COLLECTIONS] }
-);

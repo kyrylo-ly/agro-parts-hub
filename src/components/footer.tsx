@@ -14,7 +14,7 @@ const companyLinks = [
 ];
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear = 2026;
 
   return (
     <footer className="mt-auto border-t bg-muted/30">

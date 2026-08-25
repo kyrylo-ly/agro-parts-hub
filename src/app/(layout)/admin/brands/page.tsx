@@ -3,10 +3,10 @@ import { BrandsTable } from "@/components/admin/brands/brands-table";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function BrandsPage() {
-  const result = await getAllBrands();
-
+export default function BrandsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -18,12 +18,32 @@ export default async function BrandsPage() {
           </Button>
         </Link>
       </div>
+      <Suspense fallback={<BrandsSkeleton />}>
+        <BrandsContent />
+      </Suspense>
+    </div>
+  );
+}
 
+function BrandsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-64 w-full" />
+    </div>
+  );
+}
+
+async function BrandsContent() {
+  const result = await getAllBrands();
+
+  return (
+    <>
       {result.success ? (
         <BrandsTable brands={result.data} />
       ) : (
         <p className="text-destructive">{result.error}</p>
       )}
-    </div>
+    </>
   );
 }

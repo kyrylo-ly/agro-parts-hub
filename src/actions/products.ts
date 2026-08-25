@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { db } from "@/db/db";
 import { product, productToCollection, productImage } from "@/db/schema/store";
@@ -58,9 +58,9 @@ export async function createProduct(input: ProductInput) {
 
     revalidatePath("/admin/products");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);
-    revalidateTag(CACHE_TAGS.NEW_ARRIVALS, "max" as any);
-    revalidateTag(CACHE_TAGS.BESTSELLERS, "max" as any);
+    updateTag(CACHE_TAGS.PRODUCTS);
+    updateTag(CACHE_TAGS.NEW_ARRIVALS);
+    updateTag(CACHE_TAGS.BESTSELLERS);
     return { success: true as const, data: newProduct };
   } catch (error) {
     console.error("Failed to create product:", error);
@@ -121,9 +121,9 @@ export async function updateProduct(id: string, input: ProductInput) {
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);
-    revalidateTag(CACHE_TAGS.NEW_ARRIVALS, "max" as any);
-    revalidateTag(CACHE_TAGS.BESTSELLERS, "max" as any);
+    updateTag(CACHE_TAGS.PRODUCTS);
+    updateTag(CACHE_TAGS.NEW_ARRIVALS);
+    updateTag(CACHE_TAGS.BESTSELLERS);
     return { success: true as const, data: updatedProduct };
   } catch (error) {
     console.error("Failed to update product:", error);
@@ -150,9 +150,9 @@ export async function deleteProduct(id: string) {
     await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);
-    revalidateTag(CACHE_TAGS.NEW_ARRIVALS, "max" as any);
-    revalidateTag(CACHE_TAGS.BESTSELLERS, "max" as any);
+    updateTag(CACHE_TAGS.PRODUCTS);
+    updateTag(CACHE_TAGS.NEW_ARRIVALS);
+    updateTag(CACHE_TAGS.BESTSELLERS);
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete product:", error);

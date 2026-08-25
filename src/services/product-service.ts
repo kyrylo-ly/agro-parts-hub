@@ -1,13 +1,34 @@
 import "server-only";
 import { eq, ilike, or, and, count, sql, desc, asc, inArray } from "drizzle-orm";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db/db";
 import { product, brand } from "@/db/schema/store";
 import { ProductFilterParams } from "./types";
 import { CACHE_TAGS, getProductTag } from "@/lib/constants/cache-tags";
 import { escapeLike } from "@/lib/escape-like";
 
-export async function _getPublicProductBySlugRaw(slug: string) {
+export async function getTopProductSlugs() {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.PRODUCTS);
+  try {
+    const products = await db
+      .select({ slug: product.slug })
+      .from(product)
+      .where(eq(product.isActive, true))
+      .orderBy(desc(product.salesCount))
+      .limit(100);
+    return products.map((p) => ({ slug: p.slug }));
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function getPublicProductBySlug(slug: string) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.PRODUCTS, getProductTag(slug));
+
   try {
     const foundProduct = await db.query.product.findFirst({
       where: and(eq(product.slug, slug), eq(product.isActive, true)),
@@ -38,18 +59,6 @@ export async function _getPublicProductBySlugRaw(slug: string) {
     console.error("Failed to get product by slug:", error);
     return { success: false as const, error: "Failed to fetch product" };
   }
-}
-
-export async function getPublicProductBySlug(slug: string) {
-  const cachedFn = unstable_cache(
-    async () => _getPublicProductBySlugRaw(slug),
-    [`public-product-${slug}`],
-    {
-      revalidate: 7200,
-      tags: [CACHE_TAGS.PRODUCTS, getProductTag(slug)],
-    }
-  );
-  return cachedFn();
 }
 
 export async function getCategoryAttributeFilters(categoryId: number) {
@@ -356,7 +365,11 @@ export async function getPublicProducts(filters: ProductFilterParams = {}) {
   }
 }
 
-export async function _getNewArrivalsRaw(limit = 8) {
+export async function getNewArrivals(limit = 8) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.PRODUCTS, CACHE_TAGS.NEW_ARRIVALS);
+
   try {
     const products = await db.query.product.findMany({
       where: eq(product.isActive, true),
@@ -378,13 +391,11 @@ export async function _getNewArrivalsRaw(limit = 8) {
   }
 }
 
-export const getNewArrivals = unstable_cache(
-  _getNewArrivalsRaw,
-  ["new-arrivals"],
-  { revalidate: 7200, tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.NEW_ARRIVALS] }
-);
+export async function getBestsellers(limit = 8) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.PRODUCTS, CACHE_TAGS.BESTSELLERS);
 
-export async function _getBestsellersRaw(limit = 8) {
   try {
     const products = await db.query.product.findMany({
       where: eq(product.isActive, true),
@@ -405,12 +416,6 @@ export async function _getBestsellersRaw(limit = 8) {
     return { success: false as const, error: "Failed to fetch bestsellers" };
   }
 }
-
-export const getBestsellers = unstable_cache(
-  _getBestsellersRaw,
-  ["bestsellers"],
-  { revalidate: 7200, tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.BESTSELLERS] }
-);
 
 interface GetProductsOptions {
   page?: number;

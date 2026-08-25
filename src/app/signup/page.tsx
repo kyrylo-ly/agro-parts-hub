@@ -8,6 +8,8 @@ type SignupPageProps = {
     }>;
 };
 
+export const instant = false;
+
 export default async function SignupPage({ searchParams }: SignupPageProps) {
     const params = await searchParams;
     const errorMessage = params?.error;

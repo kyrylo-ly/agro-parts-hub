@@ -2,17 +2,17 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { getPublicCategories } from "@/services/category-service";
 
-export const revalidate = 7200;
+
 
 export default async function MainLayout({ children }: LayoutProps<"/">) {
   const categoriesResult = await getPublicCategories();
 
   // Transform categories into tree structure for navigation
   const allCategories = categoriesResult.success ? categoriesResult.data : [];
-  
+
   type ChildCategory = { id: number; name: string; slug: string; imageUrl: string | null };
   const childrenMap = new Map<number, ChildCategory[]>();
-  
+
   for (const cat of allCategories) {
     if (cat.parent) {
       const parentId = cat.parent.id;

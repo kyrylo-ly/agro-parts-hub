@@ -1,13 +1,17 @@
 import "server-only";
 import { eq, count } from "drizzle-orm";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db/db";
 import { category, product } from "@/db/schema/store";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { ProductFilterParams } from "./types";
 import { getFilteredProducts } from "./product-service";
 
-export async function _getPublicCategoriesRaw() {
+export async function getPublicCategories() {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.CATEGORIES);
+
   try {
     const categories = await db.query.category.findMany({
       orderBy: (categories, { asc }) => [asc(categories.name)],
@@ -44,16 +48,13 @@ export async function _getPublicCategoriesRaw() {
   }
 }
 
-export const getPublicCategories = unstable_cache(
-  _getPublicCategoriesRaw,
-  ["public-categories"],
-  { revalidate: 7200, tags: [CACHE_TAGS.CATEGORIES] }
-);
-
 export async function getPublicCategoryBySlug(
   slug: string,
   filters: ProductFilterParams = {}
 ) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.CATEGORIES);
   try {
     const foundCategory = await db.query.category.findFirst({
       where: eq(category.slug, slug),

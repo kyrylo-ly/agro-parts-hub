@@ -8,7 +8,7 @@ export const metadata = {
   title: "Налаштування профілю",
 };
 
-export const dynamic = 'force-dynamic';
+export const instant = false;
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({ headers: await headers() });

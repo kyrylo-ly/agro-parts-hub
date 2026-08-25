@@ -4,8 +4,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db/db";
 import { product, category, brand, collection, order } from "@/db/schema/store";
 import { count } from "drizzle-orm";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function AdminPage() {
+export default function AdminPage() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Панель адміністратора</h1>
+      <Suspense fallback={<AdminDashboardSkeleton />}>
+        <AdminDashboardContent />
+      </Suspense>
+    </div>
+  );
+}
+
+function AdminDashboardSkeleton() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Card key={i}>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="size-4" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-8 w-16" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+async function AdminDashboardContent() {
   const [[productCount], [categoryCount], [brandCount], [collectionCount], [orderCount]] =
     await Promise.all([
       db.select({ count: count() }).from(product),
@@ -49,26 +80,22 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Панель адміністратора</h1>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Link key={stat.href} href={stat.href}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="size-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stat.count}</div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat) => (
+        <Link key={stat.href} href={stat.href}>
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.title}
+              </CardTitle>
+              <stat.icon className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{stat.count}</div>
+            </CardContent>
+          </Card>
+        </Link>
+      ))}
     </div>
   );
 }

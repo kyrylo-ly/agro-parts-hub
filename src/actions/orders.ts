@@ -25,6 +25,7 @@ export async function createQuickOrder(data: {
     return { success: false as const, error: "Невірний номер телефону" };
   }
 
+  const reqHeaders = await headers();
   try {
     // Check product exists and in stock
     const p = await db.query.product.findFirst({
@@ -40,7 +41,7 @@ export async function createQuickOrder(data: {
     }
 
     // Check for auth session (optional)
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: reqHeaders });
     const userId = session?.user.id ?? null;
 
     const newOrderId = await db.transaction(async (tx) => {
@@ -126,6 +127,7 @@ export async function createOrder(data: CheckoutData) {
     return { success: false as const, error: "Заповніть місто, відділення та індекс для Укрпошти" };
   }
 
+  const reqHeaders = await headers();
   try {
     // Get all products for price validation
     const productIds = data.items.map((i) => i.productId);
@@ -158,7 +160,7 @@ export async function createOrder(data: CheckoutData) {
     }, 0);
 
     // Auth session
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: reqHeaders });
     const userId = session?.user.id ?? null;
 
     const newOrderId = await db.transaction(async (tx) => {
@@ -290,6 +292,7 @@ export async function createQuickCartOrder(data: {
     return { success: false as const, error: "Кошик порожній" };
   }
 
+  const reqHeaders = await headers();
   try {
     const productIds = items.map((i) => i.productId);
     const products = await db.query.product.findMany({
@@ -313,7 +316,7 @@ export async function createQuickCartOrder(data: {
       return sum + parseFloat(p.price) * item.quantity;
     }, 0);
 
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: reqHeaders });
     const userId = session?.user.id ?? null;
 
     const newOrderId = await db.transaction(async (tx) => {
@@ -406,8 +409,9 @@ export async function getOrderById(id: string) {
 // ─── User Orders ────────────────────────────────────────────────────────────
 
 export async function getUserOrders(page = 1, limit = 10) {
+  const reqHeaders = await headers();
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: reqHeaders });
     if (!session?.user.id) {
       return { success: false as const, error: "Не авторизовано" };
     }

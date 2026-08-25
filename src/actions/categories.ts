@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, count } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { db } from "@/db/db";
 import { category, product } from "@/db/schema/store";
@@ -38,7 +38,7 @@ export async function createCategory(input: CategoryInput) {
 
     revalidatePath("/admin/categories");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.CATEGORIES, "max" as any);
+    updateTag(CACHE_TAGS.CATEGORIES);
     return { success: true as const, data: newCategory };
   } catch (error) {
     console.error("Failed to create category:", error);
@@ -83,7 +83,7 @@ export async function updateCategory(id: number, input: CategoryInput) {
 
     revalidatePath("/admin/categories");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.CATEGORIES, "max" as any);
+    updateTag(CACHE_TAGS.CATEGORIES);
     return { success: true as const, data: updatedCategory };
   } catch (error) {
     console.error("Failed to update category:", error);
@@ -125,7 +125,7 @@ export async function deleteCategory(id: number) {
     await db.delete(category).where(eq(category.id, id));
     revalidatePath("/admin/categories");
     // Invalidate public ISR cache
-    revalidateTag(CACHE_TAGS.CATEGORIES, "max" as any);
+    updateTag(CACHE_TAGS.CATEGORIES);
     return { success: true as const };
   } catch (error) {
     console.error("Failed to delete category:", error);

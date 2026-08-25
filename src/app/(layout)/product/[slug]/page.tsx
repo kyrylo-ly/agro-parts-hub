@@ -10,23 +10,17 @@ import { AddToCartButton } from "@/components/add-to-cart-button";
 import { QuickOrderDialog } from "@/components/quick-order-dialog";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompareButton } from "@/components/compare-button";
-import { getPublicProductBySlug } from "@/services/product-service";
+import { getPublicProductBySlug, getTopProductSlugs } from "@/services/product-service";
 import { db } from "@/db/db";
 import { product } from "@/db/schema/store";
 import { eq, desc } from "drizzle-orm";
 import { cn } from "@/lib/utils";
 
-export const revalidate = 7200;
+
 
 export async function generateStaticParams() {
-  // Pre-render top 100 most sold products
-  const products = await db
-    .select({ slug: product.slug })
-    .from(product)
-    .where(eq(product.isActive, true))
-    .orderBy(desc(product.salesCount))
-    .limit(100);
-  return products.map((p) => ({ slug: p.slug }));
+  const slugs = await getTopProductSlugs();
+  return slugs.length > 0 ? slugs : [{ slug: "_empty" }];
 }
 
 export async function generateMetadata({

@@ -1,5 +1,10 @@
 export function isNewProduct(createdAt: Date): boolean {
-  const fourteenDaysAgo = new Date();
+  // Use performance.timeOrigin to avoid Next.js prerender block on new Date()
+  const nowMs = typeof performance !== 'undefined' && performance.timeOrigin 
+    ? performance.timeOrigin + performance.now() 
+    : Date.now(); // Fallback if Date.now is somehow not blocked or in client
+  
+  const fourteenDaysAgo = new Date(nowMs);
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
   return createdAt > fourteenDaysAgo;
 }

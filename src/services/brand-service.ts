@@ -1,13 +1,17 @@
 import "server-only";
 import { eq, count, and, inArray } from "drizzle-orm";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db/db";
 import { brand, product } from "@/db/schema/store";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { ProductFilterParams } from "./types";
 import { getFilteredProducts } from "./product-service";
 
-export async function _getPublicBrandsRaw(categoryIds?: number[]) {
+export async function getPublicBrands(categoryIds?: number[]) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.BRANDS);
+
   try {
     const brands = await db.query.brand.findMany({
       orderBy: (brands, { asc }) => [asc(brands.name)],
@@ -43,16 +47,13 @@ export async function _getPublicBrandsRaw(categoryIds?: number[]) {
   }
 }
 
-export const getPublicBrands = unstable_cache(
-  _getPublicBrandsRaw,
-  ["public-brands"],
-  { revalidate: 7200, tags: [CACHE_TAGS.BRANDS] }
-);
-
 export async function getPublicBrandBySlug(
   slug: string,
   filters: ProductFilterParams = {}
 ) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.BRANDS);
   try {
     const foundBrand = await db.query.brand.findFirst({
       where: eq(brand.slug, slug),

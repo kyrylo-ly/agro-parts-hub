@@ -4,6 +4,8 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { searchProducts } from "@/services/product-service";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export async function generateMetadata({
   searchParams,
@@ -19,12 +21,47 @@ export async function generateMetadata({
   };
 }
 
-export default async function SearchPage({
+export default function SearchPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const resolved = await searchParams;
+  return (
+    <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+      <Suspense fallback={<SearchSkeleton />}>
+        <SearchContent searchParamsPromise={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+function SearchSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <Skeleton className="h-6 w-1/4" />
+      <Skeleton className="h-8 w-64 mt-4" />
+      <Skeleton className="h-4 w-32 mt-1" />
+      <div className="mt-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="space-y-4">
+              <Skeleton className="aspect-square w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function SearchContent({
+  searchParamsPromise,
+}: {
+  searchParamsPromise: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolved = await searchParamsPromise;
   const q = (Array.isArray(resolved.q) ? resolved.q[0] : resolved.q) ?? "";
   const page =
     Number(
@@ -39,7 +76,7 @@ export default async function SearchPage({
     : { total: 0, page: 1, limit: 12, totalPages: 0 };
 
   return (
-    <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+    <>
       <Breadcrumbs
         items={[
           { label: "Головна", href: "/" },
@@ -76,6 +113,6 @@ export default async function SearchPage({
           </>
         )}
       </div>
-    </div>
+    </>
   );
 }

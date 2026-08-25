@@ -4,7 +4,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { getPublicProducts } from "@/services/product-service";
 
-export const revalidate = 7200;
+
 
 export const metadata: Metadata = {
   title: "Акції та знижки",
@@ -14,12 +14,50 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function PromotionsPage({
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function PromotionsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const resolvedSearchParams = await searchParams;
+  return (
+    <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+      <Suspense fallback={<PromotionsSkeleton />}>
+        <PromotionsContent searchParamsPromise={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+function PromotionsSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <Skeleton className="h-6 w-1/4" />
+      <div className="mt-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-32 mt-2" />
+      </div>
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="space-y-4">
+            <Skeleton className="aspect-square w-full rounded-xl" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function PromotionsContent({
+  searchParamsPromise,
+}: {
+  searchParamsPromise: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolvedSearchParams = await searchParamsPromise;
 
   // Parse page
   let page = 1;
@@ -39,7 +77,7 @@ export default async function PromotionsPage({
   const meta = result.success && result.data ? result.data.meta : { total: 0, totalPages: 0 };
 
   return (
-    <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
+    <>
       <Breadcrumbs
         items={[
           { label: "Головна", href: "/" },
@@ -73,6 +111,6 @@ export default async function PromotionsPage({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
