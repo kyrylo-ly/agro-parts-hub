@@ -8,5 +8,5 @@ const Toaster = dynamic(
 );
 
 export function LazyToaster() {
-  return <Toaster />;
+  return <Toaster position="top-right" />;
 }

@@ -39,14 +39,34 @@ export default function CheckoutPage() {
   const [cities, setCities] = React.useState<string[]>([]);
   const [warehouses, setWarehouses] = React.useState<string[]>([]);
 
+  // Debounced city search (500ms)
+  const cityDebounceRef = React.useRef<ReturnType<typeof setTimeout>>(null);
   React.useEffect(() => {
     if (formData.deliveryType === "pickup") return;
-    searchCities(formData.city).then(setCities);
+
+    if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current);
+    cityDebounceRef.current = setTimeout(() => {
+      searchCities(formData.city).then(setCities);
+    }, 500);
+
+    return () => {
+      if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current);
+    };
   }, [formData.city, formData.deliveryType]);
 
+  // Debounced warehouse search (500ms)
+  const warehouseDebounceRef = React.useRef<ReturnType<typeof setTimeout>>(null);
   React.useEffect(() => {
     if (formData.deliveryType === "pickup" || !formData.city) return;
-    searchWarehouses(formData.city, "").then(setWarehouses);
+
+    if (warehouseDebounceRef.current) clearTimeout(warehouseDebounceRef.current);
+    warehouseDebounceRef.current = setTimeout(() => {
+      searchWarehouses(formData.city, "").then(setWarehouses);
+    }, 500);
+
+    return () => {
+      if (warehouseDebounceRef.current) clearTimeout(warehouseDebounceRef.current);
+    };
   }, [formData.city, formData.deliveryType]);
 
   const filteredWarehouses = React.useMemo(() => {
@@ -123,7 +143,7 @@ export default function CheckoutPage() {
       <h1 className="text-3xl font-bold mb-8">Оформлення замовлення</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <form onSubmit={handleSubmit} className="lg:col-span-8 flex flex-col gap-8">
+        <form id="checkout-form" onSubmit={handleSubmit} className="lg:col-span-8 flex flex-col gap-8">
 
           {/* Contact Details */}
           <section className="bg-card border rounded-2xl p-6 shadow-sm">
@@ -309,8 +329,9 @@ export default function CheckoutPage() {
             </div>
 
             <Button
+              type="submit"
+              form="checkout-form"
               className="w-full h-12 text-base font-semibold"
-              onClick={handleSubmit}
               disabled={isSubmitting}
             >
               {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Оформлення...</> : "Підтвердити замовлення"}

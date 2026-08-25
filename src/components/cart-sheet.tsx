@@ -149,7 +149,7 @@ export function CartSheet({ children }: CartSheetProps) {
               ))}
             </div>
 
-            <div className="p-4 pb-24 border-t bg-card shrink-0">
+            <div className="p-4 pb-6 border-t bg-card shrink-0">
               <div className="flex justify-between items-center mb-4">
                 <span className="font-medium text-muted-foreground">Всього:</span>
                 <span className="text-xl font-bold">{formatPrice(totalPrice)} ₴</span>
