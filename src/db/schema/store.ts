@@ -61,6 +61,8 @@ export const categoryRelations = relations(category, ({ one, many }) => ({
     products: many(product),
 }));
 
+export type Category = typeof category.$inferSelect;
+
 // Brand Table
 export const brand = pgTable(
     "brand",
@@ -83,6 +85,8 @@ export const brand = pgTable(
 export const brandRelations = relations(brand, ({ many }) => ({
     products: many(product),
 }));
+
+export type Brand = typeof brand.$inferSelect;
 
 // Product Table
 export const product = pgTable(
@@ -139,6 +143,9 @@ export const productRelations = relations(product, ({ one, many }) => ({
     orderItems: many(orderItem),
 }));
 
+export type Product = typeof product.$inferSelect;
+export type NewProduct = typeof product.$inferInsert;
+
 // Product Image Table
 export const productImage = pgTable(
     "product_image",
@@ -161,6 +168,8 @@ export const productImageRelations = relations(productImage, ({ one }) => ({
         references: [product.id],
     }),
 }));
+
+export type ProductImage = typeof productImage.$inferSelect
 
 // Collection Table (for Seasonal Offers, Best Choice, etc.)
 export const collection = pgTable(

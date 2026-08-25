@@ -1,16 +1,13 @@
 "use server";
 
-import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
-import { db } from "@/db/db";
-import { product, productToCollection, productImage } from "@/db/schema/store";
 import { productSchema, type ProductInput } from "@/lib/validations";
 import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
 import { handleDbError } from "@/lib/db-errors";
-import { escapeLike } from "@/lib/escape-like";
+import { createProductService, updateProductService, deleteProductService } from "@/services/product-service";
 
 
 export async function createProduct(input: ProductInput) {
@@ -30,32 +27,19 @@ export async function createProduct(input: ProductInput) {
     const slug = validatedData.slug || slugify(validatedData.name);
     const compareAtPrice = validatedData.compareAtPrice === "" ? null : validatedData.compareAtPrice;
 
-    const [newProduct] = await db
-      .insert(product)
-      .values({
-        categoryId: validatedData.categoryId,
-        brandId: validatedData.brandId,
-        sku: validatedData.sku,
-        name: validatedData.name,
-        slug,
-        description: validatedData.description,
-        price: validatedData.price,
-        compareAtPrice,
-        stock: validatedData.stock,
-        attributes: validatedData.attributes,
-        isActive: validatedData.isActive,
-      })
-      .returning();
-
-    // Handle collection assignments
-    if (validatedData.collectionIds && validatedData.collectionIds.length > 0) {
-      await db.insert(productToCollection).values(
-        validatedData.collectionIds.map((collectionId) => ({
-          productId: newProduct.id,
-          collectionId,
-        }))
-      );
-    }
+    const newProduct = await createProductService({
+      categoryId: validatedData.categoryId,
+      brandId: validatedData.brandId,
+      sku: validatedData.sku,
+      name: validatedData.name,
+      slug,
+      description: validatedData.description,
+      price: validatedData.price,
+      compareAtPrice,
+      stock: validatedData.stock,
+      attributes: validatedData.attributes,
+      isActive: validatedData.isActive,
+    }, validatedData.collectionIds);
 
     revalidatePath("/admin/products");
     // Invalidate public ISR cache
@@ -86,38 +70,19 @@ export async function updateProduct(id: string, input: ProductInput) {
     const slug = validatedData.slug || slugify(validatedData.name);
     const compareAtPrice = validatedData.compareAtPrice === "" ? null : validatedData.compareAtPrice;
 
-    const [updatedProduct] = await db
-      .update(product)
-      .set({
-        categoryId: validatedData.categoryId,
-        brandId: validatedData.brandId,
-        sku: validatedData.sku,
-        name: validatedData.name,
-        slug,
-        description: validatedData.description,
-        price: validatedData.price,
-        compareAtPrice,
-        stock: validatedData.stock,
-        attributes: validatedData.attributes,
-        isActive: validatedData.isActive,
-      })
-      .where(eq(product.id, id))
-      .returning();
-
-    // Sync collection assignments
-    if (validatedData.collectionIds !== undefined) {
-      // Remove existing
-      await db.delete(productToCollection).where(eq(productToCollection.productId, id));
-      // Add new
-      if (validatedData.collectionIds.length > 0) {
-        await db.insert(productToCollection).values(
-          validatedData.collectionIds.map((collectionId) => ({
-            productId: id,
-            collectionId,
-          }))
-        );
-      }
-    }
+    const updatedProduct = await updateProductService(id, {
+      categoryId: validatedData.categoryId,
+      brandId: validatedData.brandId,
+      sku: validatedData.sku,
+      name: validatedData.name,
+      slug,
+      description: validatedData.description,
+      price: validatedData.price,
+      compareAtPrice,
+      stock: validatedData.stock,
+      attributes: validatedData.attributes,
+      isActive: validatedData.isActive,
+    }, validatedData.collectionIds);
 
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
@@ -136,9 +101,7 @@ export async function deleteProduct(id: string) {
   try {
     await requireAdmin();
 
-    const images = await db.query.productImage.findMany({
-      where: eq(productImage.productId, id),
-    });
+    const images = await deleteProductService(id);
 
     const keysToDelete = images
       .map((image) => getKeyFromUrl(image.url))
@@ -147,8 +110,6 @@ export async function deleteProduct(id: string) {
     if (keysToDelete.length > 0) {
       await deleteManyFromR2(keysToDelete);
     }
-
-    await db.delete(product).where(eq(product.id, id));
     revalidatePath("/admin/products");
     // Invalidate public ISR cache
     revalidateTag(CACHE_TAGS.PRODUCTS, "max" as any);

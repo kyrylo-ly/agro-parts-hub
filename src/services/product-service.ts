@@ -1,38 +1,16 @@
 import "server-only";
-import { eq, ilike, or, and, count, sql, desc, asc, inArray } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
-import { db } from "@/db/db";
-import { product, brand } from "@/db/schema/store";
-import { ProductFilterParams } from "./types";
+import { ProductRepository } from "@/repositories/product-repository";
 import { CACHE_TAGS, getProductTag } from "@/lib/constants/cache-tags";
-import { escapeLike } from "@/lib/escape-like";
+import type { ProductFilterParams } from "./types";
+import type { InternalFilterParams } from "@/repositories/product-repository";
 
 export async function _getPublicProductBySlugRaw(slug: string) {
   try {
-    const foundProduct = await db.query.product.findFirst({
-      where: and(eq(product.slug, slug), eq(product.isActive, true)),
-      with: {
-        category: {
-          with: {
-            parent: true,
-          },
-        },
-        brand: true,
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-        },
-        collections: {
-          with: {
-            collection: true,
-          },
-        },
-      },
-    });
-
+    const foundProduct = await ProductRepository.findBySlug(slug);
     if (!foundProduct) {
       return { success: false as const, error: "Product not found" };
     }
-
     return { success: true as const, data: foundProduct };
   } catch (error) {
     console.error("Failed to get product by slug:", error);
@@ -54,38 +32,7 @@ export async function getPublicProductBySlug(slug: string) {
 
 export async function getCategoryAttributeFilters(categoryId: number) {
   try {
-    const results = await db
-      .select({ attributes: product.attributes })
-      .from(product)
-      .where(
-        and(
-          eq(product.categoryId, categoryId),
-          eq(product.isActive, true),
-          sql`${product.attributes} IS NOT NULL`
-        )
-      );
-
-    const attributeMap = new Map<string, Set<string>>();
-
-    for (const row of results) {
-      const attrs = row.attributes as Record<string, string> | null;
-      if (!attrs) continue;
-
-      for (const [key, value] of Object.entries(attrs)) {
-        if (!attributeMap.has(key)) {
-          attributeMap.set(key, new Set());
-        }
-        attributeMap.get(key)!.add(value);
-      }
-    }
-
-    const filters = Array.from(attributeMap.entries()).map(
-      ([key, values]) => ({
-        key,
-        values: Array.from(values).sort(),
-      })
-    );
-
+    const filters = await ProductRepository.getCategoryAttributeFilters(categoryId);
     return { success: true as const, data: filters };
   } catch (error) {
     console.error("Failed to get category attribute filters:", error);
@@ -110,7 +57,7 @@ export async function searchProducts(
 
     const sanitized = query.trim();
 
-    const productsResult = await getFilteredProducts({
+    const productsResult = await ProductRepository.getFiltered({
       ...filters,
       searchQuery: sanitized,
     });
@@ -132,32 +79,7 @@ export async function searchProductsQuick(query: string) {
   }
 
   try {
-    const results = await db.query.product.findMany({
-      where: and(
-        eq(product.isActive, true),
-        or(
-          ilike(product.name, `%${escapeLike(trimmed)}%`),
-          ilike(product.sku, `%${escapeLike(trimmed)}%`)
-        )
-      ),
-      limit: 5,
-      columns: {
-        id: true,
-        name: true,
-        slug: true,
-        sku: true,
-        price: true,
-      },
-      with: {
-        brand: { columns: { name: true } },
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1,
-          columns: { url: true },
-        },
-      },
-    });
-
+    const results = await ProductRepository.searchQuick(trimmed);
     return { success: true as const, data: results };
   } catch (error) {
     console.error("searchProductsQuick error:", error);
@@ -171,22 +93,7 @@ export async function getProductsByIds(ids: string[], maxLimit = 100) {
   }
 
   try {
-    const products = await db.query.product.findMany({
-      where: and(
-        eq(product.isActive, true),
-        inArray(product.id, ids)
-      ),
-      with: {
-        brand: { columns: { name: true, slug: true } },
-        category: { columns: { name: true, slug: true } },
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1,
-          columns: { url: true },
-        },
-      },
-    });
-
+    const products = await ProductRepository.findByIds(ids, maxLimit);
     return { success: true as const, data: products };
   } catch (error) {
     console.error("getProductsByIds error:", error);
@@ -194,161 +101,13 @@ export async function getProductsByIds(ids: string[], maxLimit = 100) {
   }
 }
 
-interface InternalFilterParams extends ProductFilterParams {
-  categoryIds?: number[];
-  brandIds?: number[];
-  productIds?: string[];
-  searchQuery?: string;
-}
-
-export async function buildProductWhereClause(params: InternalFilterParams) {
-  const {
-    categoryIds,
-    brandIds,
-    brandSlugs,
-    priceMin,
-    priceMax,
-    inStock,
-    isPromotion,
-    attributes,
-    productIds,
-    searchQuery,
-  } = params;
-
-  const conditions = [eq(product.isActive, true)];
-
-  if (categoryIds && categoryIds.length > 0) {
-    conditions.push(inArray(product.categoryId, categoryIds));
-  }
-
-  if (productIds && productIds.length > 0) {
-    conditions.push(inArray(product.id, productIds));
-  }
-
-  if (brandIds && brandIds.length > 0) {
-    conditions.push(inArray(product.brandId, brandIds));
-  }
-
-  if (brandSlugs && brandSlugs.length > 0) {
-    const brandResults = await db
-      .select({ id: brand.id })
-      .from(brand)
-      .where(inArray(brand.slug, brandSlugs));
-
-    const resolvedBrandIds = brandResults.map((b) => b.id);
-    if (resolvedBrandIds.length > 0) {
-      conditions.push(inArray(product.brandId, resolvedBrandIds));
-    } else {
-      return null;
-    }
-  }
-
-  if (priceMin !== undefined) {
-    conditions.push(sql`${product.price}::numeric >= ${String(priceMin)}::numeric`);
-  }
-  if (priceMax !== undefined) {
-    conditions.push(sql`${product.price}::numeric <= ${String(priceMax)}::numeric`);
-  }
-
-  if (inStock) {
-    conditions.push(sql`${product.stock} > 0`);
-  }
-
-  if (isPromotion) {
-    conditions.push(
-      sql`${product.compareAtPrice} IS NOT NULL AND ${product.compareAtPrice}::numeric > ${product.price}::numeric`
-    );
-  }
-
-  if (attributes) {
-    for (const [key, values] of Object.entries(attributes)) {
-      if (values.length > 0) {
-        conditions.push(
-          sql`${product.attributes}->>${key} IN (${sql.join(
-            values.map((v) => sql`${v}`),
-            sql`, `
-          )})`
-        );
-      }
-    }
-  }
-
-  if (searchQuery) {
-    conditions.push(
-      or(
-        ilike(product.name, `%${searchQuery}%`),
-        ilike(product.sku, `%${searchQuery}%`)
-      )!
-    );
-  }
-
-  return and(...conditions);
-}
-
 export async function getFilteredProducts(params: InternalFilterParams) {
-  const { sort = "newest", page = 1, limit = 12 } = params;
-  const offset = (page - 1) * limit;
-
-  const whereClause = await buildProductWhereClause(params);
-
-  if (whereClause === null) {
-    return {
-      products: [],
-      meta: { total: 0, page, limit, totalPages: 0 },
-    };
-  }
-
-  const [totalCount] = await db
-    .select({ count: count() })
-    .from(product)
-    .where(whereClause);
-
-  let orderBy;
-  switch (sort) {
-    case "price_asc":
-      orderBy = [asc(product.price)];
-      break;
-    case "price_desc":
-      orderBy = [desc(product.price)];
-      break;
-    case "bestsellers":
-      orderBy = [desc(product.salesCount)];
-      break;
-    case "newest":
-    default:
-      orderBy = [desc(product.createdAt)];
-      break;
-  }
-
-  const products = await db.query.product.findMany({
-    where: whereClause,
-    limit,
-    offset,
-    orderBy: () => orderBy,
-    with: {
-      category: true,
-      brand: true,
-      images: {
-        orderBy: (images, { asc }) => [asc(images.orderIndex)],
-        limit: 1,
-      },
-    },
-  });
-
-  return {
-    products,
-    meta: {
-      total: totalCount.count,
-      page,
-      limit,
-      totalPages: Math.ceil(totalCount.count / limit),
-    },
-  };
+  return ProductRepository.getFiltered(params);
 }
 
 export async function getPublicProducts(filters: ProductFilterParams = {}) {
   try {
-    const productsResult = await getFilteredProducts(filters);
+    const productsResult = await ProductRepository.getFiltered(filters);
     return { success: true as const, data: productsResult };
   } catch (error) {
     console.error("Failed to get public products:", error);
@@ -358,19 +117,7 @@ export async function getPublicProducts(filters: ProductFilterParams = {}) {
 
 export async function _getNewArrivalsRaw(limit = 8) {
   try {
-    const products = await db.query.product.findMany({
-      where: eq(product.isActive, true),
-      limit,
-      orderBy: (products, { desc }) => [desc(products.createdAt)],
-      with: {
-        brand: true,
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1,
-        },
-      },
-    });
-
+    const products = await ProductRepository.getNewArrivals(limit);
     return { success: true as const, data: products };
   } catch (error) {
     console.error("Failed to get new arrivals:", error);
@@ -386,19 +133,7 @@ export const getNewArrivals = unstable_cache(
 
 export async function _getBestsellersRaw(limit = 8) {
   try {
-    const products = await db.query.product.findMany({
-      where: eq(product.isActive, true),
-      limit,
-      orderBy: (products, { desc }) => [desc(products.salesCount)],
-      with: {
-        brand: true,
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1,
-        },
-      },
-    });
-
+    const products = await ProductRepository.getBestsellers(limit);
     return { success: true as const, data: products };
   } catch (error) {
     console.error("Failed to get bestsellers:", error);
@@ -418,53 +153,10 @@ interface GetProductsOptions {
   search?: string;
 }
 
-export async function getAdminProducts({ page = 1, limit = 10, search }: GetProductsOptions = {}) {
+export async function getAdminProducts(options: GetProductsOptions = {}) {
   try {
-    const offset = (page - 1) * limit;
-
-    const conditions = [];
-
-    if (search) {
-      conditions.push(
-        or(
-          ilike(product.name, `%${escapeLike(search)}%`),
-          ilike(product.sku, `%${escapeLike(search)}%`),
-        )
-      );
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    const [totalCount] = await db
-      .select({ count: count() })
-      .from(product)
-      .where(whereClause);
-
-    const products = await db.query.product.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      orderBy: (products, { desc }) => [desc(products.createdAt)],
-      with: {
-        category: true,
-        brand: true,
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-          limit: 1, // Only first image for list view
-        },
-      },
-    });
-
-    return {
-      success: true as const,
-      data: products,
-      meta: {
-        total: totalCount.count,
-        page,
-        limit,
-        totalPages: Math.ceil(totalCount.count / limit),
-      },
-    };
+    const result = await ProductRepository.getAdminList(options);
+    return { success: true as const, data: result.products, meta: result.meta };
   } catch (error) {
     console.error("Failed to get products:", error);
     return { success: false as const, error: "Failed to fetch products" };
@@ -473,29 +165,29 @@ export async function getAdminProducts({ page = 1, limit = 10, search }: GetProd
 
 export async function getAdminProductById(id: string) {
   try {
-    const foundProduct = await db.query.product.findFirst({
-      where: eq(product.id, id),
-      with: {
-        category: true,
-        brand: true,
-        images: {
-          orderBy: (images, { asc }) => [asc(images.orderIndex)],
-        },
-        collections: {
-          with: {
-            collection: true,
-          },
-        },
-      },
-    });
-
+    const foundProduct = await ProductRepository.findById(id);
     if (!foundProduct) {
       return { success: false as const, error: "Product not found" };
     }
-
     return { success: true as const, data: foundProduct };
   } catch (error) {
     console.error("Failed to get product:", error);
     return { success: false as const, error: "Failed to fetch product" };
   }
+}
+
+// These mutation services will be called from Server Actions
+
+export async function createProductService(data: any, collectionIds?: number[]) {
+  return ProductRepository.create(data, collectionIds);
+}
+
+export async function updateProductService(id: string, data: any, collectionIds?: number[]) {
+  return ProductRepository.update(id, data, collectionIds);
+}
+
+export async function deleteProductService(id: string) {
+  const images = await ProductRepository.getImages(id);
+  await ProductRepository.delete(id);
+  return images;
 }

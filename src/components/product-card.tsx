@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { CompareButton } from "@/components/compare-button";
 import { FavoriteButton } from "@/components/favorite-button";
+import { isNewProduct, calculateDiscount, formatPrice } from "@/lib/domain/product";
 
 interface ProductCardProps {
   product: {
@@ -23,8 +24,6 @@ interface ProductCardProps {
   };
   preload?: boolean;
 }
-
-import { isNewProduct, calculateDiscount, formatPrice } from "@/lib/domain/product";
 
 export function ProductCard({ product, preload = false }: ProductCardProps) {
   const hasDiscount =
