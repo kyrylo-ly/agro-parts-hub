@@ -1,4 +1,6 @@
 allowBuilds:
   esbuild: true
+  puppeteer: true
   sharp: false
   unrs-resolver: false
+  vue-demi: true
