@@ -10,7 +10,6 @@ import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
 import { slugify } from "@/lib/utils";
 import { requireAdmin } from "./admin-auth";
 import { handleDbError } from "@/lib/db-errors";
-import { escapeLike } from "@/lib/escape-like";
 
 
 export async function createProduct(input: ProductInput) {

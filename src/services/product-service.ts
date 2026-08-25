@@ -276,8 +276,8 @@ export async function buildProductWhereClause(params: InternalFilterParams) {
   if (searchQuery) {
     conditions.push(
       or(
-        ilike(product.name, `%${searchQuery}%`),
-        ilike(product.sku, `%${searchQuery}%`)
+        ilike(product.name, `%${escapeLike(searchQuery)}%`),
+        ilike(product.sku, `%${escapeLike(searchQuery)}%`)
       )!
     );
   }
