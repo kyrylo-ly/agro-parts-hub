@@ -16,13 +16,13 @@ async function globalSetup() {
       RETURNING id
     `;
     // Seed test product
-    await sql`
+    const products = await sql`
       INSERT INTO product (
-        category_id, sku, name, slug, price, stock, is_active
+        sku, name, slug, price, stock, is_active
       ) VALUES (
-        ${cat.id}, 'TEST-SKU-001', 'Тестовий Товар E2E', 'test-product-e2e', 1500.00, 10, true
+        'TEST-SKU-001', 'Тестовий Товар E2E', 'test-product-e2e', 1500.00, 10, true
       ), (
-        ${cat.id}, 'TEST-SKU-002', 'Відсутній Товар E2E', 'out-of-stock-product', 2000.00, 0, true
+        'TEST-SKU-002', 'Відсутній Товар E2E', 'out-of-stock-product', 2000.00, 0, true
       )
       ON CONFLICT (slug) DO UPDATE SET 
         name = EXCLUDED.name,
@@ -30,7 +30,37 @@ async function globalSetup() {
         price = EXCLUDED.price,
         stock = EXCLUDED.stock,
         is_active = EXCLUDED.is_active
+      RETURNING id
     `;
+
+    // Seed attribute
+    const [attr] = await sql`
+      INSERT INTO attribute (name, slug, type, unit)
+      VALUES ('Вага', 'weight', 'number', 'кг')
+      ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, type = EXCLUDED.type, unit = EXCLUDED.unit
+      RETURNING id
+    `;
+
+    // Associate attribute with category
+    await sql`
+      INSERT INTO category_attribute (category_id, attribute_id, is_required)
+      VALUES (${cat.id}, ${attr.id}, true)
+      ON CONFLICT DO NOTHING
+    `;
+
+    for (const p of products) {
+      await sql`
+        INSERT INTO product_to_category (product_id, category_id)
+        VALUES (${p.id}, ${cat.id})
+        ON CONFLICT DO NOTHING
+      `;
+
+      await sql`
+        INSERT INTO product_attribute_value (product_id, attribute_id, value)
+        VALUES (${p.id}, ${attr.id}, '10')
+        ON CONFLICT DO NOTHING
+      `;
+    }
     // Seed admin user
     const [adminUser] = await sql`
       INSERT INTO "user" (id, name, email, email_verified, role, created_at, updated_at)

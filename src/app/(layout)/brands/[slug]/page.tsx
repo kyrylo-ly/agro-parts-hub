@@ -8,7 +8,7 @@ import { getPublicBrandBySlug } from "@/services/brand-service";
 import { db } from "@/db/db";
 import { brand } from "@/db/schema/store";
 
-export const revalidate = 7200;
+
 
 export async function generateStaticParams() {
   const brands = await db.select({ slug: brand.slug }).from(brand);

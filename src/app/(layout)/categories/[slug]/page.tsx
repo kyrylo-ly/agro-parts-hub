@@ -12,7 +12,7 @@ import { type ProductFilterParams } from "@/services/types";
 import { db } from "@/db/db";
 import { category } from "@/db/schema/store";
 
-export const revalidate = 7200;
+
 
 export async function generateStaticParams() {
   const categories = await db

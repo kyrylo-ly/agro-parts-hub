@@ -8,7 +8,7 @@ import { getPublicCollectionBySlug } from "@/services/collection-service";
 import { db } from "@/db/db";
 import { collection } from "@/db/schema/store";
 
-export const revalidate = 7200;
+
 
 export async function generateStaticParams() {
   const collections = await db

@@ -49,16 +49,77 @@ export const category = pgTable(
     (table) => [index("category_slug_idx").on(table.slug)]
 );
 
-export const categoryRelations = relations(category, ({ one, many }) => ({
-    parent: one(category, {
-        fields: [category.parentId],
+export const categoryRelations = relations(category, ({ many }) => ({
+    products: many(productToCategory),
+    attributes: many(categoryAttribute),
+}));
+
+// Attribute System Tables
+export const attribute = pgTable(
+    "attribute",
+    {
+        id: serial("id").primaryKey(),
+        name: text("name").notNull(), // e.g., "Діаметр внутрішній"
+        slug: text("slug").notNull().unique(), // e.g., "diameter-inner"
+        type: text("type").notNull().default("string"), // string, number, boolean
+        unit: text("unit"), // e.g., "мм", "В", "Аг"
+    }
+);
+
+export const attributeRelations = relations(attribute, ({ many }) => ({
+    categories: many(categoryAttribute),
+    productValues: many(productAttributeValue),
+}));
+
+export const categoryAttribute = pgTable(
+    "category_attribute",
+    {
+        categoryId: integer("category_id")
+            .notNull()
+            .references(() => category.id, { onDelete: "cascade" }),
+        attributeId: integer("attribute_id")
+            .notNull()
+            .references(() => attribute.id, { onDelete: "cascade" }),
+        isRequired: boolean("is_required").default(false).notNull(),
+        orderIndex: integer("order_index").default(0).notNull(), // for UI sorting
+    },
+    (t) => [primaryKey({ columns: [t.categoryId, t.attributeId] })]
+);
+
+export const categoryAttributeRelations = relations(categoryAttribute, ({ one }) => ({
+    category: one(category, {
+        fields: [categoryAttribute.categoryId],
         references: [category.id],
-        relationName: "parent_child",
     }),
-    children: many(category, {
-        relationName: "parent_child",
+    attribute: one(attribute, {
+        fields: [categoryAttribute.attributeId],
+        references: [attribute.id],
     }),
-    products: many(product),
+}));
+
+export const productAttributeValue = pgTable(
+    "product_attribute_value",
+    {
+        productId: uuid("product_id")
+            .notNull()
+            .references(() => product.id, { onDelete: "cascade" }),
+        attributeId: integer("attribute_id")
+            .notNull()
+            .references(() => attribute.id, { onDelete: "cascade" }),
+        value: text("value").notNull(), // Store all values as text, parse according to attribute.type
+    },
+    (t) => [primaryKey({ columns: [t.productId, t.attributeId] })]
+);
+
+export const productAttributeValueRelations = relations(productAttributeValue, ({ one }) => ({
+    product: one(product, {
+        fields: [productAttributeValue.productId],
+        references: [product.id],
+    }),
+    attribute: one(attribute, {
+        fields: [productAttributeValue.attributeId],
+        references: [attribute.id],
+    }),
 }));
 
 // Brand Table
@@ -91,9 +152,6 @@ export const product = pgTable(
         id: uuid("id")
             .primaryKey()
             .default(sql`uuidv7()`),
-        categoryId: integer("category_id")
-            .notNull()
-            .references(() => category.id),
         brandId: integer("brand_id")
             .references(() => brand.id, { onDelete: "set null" }),
         sku: text("sku").notNull().unique(),
@@ -103,7 +161,7 @@ export const product = pgTable(
         price: numeric("price").notNull(),
         compareAtPrice: numeric("compare_at_price"), // For Sale case
         stock: integer("stock").notNull().default(0),
-        attributes: jsonb("attributes"), // Dynamic attributes e.g. {"diameter": "12mm"}
+        attributes: jsonb("attributes"), // Legacy/unstructured notes, e.g. {"note": "special order"}
         salesCount: integer("sales_count").default(0).notNull(), // For Best Sellers case
         isActive: boolean("is_active").default(true).notNull(),
         createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
@@ -115,24 +173,47 @@ export const product = pgTable(
             .notNull(),
     },
     (table) => [
-        index("product_categoryId_idx").on(table.categoryId),
         index("product_brandId_idx").on(table.brandId),
         index("product_sku_idx").on(table.sku),
         index("product_slug_idx").on(table.slug),
         index("product_salesCount_idx").on(table.salesCount),
-        index("product_attributes_gin_idx").using("gin", table.attributes),
     ]
 );
 
-export const productRelations = relations(product, ({ one, many }) => ({
+export const productToCategory = pgTable(
+    "product_to_category",
+    {
+        productId: uuid("product_id")
+            .notNull()
+            .references(() => product.id, { onDelete: "cascade" }),
+        categoryId: integer("category_id")
+            .notNull()
+            .references(() => category.id, { onDelete: "cascade" }),
+    },
+    (t) => [
+        primaryKey({ columns: [t.productId, t.categoryId] }),
+        index("ptc_category_id_idx").on(t.categoryId),
+    ]
+);
+
+export const productToCategoryRelations = relations(productToCategory, ({ one }) => ({
+    product: one(product, {
+        fields: [productToCategory.productId],
+        references: [product.id],
+    }),
     category: one(category, {
-        fields: [product.categoryId],
+        fields: [productToCategory.categoryId],
         references: [category.id],
     }),
+}));
+
+export const productRelations = relations(product, ({ one, many }) => ({
     brand: one(brand, {
         fields: [product.brandId],
         references: [brand.id],
     }),
+    categories: many(productToCategory),
+    attributeValues: many(productAttributeValue),
     images: many(productImage),
     collections: many(productToCollection),
     favorites: many(favorite),

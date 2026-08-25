@@ -4,7 +4,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { getPublicProducts } from "@/services/product-service";
 
-export const revalidate = 7200;
+
 
 export const metadata: Metadata = {
   title: "Хіти продажу",

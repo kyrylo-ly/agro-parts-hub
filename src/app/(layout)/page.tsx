@@ -18,7 +18,7 @@ import { getHomepageData } from "@/services/homepage-service";
 import { Suspense } from "react";
 import { preload } from "react-dom";
 
-export const revalidate = 7200;
+
 
 export const metadata: Metadata = {
   title: "Агро Літ — Запчастини для тракторів та сільгосптехніки",

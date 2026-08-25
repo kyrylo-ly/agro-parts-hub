@@ -5,6 +5,14 @@ const r2Domain = new URL(process.env.R2_PUBLIC_URL!)
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  cacheComponents: true,
+  cacheLife: {
+    catalog: {
+      stale: 300,
+      revalidate: 31536000,
+      expire: 31536900,
+    },
+  },
   experimental: {
     // every ssr query rebuil dall css inline
     // inlineCss: true,
