@@ -47,4 +47,46 @@ test.describe('Checkout Flow', () => {
     await expect(page).toHaveURL(/.*success/);
     await expect(page.getByRole('heading', { name: /дякуємо/i })).toBeVisible();
   });
+
+  test('should show validation errors on invalid checkout data', async ({ page }) => {
+    await page.goto('/');
+    await page.goto('/product/test-product-e2e');
+    await page.getByRole('button', { name: /до кошика/i }).first().click();
+    
+    const cartBtn = page.getByRole('button', { name: 'Кошик', exact: true });
+    await cartBtn.click();
+
+    const checkoutLink = page.getByRole('link', { name: /повного оформлення/i }).first();
+    await checkoutLink.waitFor({ state: 'visible' });
+    await checkoutLink.click();
+    
+    await expect(page).toHaveURL(/.*checkout/);
+
+    // Try to submit without filling required data
+    const submitBtn = page.getByRole('button', { name: /підтвердити замовлення|оплатити|підтвердити/i });
+    await submitBtn.click();
+
+    // Оскільки використовується нативна HTML5 валідація (атрибут required),
+    // ми не побачимо текстового повідомлення в DOM. 
+    // Замість цього перевіряємо, що поле не валідне через JS API.
+    const firstNameInput = page.getByLabel(/ім'я/i).first();
+    const isInvalid = await firstNameInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
+    expect(isInvalid).toBeTruthy();
+    
+    // Переконуємось, що ми залишились на сторінці чекауту (форма не відправилась)
+    await expect(page).toHaveURL(/.*checkout/);
+  });
+
+  test.skip('should handle out of stock scenario gracefully', async ({ page }) => {
+    // Цей тест вимагає специфічного товару, якого немає в наявності.
+    // Пропускаємо доки не додамо такий товар в mocks.
+    await page.goto('/product/out-of-stock-product');
+    
+    // Перевірка, що кнопка "До кошика" заблокована
+    const addToCartBtn = page.getByRole('button', { name: /до кошика/i }).first();
+    await expect(addToCartBtn).toBeDisabled();
+    
+    // Або є текст "Немає в наявності"
+    await expect(page.getByText(/немає в наявності|закінчився/i)).toBeVisible();
+  });
 });

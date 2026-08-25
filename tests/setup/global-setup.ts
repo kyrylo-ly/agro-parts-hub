@@ -29,6 +29,21 @@ async function globalSetup() {
         stock = EXCLUDED.stock,
         is_active = EXCLUDED.is_active
     `;
+    // Seed admin user
+    const [adminUser] = await sql`
+      INSERT INTO "user" (id, name, email, email_verified, role, created_at, updated_at)
+      VALUES ('admin-e2e-id', 'Admin Test', 'admin@example.com', true, 'admin', NOW(), NOW())
+      ON CONFLICT (email) DO UPDATE SET role = 'admin'
+      RETURNING id
+    `;
+    
+    // Seed admin session
+    await sql`
+      INSERT INTO session (id, expires_at, token, created_at, updated_at, user_id)
+      VALUES ('session-admin-id', NOW() + INTERVAL '1 day', 'admin-session-token-e2e', NOW(), NOW(), ${adminUser.id})
+      ON CONFLICT (token) DO NOTHING
+    `;
+
     console.log('✅ Global Setup: Test data seeded successfully');
   } catch (error) {
     console.error('❌ Global Setup failed:', error);

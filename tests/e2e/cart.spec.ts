@@ -38,4 +38,30 @@ test.describe('Cart Flow', () => {
     // 8. Verify cart is empty
     await expect(cartSheet.getByText(/порожній|немає товарів/i)).toBeVisible();
   });
+
+  test('should sync cart state between multiple tabs', async ({ context, page }) => {
+    // 1. Tab 1: Visit product and add to cart
+    await page.goto('/product/test-product-e2e');
+    await page.getByRole('button', { name: /до кошика/i }).first().click();
+    
+    // 2. Tab 2: Open a new tab and check if cart has the item
+    const newPage = await context.newPage();
+    await newPage.goto('/');
+    
+    const cartBtnNewTab = newPage.getByRole('button', { name: 'Кошик', exact: true });
+    await expect(cartBtnNewTab).toContainText('1');
+    
+    // 3. Tab 2: Remove the item
+    await cartBtnNewTab.click();
+    const cartSheet = newPage.getByRole('dialog');
+    const removeBtn = cartSheet.locator('button').filter({ has: newPage.locator('.lucide-trash-2') }).first();
+    await removeBtn.click();
+    await expect(cartSheet.getByText(/порожній|немає товарів/i)).toBeVisible();
+
+    // 4. Tab 1: Ensure cart is updated
+    const cartBtnOriginal = page.getByRole('button', { name: 'Кошик', exact: true });
+    // Reloading to ensure state is fetched again or storage event triggers update
+    await page.reload();
+    await expect(cartBtnOriginal).not.toContainText('1');
+  });
 });
