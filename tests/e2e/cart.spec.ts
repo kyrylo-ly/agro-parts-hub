@@ -28,10 +28,7 @@ test.describe('Cart Flow', () => {
 
     // 6. Increase quantity
     const increaseBtn = page.getByRole('button', { name: /plus|збільшити|\+/i }).first();
-    if (await increaseBtn.isVisible()) {
-      await increaseBtn.click();
-      // Optionally wait for subtotal to update
-    }
+    await increaseBtn.click();
 
     // 7. Remove item
     // The button has no aria-label, so we locate it by the trash icon inside

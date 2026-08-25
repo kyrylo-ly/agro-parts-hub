@@ -123,6 +123,7 @@ export function CartSheet({ children }: CartSheetProps) {
 
                       <div className="flex items-center bg-muted rounded-lg h-8 border">
                         <button
+                          aria-label="Зменшити"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
                           className="size-8 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-50"
@@ -131,6 +132,7 @@ export function CartSheet({ children }: CartSheetProps) {
                         </button>
                         <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                         <button
+                          aria-label="Збільшити"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="size-8 flex items-center justify-center text-muted-foreground hover:text-foreground"
                         >
@@ -140,6 +142,7 @@ export function CartSheet({ children }: CartSheetProps) {
                     </div>
                   </div>
                   <button
+                    aria-label="Видалити"
                     onClick={() => removeFromCart(item.id)}
                     className="absolute top-2 right-2 p-1 text-muted-foreground hover:text-destructive transition-colors"
                   >

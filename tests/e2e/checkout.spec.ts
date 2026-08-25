@@ -25,7 +25,9 @@ test.describe('Checkout Flow', () => {
     await cartBtn.click();
 
     // Click "Перейти до повного оформлення"
-    await page.getByRole('link', { name: /повного оформлення/i }).first().click({ force: true });
+    const checkoutLink = page.getByRole('link', { name: /повного оформлення/i }).first();
+    await checkoutLink.waitFor({ state: 'visible' });
+    await checkoutLink.click();
     await expect(page).toHaveURL(/.*checkout/);
 
     // Fill out checkout form
@@ -34,32 +36,15 @@ test.describe('Checkout Flow', () => {
     await page.getByLabel(/телефон|phone/i).first().fill('+380501234567');
 
     // Delivery (Nova Poshta)
-    // The dropdowns might be tricky depending on the UI (shadcn select or combobox)
-    const cityInput = page.getByPlaceholder(/пошук міста/i).first();
-    if (await cityInput.isVisible()) {
-      await cityInput.fill('Київ');
-      // Wait for mock response
-      await page.getByRole('option', { name: 'Київ' }).click();
-    } else {
-      await page.getByLabel(/місто/i).first().fill('Київ');
-    }
-
-    const warehouseInput = page.getByPlaceholder(/пошук відділення/i).first();
-    if (await warehouseInput.isVisible()) {
-      await warehouseInput.fill('Відділення 1');
-      await page.getByRole('option', { name: 'Відділення №1' }).click();
-    } else {
-      await page.getByLabel(/відділення/i).first().fill('Відділення №1');
-    }
+    await page.getByLabel(/місто/i).first().fill('Київ');
+    await page.getByLabel(/відділення/i).first().fill('Відділення №1');
 
     // Submit order
     const submitBtn = page.getByRole('button', { name: /підтвердити замовлення|оплатити|підтвердити/i });
-    if (await submitBtn.isVisible()) {
-      await submitBtn.click();
+    await submitBtn.click();
 
-      // Verify success page
-      await expect(page).toHaveURL(/.*success/);
-      await expect(page.getByRole('heading', { name: /дякуємо/i })).toBeVisible();
-    }
+    // Verify success page
+    await expect(page).toHaveURL(/.*success/);
+    await expect(page.getByRole('heading', { name: /дякуємо/i })).toBeVisible();
   });
 });
