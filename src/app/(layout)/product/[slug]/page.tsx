@@ -8,6 +8,8 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGallery } from "@/components/product-gallery";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { QuickOrderDialog } from "@/components/quick-order-dialog";
+import { FavoriteButton } from "@/components/favorite-button";
+import { CompareButton } from "@/components/compare-button";
 import { getPublicProductBySlug } from "@/services/product-service";
 import { db } from "@/db/db";
 import { product } from "@/db/schema/store";
@@ -234,7 +236,7 @@ export default async function ProductPage({
 
             {/* Actions */}
             {inStock && (
-              <div className="flex flex-wrap gap-3 mt-2">
+              <div className="flex flex-wrap gap-3 mt-2 items-center">
                 <AddToCartButton
                   productId={p.id}
                   productName={p.name}
@@ -248,6 +250,8 @@ export default async function ProductPage({
                   productName={p.name}
                   price={p.price}
                 />
+                <FavoriteButton productId={p.id} productName={p.name} />
+                <CompareButton productId={p.id} productName={p.name} />
               </div>
             )}
 

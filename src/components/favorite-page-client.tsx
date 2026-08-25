@@ -12,9 +12,17 @@ export function FavoritePageClient() {
 
   React.useEffect(() => {
     async function load() {
-      const ids = JSON.parse(
-        localStorage.getItem("favorites") || "[]"
-      ) as string[];
+      let ids: string[] = [];
+      try {
+        const raw = localStorage.getItem("agro-favorites-storage");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          ids = parsed?.state?.items || [];
+        }
+      } catch (e) {
+        console.error("Error parsing favorites", e);
+      }
+      
       if (ids.length === 0) {
         setProducts([]);
         setIsLoading(false);
