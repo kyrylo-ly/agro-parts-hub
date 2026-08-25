@@ -12,7 +12,7 @@ function SuccessContent() {
   const orderId = searchParams.get("orderId");
 
   return (
-    <div className="container py-16 flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
+    <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
       <div className="size-24 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-500">
         <CheckCircle className="size-12" />
       </div>
