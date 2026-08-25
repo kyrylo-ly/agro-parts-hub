@@ -21,6 +21,8 @@ async function globalSetup() {
         category_id, sku, name, slug, price, stock, is_active
       ) VALUES (
         ${cat.id}, 'TEST-SKU-001', 'Тестовий Товар E2E', 'test-product-e2e', 1500.00, 10, true
+      ), (
+        ${cat.id}, 'TEST-SKU-002', 'Відсутній Товар E2E', 'out-of-stock-product', 2000.00, 0, true
       )
       ON CONFLICT (slug) DO UPDATE SET 
         name = EXCLUDED.name,

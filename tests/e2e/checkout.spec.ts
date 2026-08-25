@@ -77,16 +77,19 @@ test.describe('Checkout Flow', () => {
     await expect(page).toHaveURL(/.*checkout/);
   });
 
-  test.skip('should handle out of stock scenario gracefully', async ({ page }) => {
-    // Цей тест вимагає специфічного товару, якого немає в наявності.
-    // Пропускаємо доки не додамо такий товар в mocks.
+  test('should handle out of stock scenario gracefully', async ({ page }) => {
+    // Відкриваємо товар, якого немає в наявності (seeded in global-setup.ts)
     await page.goto('/product/out-of-stock-product');
     
-    // Перевірка, що кнопка "До кошика" заблокована
-    const addToCartBtn = page.getByRole('button', { name: /до кошика/i }).first();
-    await expect(addToCartBtn).toBeDisabled();
-    
+    // Перевірка, що кнопка "До кошика" відсутня або заблокована
     // Або є текст "Немає в наявності"
-    await expect(page.getByText(/немає в наявності|закінчився/i)).toBeVisible();
+    const outOfStockText = page.getByText(/немає в наявності|закінчився|out of stock/i).first();
+    await expect(outOfStockText).toBeVisible();
+
+    // Якщо кнопка все ж є, вона має бути заблокована
+    const addToCartBtn = page.getByRole('button', { name: /до кошика/i }).first();
+    if (await addToCartBtn.isVisible()) {
+      await expect(addToCartBtn).toBeDisabled();
+    }
   });
 });
