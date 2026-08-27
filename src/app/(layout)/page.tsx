@@ -101,7 +101,7 @@ export default function Home() {
         {/* Dark overlay to make text readable against both dark and bright areas */}
         <div className="absolute inset-0 bg-black/30 -z-10" />
 
-        <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
+        <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-8 lg:px-8 lg:py-12">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl text-white drop-shadow-md">
               Запчастини для{" "}
@@ -157,7 +157,7 @@ export default function Home() {
       </section>
 
       {/* Categories Header - Static to prevent CLS */}
-      <section className="container mx-auto max-w-[1400px] px-4 pt-10 lg:px-8 lg:pt-14">
+      <section className="container mx-auto max-w-[1400px] px-4 pt-6 lg:px-8 lg:pt-8">
         <SectionHeader
           title="Категорії"
           subtitle="Знайдіть потрібні запчастини"
@@ -170,7 +170,7 @@ export default function Home() {
       </Suspense>
       {/* Trust Banner (Viber Expert) */}
       <section className="bg-primary text-primary-foreground border-y-4 border-accent my-6">
-        <div className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+        <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 space-y-4">
               <h2 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tight">
@@ -234,7 +234,7 @@ async function HomepageDynamicContent() {
     <>
       {/* Categories Grid */}
       {topCategories.length > 0 && (
-        <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-12">
+        <section className="container mx-auto max-w-[1400px] px-4 pb-6 lg:px-8 lg:pb-8">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {topCategories.map((cat) => (
               <Link
@@ -275,7 +275,7 @@ async function HomepageDynamicContent() {
 
       {/* New Arrivals */}
       {newArrivals.length > 0 && (
-        <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+        <section className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
           <SectionHeader
             title="Новинки"
             subtitle="Нещодавно додані товари"
@@ -287,7 +287,7 @@ async function HomepageDynamicContent() {
 
       {/* Collections Banner */}
       {collections.length > 0 && (
-        <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+        <section className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
           <SectionHeader title="Колекції" subtitle="Спеціальні добірки" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {collections.slice(0, 3).map((col) => (
@@ -319,8 +319,8 @@ async function HomepageDynamicContent() {
 
       {/* Bestsellers */}
       {bestsellers.length > 0 && (
-        <section className="bg-muted/20">
-          <div className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+        <section>
+          <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
             <SectionHeader
               title="Хіти продажу"
               subtitle="Найпопулярніші товари"
@@ -333,7 +333,7 @@ async function HomepageDynamicContent() {
 
       {/* Brands */}
       {brands.length > 0 && (
-        <section className="container mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+        <section className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
           <SectionHeader
             title="Бренди"
             subtitle="Перевірені виробники"
@@ -360,7 +360,7 @@ function HomepageSkeleton() {
   return (
     <div className="animate-pulse">
       {/* Categories Grid Skeleton */}
-      <section className="container mx-auto max-w-[1400px] px-4 pb-10 lg:px-8 lg:pb-14">
+      <section className="container mx-auto max-w-[1400px] px-4 pb-6 lg:px-8 lg:pb-8">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
