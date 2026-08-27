@@ -108,11 +108,11 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="tel:+380000000000"
+                  href="tel:+380952476193"
                   className="flex items-center gap-2.5 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   <Phone className="size-4 shrink-0" />
-                  +38 (000) 000-00-00
+                  +38 (095) 247-61-93
                 </a>
               </li>
               <li>
@@ -139,7 +139,7 @@ export function Footer() {
 
       {/* Bottom bar */}
       <Separator />
-      <div className="container mx-auto max-w-[1400px] px-4 py-4 lg:px-8">
+      <div className="container mx-auto max-w-350 px-4 py-4 lg:px-8">
         <p className="text-center text-xs text-muted-foreground">
           © {currentYear} Агро Літ. Всі права захищено.
         </p>

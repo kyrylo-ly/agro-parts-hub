@@ -18,8 +18,6 @@ import { getHomepageData } from "@/services/homepage-service";
 import { Suspense } from "react";
 import { preload } from "react-dom";
 
-
-
 export const metadata: Metadata = {
   title: "Агро Літ — Запчастини для тракторів та сільгосптехніки",
   description:
@@ -52,7 +50,14 @@ const benefits = [
 export const instant = false;
 
 export default function Home() {
-  const common = { alt: "Запчастини для сільгосптехніки", fill: true, fetchPriority: "high" as const, loading: "eager" as const, sizes: "100vw", className: "object-cover object-center" };
+  const common = {
+    alt: "Запчастини для сільгосптехніки",
+    fill: true,
+    fetchPriority: "high" as const,
+    loading: "eager" as const,
+    sizes: "100vw",
+    className: "object-cover object-center",
+  };
   const {
     props: { srcSet: desktopSrcSet, ...desktopProps },
   } = getImageProps({
@@ -67,8 +72,18 @@ export default function Home() {
   });
 
   // Preload hero images in <head> — browser will download only the matching media query
-  preload(desktopProps.src!, { as: "image", imageSrcSet: desktopSrcSet, media: "(min-width: 768px)", fetchPriority: "high" });
-  preload(mobileProps.src!, { as: "image", imageSrcSet: mobileSrcSet, media: "(max-width: 767px)", fetchPriority: "high" });
+  preload(desktopProps.src!, {
+    as: "image",
+    imageSrcSet: desktopSrcSet,
+    media: "(min-width: 768px)",
+    fetchPriority: "high",
+  });
+  preload(mobileProps.src!, {
+    as: "image",
+    imageSrcSet: mobileSrcSet,
+    media: "(max-width: 767px)",
+    fetchPriority: "high",
+  });
 
   return (
     <>
@@ -90,7 +105,9 @@ export default function Home() {
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl text-white drop-shadow-md">
               Запчастини для{" "}
-              <span className="text-accent drop-shadow-lg">сільгосптехніки</span>
+              <span className="text-accent drop-shadow-lg">
+                сільгосптехніки
+              </span>
             </h1>
             <p className="text-lg text-white max-w-2xl sm:text-xl drop-shadow">
               Підшипники, фільтри, запчастини для тракторів МТЗ та іншої
@@ -100,7 +117,7 @@ export default function Home() {
               href="/categories"
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "rounded-full px-8 bg-accent text-accent-foreground hover:bg-accent/90 border-none"
+                "rounded-full px-8 bg-accent text-accent-foreground hover:bg-accent/90 border-none",
               )}
             >
               Перейти до каталогу
@@ -160,12 +177,16 @@ export default function Home() {
                 Не знаєте номер деталі?
               </h2>
               <p className="text-lg text-primary-foreground/90 max-w-xl font-medium">
-                Сфотографуйте зламану деталь, маркування або розміри та скиньте нам у Viber. Наш експерт підбере точний аналог за 5 хвилин!
+                Сфотографуйте зламану деталь, маркування або розміри та скиньте
+                нам у Viber. Наш експерт підбере точний аналог за 5 хвилин!
               </p>
               <div className="pt-2 flex flex-col sm:flex-row gap-4">
                 <a
-                  href="viber://chat?number=%2B380000000000"
-                  className={cn(buttonVariants({ size: "lg" }), "bg-[#5946D2] text-white hover:bg-[#4A3AB5] font-bold text-base px-8 uppercase")}
+                  href="viber://chat?number=%2B380952476193"
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "bg-[#5946D2] text-white hover:bg-[#4A3AB5] font-bold text-base px-8 uppercase",
+                  )}
                 >
                   <MessageCircle className="mr-2 size-5" />
                   Написати у Viber
@@ -193,8 +214,13 @@ export default function Home() {
 }
 
 async function HomepageDynamicContent() {
-  const { newArrivals: newArrivalsResult, bestsellers: bestsellersResult, categories: categoriesResult, collections: collectionsResult, brands: brandsResult } =
-    await getHomepageData();
+  const {
+    newArrivals: newArrivalsResult,
+    bestsellers: bestsellersResult,
+    categories: categoriesResult,
+    collections: collectionsResult,
+    brands: brandsResult,
+  } = await getHomepageData();
 
   const newArrivals = newArrivalsResult.success ? newArrivalsResult.data : [];
   const bestsellers = bestsellersResult.success ? bestsellersResult.data : [];

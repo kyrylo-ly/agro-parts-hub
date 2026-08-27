@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
 import { LazyToaster } from "@/components/lazy-toaster";
 import "./globals.css";
+import { telNumber } from "@/const/tel-number";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -49,7 +50,7 @@ function JsonLd() {
     // logo: `${siteUrl}/logo.png`, // TODO: uncomment when logo is uploaded
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+380000000000",
+      telephone: telNumber,
       contactType: "customer service",
       availableLanguage: "Ukrainian",
     },
@@ -90,10 +91,7 @@ function JsonLd() {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="uk"
-      className={`${inter.variable} h-full antialiased`}
-    >
+    <html lang="uk" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <JsonLd />
         {children}

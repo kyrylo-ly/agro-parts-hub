@@ -1,28 +1,18 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFavoritesStore } from "@/store/use-favorites";
+import { useStoreHydration } from "@/hooks/use-store-hydration";
 
 export function FavoriteIndicator() {
-  const [count, setCount] = React.useState(0);
+  const count = useStoreHydration(
+    useFavoritesStore,
+    (state) => state.items.length,
+  );
 
-  React.useEffect(() => {
-    function updateCount() {
-      try {
-        const ids = JSON.parse(localStorage.getItem("favorites") || "[]") as string[];
-        setCount(ids.length);
-      } catch {
-        setCount(0);
-      }
-    }
-    updateCount();
-    window.addEventListener("favorites-updated", updateCount);
-    return () => window.removeEventListener("favorites-updated", updateCount);
-  }, []);
-
-  if (count === 0) return null;
+  if (!count || count === 0) return null;
 
   return (
     <Button

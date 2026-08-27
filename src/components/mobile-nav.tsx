@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Phone, Tractor, Truck } from "lucide-react";
+import { Menu, Phone, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,7 +26,12 @@ interface MobileNavProps {
     name: string;
     slug: string;
     imageUrl?: string | null;
-    children: { id: number; name: string; slug: string; imageUrl?: string | null }[];
+    children: {
+      id: number;
+      name: string;
+      slug: string;
+      imageUrl?: string | null;
+    }[];
   }[];
 }
 
@@ -36,7 +41,14 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
-        render={<Button aria-label="Відкрити меню" variant="ghost" size="icon" className="lg:hidden" />}
+        render={
+          <Button
+            aria-label="Відкрити меню"
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+          />
+        }
       >
         <Menu className="size-5" />
       </SheetTrigger>
@@ -105,11 +117,11 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
                 Контакти
               </span>
               <a
-                href="tel:+380000000000"
+                href="tel:+380952476193"
                 className="flex items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-muted"
               >
                 <Phone className="size-4" />
-                +38 (000) 000-00-00
+                +38 (095) 247-61-93
               </a>
             </div>
           </nav>

@@ -1,11 +1,4 @@
-import {
-  Flame,
-  Percent,
-  Phone,
-  Sparkles,
-  Tag,
-  Tractor,
-} from "lucide-react";
+import { Flame, Percent, Phone, Sparkles, Tag } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -19,11 +12,15 @@ import { Logo } from "@/components/logo";
 // Code-split heavy interactive components — they pull in Base UI Sheet/Popover/ScrollArea
 const MobileNav = dynamic(
   () => import("@/components/mobile-nav").then((mod) => mod.MobileNav),
-  { loading: () => <div className="size-9 lg:hidden" /> }
+  { loading: () => <div className="size-9 lg:hidden" /> },
 );
 const CategoryMenu = dynamic(
   () => import("@/components/category-menu").then((mod) => mod.CategoryMenu),
-  { loading: () => <div className="hidden lg:block h-10 w-36 animate-pulse rounded-md bg-muted" /> }
+  {
+    loading: () => (
+      <div className="hidden lg:block h-10 w-36 animate-pulse rounded-md bg-muted" />
+    ),
+  },
 );
 export type NavItem = {
   label: string;
@@ -44,7 +41,12 @@ export interface HeaderProps {
     name: string;
     slug: string;
     imageUrl?: string | null;
-    children: { id: number; name: string; slug: string; imageUrl?: string | null }[];
+    children: {
+      id: number;
+      name: string;
+      slug: string;
+      imageUrl?: string | null;
+    }[];
   }[];
 }
 
@@ -52,8 +54,8 @@ export function Header({ categories = [] }: HeaderProps) {
   return (
     <>
       {/* Main Header - Sticky */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
-        <div className="container mx-auto flex flex-wrap items-center justify-between gap-y-3 gap-x-4 px-4 py-3 lg:h-16 lg:flex-nowrap lg:gap-8 lg:px-8 lg:py-0 max-w-[1400px]">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 shadow-sm">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-y-3 gap-x-4 px-4 py-3 lg:h-16 lg:flex-nowrap lg:gap-8 lg:px-8 lg:py-0 max-w-350">
           {/* Top row elements on mobile, left on desktop */}
           <div className="flex items-center gap-3 sm:gap-4">
             <MobileNav categories={categories} />
@@ -68,7 +70,7 @@ export function Header({ categories = [] }: HeaderProps) {
           </div>
 
           {/* Search Bar (Client) */}
-          <div className="order-last w-full lg:order-none lg:flex-1 lg:w-auto">
+          <div className="order-last w-full lg:order-0 lg:flex-1 lg:w-auto">
             <SearchBar />
           </div>
 
@@ -84,7 +86,7 @@ export function Header({ categories = [] }: HeaderProps) {
 
       {/* Bottom Nav Bar - Desktop only */}
       <div className="hidden border-b bg-muted/20 lg:block relative z-40">
-        <div className="container mx-auto flex h-11 max-w-[1400px] items-center justify-between px-8 text-sm">
+        <div className="container mx-auto flex h-11 max-w-350 items-center justify-between px-8 text-sm">
           <nav className="flex items-center gap-6">
             {bottomNav.map((item) => {
               const Icon = item.icon;
@@ -119,10 +121,10 @@ export function Header({ categories = [] }: HeaderProps) {
             <div className="flex items-center gap-1.5 font-medium text-foreground">
               <Phone className="size-4" />
               <a
-                href="tel:+380000000000"
+                href="tel:+380952476193"
                 className="hover:text-primary transition-colors"
               >
-                +38 (000) 000-00-00
+                +38 (095) 247-61-93
               </a>
             </div>
           </div>
