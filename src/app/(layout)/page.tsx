@@ -101,7 +101,7 @@ export default function Home() {
         {/* Dark overlay to make text readable against both dark and bright areas */}
         <div className="absolute inset-0 bg-black/30 -z-10" />
 
-        <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-8 lg:px-8 lg:py-12">
+        <div className="relative z-10 container mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl text-white drop-shadow-md">
               Запчастини для{" "}
