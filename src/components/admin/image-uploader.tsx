@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Loader2, GripVertical } from "lucide-react";
+import { Upload, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import imageCompression from 'browser-image-compression';
-import { uploadProductImage, deleteProductImage, reorderProductImages } from "@/actions/upload";
+import imageCompression from "browser-image-compression";
+import { uploadProductImage, deleteProductImage } from "@/actions/upload";
 
 interface ProductImageData {
   id: string;
@@ -19,7 +19,11 @@ interface ImageUploaderProps {
   onImagesChange: () => void;
 }
 
-export function ImageUploader({ productId, images, onImagesChange }: ImageUploaderProps) {
+export function ImageUploader({
+  productId,
+  images,
+  onImagesChange,
+}: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,7 +94,9 @@ export function ImageUploader({ productId, images, onImagesChange }: ImageUpload
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Upload className="size-8" />
-            <p className="text-sm">Перетягніть зображення або натисніть для вибору</p>
+            <p className="text-sm">
+              Перетягніть зображення або натисніть для вибору
+            </p>
             <p className="text-xs">JPEG, PNG, WebP, AVIF. Макс. 5 МБ</p>
           </div>
         )}

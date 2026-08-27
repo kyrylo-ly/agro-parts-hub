@@ -10,7 +10,11 @@ import { requireAdmin } from "./admin-auth";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
-export async function uploadProductImage(productId: string, formData: FormData) {
+//TODO: upload on client
+export async function uploadProductImage(
+  productId: string,
+  formData: FormData,
+) {
   try {
     await requireAdmin();
 
@@ -20,17 +24,29 @@ export async function uploadProductImage(productId: string, formData: FormData) 
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return { success: false as const, error: "Дозволені формати: JPEG, PNG, WebP, AVIF" };
+      return {
+        success: false as const,
+        error: "Дозволені формати: JPEG, PNG, WebP, AVIF",
+      };
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return { success: false as const, error: "Максимальний розмір файлу — 5 МБ" };
+      return {
+        success: false as const,
+        error: "Максимальний розмір файлу — 5 МБ",
+      };
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const contentType = file.type || "image/webp";
-    const ext = contentType.includes("webp") ? "webp" : contentType.includes("jpeg") ? "jpg" : contentType.includes("png") ? "png" : "webp";
+    const ext = contentType.includes("webp")
+      ? "webp"
+      : contentType.includes("jpeg")
+        ? "jpg"
+        : contentType.includes("png")
+          ? "png"
+          : "webp";
 
     const key = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
@@ -43,7 +59,8 @@ export async function uploadProductImage(productId: string, formData: FormData) 
       limit: 1,
     });
 
-    const nextOrderIndex = existingImages.length > 0 ? existingImages[0].orderIndex + 1 : 0;
+    const nextOrderIndex =
+      existingImages.length > 0 ? existingImages[0].orderIndex + 1 : 0;
 
     const [newImage] = await db
       .insert(productImage)
@@ -58,7 +75,10 @@ export async function uploadProductImage(productId: string, formData: FormData) 
     return { success: true as const, data: newImage };
   } catch (error) {
     console.error("Failed to upload image:", error);
-    return { success: false as const, error: "Не вдалося завантажити зображення" };
+    return {
+      success: false as const,
+      error: "Не вдалося завантажити зображення",
+    };
   }
 }
 export async function uploadSingleImage(folder: string, formData: FormData) {
@@ -71,17 +91,29 @@ export async function uploadSingleImage(folder: string, formData: FormData) {
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return { success: false as const, error: "Дозволені формати: JPEG, PNG, WebP, AVIF" };
+      return {
+        success: false as const,
+        error: "Дозволені формати: JPEG, PNG, WebP, AVIF",
+      };
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return { success: false as const, error: "Максимальний розмір файлу — 5 МБ" };
+      return {
+        success: false as const,
+        error: "Максимальний розмір файлу — 5 МБ",
+      };
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const contentType = file.type || "image/webp";
-    const ext = contentType.includes("webp") ? "webp" : contentType.includes("jpeg") ? "jpg" : contentType.includes("png") ? "png" : "webp";
+    const ext = contentType.includes("webp")
+      ? "webp"
+      : contentType.includes("jpeg")
+        ? "jpg"
+        : contentType.includes("png")
+          ? "png"
+          : "webp";
 
     const key = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
@@ -90,7 +122,10 @@ export async function uploadSingleImage(folder: string, formData: FormData) {
     return { success: true as const, data: { url } };
   } catch (error) {
     console.error("Failed to upload image:", error);
-    return { success: false as const, error: "Не вдалося завантажити зображення" };
+    return {
+      success: false as const,
+      error: "Не вдалося завантажити зображення",
+    };
   }
 }
 
@@ -138,7 +173,7 @@ export async function deleteProductImage(imageId: string) {
 
 export async function reorderProductImages(
   productId: string,
-  imageIds: string[]
+  imageIds: string[],
 ) {
   try {
     await requireAdmin();
@@ -149,14 +184,17 @@ export async function reorderProductImages(
         db
           .update(productImage)
           .set({ orderIndex: index })
-          .where(eq(productImage.id, id))
-      )
+          .where(eq(productImage.id, id)),
+      ),
     );
 
     revalidatePath(`/admin/products/${productId}`);
     return { success: true as const };
   } catch (error) {
     console.error("Failed to reorder images:", error);
-    return { success: false as const, error: "Не вдалося змінити порядок зображень" };
+    return {
+      success: false as const,
+      error: "Не вдалося змінити порядок зображень",
+    };
   }
 }

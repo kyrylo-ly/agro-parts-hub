@@ -1,13 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Heart,
-  LogOut,
-  Package,
-  Settings,
-  UserRoundCog,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Heart, LogOut, Package, Settings, UserRoundCog } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOutAction } from "@/actions/auth";
+import { authClient } from "@/lib/auth-client";
 
 interface AccountMenuProps {
   name: string;
@@ -29,10 +24,16 @@ interface AccountMenuProps {
 }
 
 export function AccountMenu({ name, email, avatar, role }: AccountMenuProps) {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" className="h-10 gap-2 px-2 hover:bg-muted/50" />}
+        render={
+          <Button
+            variant="ghost"
+            className="h-10 gap-2 px-2 hover:bg-muted/50"
+          />
+        }
       >
         <Avatar className="size-8">
           <AvatarImage src={avatar} alt={name} />
@@ -109,20 +110,27 @@ export function AccountMenu({ name, email, avatar, role }: AccountMenuProps) {
         )}
 
         <DropdownMenuSeparator />
-        <form action={signOutAction}>
-          <DropdownMenuItem
-            nativeButton
-            render={
-              <button
-                type="submit"
-                className="flex w-full cursor-pointer items-center text-destructive focus:text-destructive"
-              />
-            }
-          >
-            <LogOut className="mr-2 size-4" />
-            Вийти
-          </DropdownMenuItem>
-        </form>
+        <DropdownMenuItem
+          nativeButton
+          render={
+            <button
+              onClick={async () => {
+                await authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/");
+                      router.refresh();
+                    },
+                  },
+                });
+              }}
+              className="flex w-full cursor-pointer items-center text-destructive focus:text-destructive"
+            />
+          }
+        >
+          <LogOut className="mr-2 size-4" />
+          Вийти
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

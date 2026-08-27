@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/db/db";
+import { db, dbTx } from "@/db/db";
 import { order, orderItem, product } from "@/db/schema/store";
 import { eq, sql, and, inArray } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -44,7 +44,7 @@ export async function createQuickOrder(data: {
     const session = await auth.api.getSession({ headers: reqHeaders });
     const userId = session?.user.id ?? null;
 
-    const newOrderId = await db.transaction(async (tx) => {
+    const newOrderId = await dbTx.transaction(async (tx) => {
       // Create order
       const [newOrder] = await tx
         .insert(order)
@@ -87,7 +87,10 @@ export async function createQuickOrder(data: {
   } catch (error) {
     console.error("createQuickOrder error:", error);
     if (error instanceof Error && error.message === "OUT_OF_STOCK") {
-      return { success: false as const, error: "Товар щойно закінчився на складі" };
+      return {
+        success: false as const,
+        error: "Товар щойно закінчився на складі",
+      };
     }
     return { success: false as const, error: "Помилка створення замовлення" };
   }
@@ -120,11 +123,23 @@ export async function createOrder(data: CheckoutData) {
   if (data.items.length === 0) {
     return { success: false as const, error: "Кошик порожній" };
   }
-  if (data.deliveryType === "nova_poshta" && (!data.city?.trim() || !data.warehouse?.trim())) {
-    return { success: false as const, error: "Заповніть місто та відділення для Нової Пошти" };
+  if (
+    data.deliveryType === "nova_poshta" &&
+    (!data.city?.trim() || !data.warehouse?.trim())
+  ) {
+    return {
+      success: false as const,
+      error: "Заповніть місто та відділення для Нової Пошти",
+    };
   }
-  if (data.deliveryType === "ukrposhta" && (!data.city?.trim() || !data.warehouse?.trim() || !data.zipCode?.trim())) {
-    return { success: false as const, error: "Заповніть місто, відділення та індекс для Укрпошти" };
+  if (
+    data.deliveryType === "ukrposhta" &&
+    (!data.city?.trim() || !data.warehouse?.trim() || !data.zipCode?.trim())
+  ) {
+    return {
+      success: false as const,
+      error: "Заповніть місто, відділення та індекс для Укрпошти",
+    };
   }
 
   const reqHeaders = await headers();
@@ -132,10 +147,7 @@ export async function createOrder(data: CheckoutData) {
     // Get all products for price validation
     const productIds = data.items.map((i) => i.productId);
     const products = await db.query.product.findMany({
-      where: and(
-        eq(product.isActive, true),
-        inArray(product.id, productIds)
-      ),
+      where: and(eq(product.isActive, true), inArray(product.id, productIds)),
       columns: { id: true, price: true, stock: true, name: true },
     });
 
@@ -163,7 +175,7 @@ export async function createOrder(data: CheckoutData) {
     const session = await auth.api.getSession({ headers: reqHeaders });
     const userId = session?.user.id ?? null;
 
-    const newOrderId = await db.transaction(async (tx) => {
+    const newOrderId = await dbTx.transaction(async (tx) => {
       // Create order
       const [newOrder] = await tx
         .insert(order)
@@ -207,10 +219,12 @@ export async function createOrder(data: CheckoutData) {
             stock: sql`${product.stock} - ${item.quantity}`,
             salesCount: sql`${product.salesCount} + ${item.quantity}`,
           })
-          .where(and(
-            eq(product.id, item.productId),
-            sql`${product.stock} >= ${item.quantity}`
-          ))
+          .where(
+            and(
+              eq(product.id, item.productId),
+              sql`${product.stock} >= ${item.quantity}`,
+            ),
+          )
           .returning({ id: product.id });
 
         if (!updated) {
@@ -227,27 +241,33 @@ export async function createOrder(data: CheckoutData) {
       const monoToken = process.env.MONO_TOKEN;
       if (!monoToken) {
         console.error("MONO_TOKEN is not set.");
-        return { success: false as const, error: "Помилка оплати: токен не налаштовано." };
+        return {
+          success: false as const,
+          error: "Помилка оплати: токен не налаштовано.",
+        };
       }
 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
       try {
-        const monoResponse = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Token": monoToken,
+        const monoResponse = await fetch(
+          "https://api.monobank.ua/api/merchant/invoice/create",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Token": monoToken,
+            },
+            body: JSON.stringify({
+              amount: Math.round(totalPrice * 100), // in kopecks
+              ccy: 980, // UAH
+              reference: newOrderId,
+              destination: `Оплата замовлення №${newOrderId.slice(0, 8)}`,
+              webHookUrl: `${appUrl}/api/webhooks/monopay`,
+              redirectUrl: `${appUrl}/checkout/success?orderId=${newOrderId}`,
+            }),
           },
-          body: JSON.stringify({
-            amount: Math.round(totalPrice * 100), // in kopecks
-            ccy: 980, // UAH
-            reference: newOrderId,
-            destination: `Оплата замовлення №${newOrderId.slice(0, 8)}`,
-            webHookUrl: `${appUrl}/api/webhooks/monopay`,
-            redirectUrl: `${appUrl}/checkout/success?orderId=${newOrderId}`,
-          }),
-        });
+        );
 
         if (!monoResponse.ok) {
           const errData = await monoResponse.text();
@@ -259,7 +279,10 @@ export async function createOrder(data: CheckoutData) {
         redirectUrl = monoData.pageUrl;
       } catch (err) {
         console.error("Monobank integration error:", err);
-        return { success: false as const, error: "Сервіс оплати тимчасово недоступний" };
+        return {
+          success: false as const,
+          error: "Сервіс оплати тимчасово недоступний",
+        };
       }
     }
 
@@ -267,7 +290,10 @@ export async function createOrder(data: CheckoutData) {
   } catch (error) {
     console.error("createOrder error:", error);
     if (error instanceof Error && error.message === "OUT_OF_STOCK") {
-      return { success: false as const, error: "Один з товарів щойно закінчився на складі" };
+      return {
+        success: false as const,
+        error: "Один з товарів щойно закінчився на складі",
+      };
     }
     return { success: false as const, error: "Помилка створення замовлення" };
   }
@@ -319,7 +345,7 @@ export async function createQuickCartOrder(data: {
     const session = await auth.api.getSession({ headers: reqHeaders });
     const userId = session?.user.id ?? null;
 
-    const newOrderId = await db.transaction(async (tx) => {
+    const newOrderId = await dbTx.transaction(async (tx) => {
       const [newOrder] = await tx
         .insert(order)
         .values({
@@ -328,7 +354,11 @@ export async function createQuickCartOrder(data: {
           totalPrice: totalPrice.toFixed(2),
           paymentMethod: "callback", // default for quick order
           paymentStatus: "unpaid",
-          shippingDetails: { firstName: name.trim(), lastName: "", phone: phone.trim() },
+          shippingDetails: {
+            firstName: name.trim(),
+            lastName: "",
+            phone: phone.trim(),
+          },
         })
         .returning({ id: order.id });
 
@@ -350,10 +380,12 @@ export async function createQuickCartOrder(data: {
             stock: sql`${product.stock} - ${item.quantity}`,
             salesCount: sql`${product.salesCount} + ${item.quantity}`,
           })
-          .where(and(
-            eq(product.id, item.productId),
-            sql`${product.stock} >= ${item.quantity}`
-          ))
+          .where(
+            and(
+              eq(product.id, item.productId),
+              sql`${product.stock} >= ${item.quantity}`,
+            ),
+          )
           .returning({ id: product.id });
 
         if (!updated) {
@@ -368,7 +400,10 @@ export async function createQuickCartOrder(data: {
   } catch (error) {
     console.error("createQuickCartOrder error:", error);
     if (error instanceof Error && error.message === "OUT_OF_STOCK") {
-      return { success: false as const, error: "Один з товарів щойно закінчився на складі" };
+      return {
+        success: false as const,
+        error: "Один з товарів щойно закінчився на складі",
+      };
     }
     return { success: false as const, error: "Помилка створення замовлення" };
   }
@@ -448,7 +483,10 @@ export async function getUserOrders(page = 1, limit = 10) {
 
 // ─── Mock Payment Action ───────────────────────────────────────────────────
 
-export async function confirmMockPayment(orderId: string, status: "paid" | "cancelled") {
+export async function confirmMockPayment(
+  orderId: string,
+  status: "paid" | "cancelled",
+) {
   try {
     const o = await db.query.order.findFirst({
       where: eq(order.id, orderId),
@@ -458,18 +496,29 @@ export async function confirmMockPayment(orderId: string, status: "paid" | "canc
     if (!o) return { success: false as const, error: "Замовлення не знайдено" };
 
     if (status === "paid") {
-      await db.update(order)
+      await db
+        .update(order)
         .set({ paymentStatus: "paid", status: "processing" })
         .where(eq(order.id, orderId));
-      return { success: true as const, redirectUrl: `/checkout/success?orderId=${orderId}` };
+      return {
+        success: true as const,
+        redirectUrl: `/checkout/success?orderId=${orderId}`,
+      };
     } else {
-      await db.update(order)
+      await db
+        .update(order)
         .set({ status: "cancelled" })
         .where(eq(order.id, orderId));
-      return { success: true as const, redirectUrl: `/checkout?error=payment_cancelled` };
+      return {
+        success: true as const,
+        redirectUrl: `/checkout?error=payment_cancelled`,
+      };
     }
   } catch (error) {
     console.error("confirmMockPayment error:", error);
-    return { success: false as const, error: "Помилка оновлення статусу оплати" };
+    return {
+      success: false as const,
+      error: "Помилка оновлення статусу оплати",
+    };
   }
 }
