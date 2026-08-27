@@ -10,7 +10,7 @@ import { requireAdmin } from "./admin-auth";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
-//TODO: upload on client
+//TODO: p5 upload on client
 export async function uploadProductImage(
   productId: string,
   formData: FormData,

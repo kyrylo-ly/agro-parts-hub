@@ -4,7 +4,7 @@ import { brand } from "@/db/schema/store";
 import { eq } from "drizzle-orm";
 import { BrandForm } from "@/components/admin/brands/brand-form";
 
-//TODO: use Suspense instead (all pages with instant)
+//TODO: p3 use Suspense instead (all pages with instant)
 export const instant = false;
 
 interface EditBrandPageProps {

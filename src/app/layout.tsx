@@ -47,7 +47,7 @@ function JsonLd() {
     "@type": "Organization",
     name: "Агро Літ",
     url: siteUrl,
-    // logo: `${siteUrl}/logo.png`, // TODO: uncomment when logo is uploaded
+    // logo: `${siteUrl}/logo.png`, // TODO: p9 uncomment when logo is uploaded
     contactPoint: {
       "@type": "ContactPoint",
       telephone: telNumber,
