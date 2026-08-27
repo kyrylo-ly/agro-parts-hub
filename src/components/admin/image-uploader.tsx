@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { Upload, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import imageCompression from "browser-image-compression";
 import { uploadProductImage, deleteProductImage } from "@/actions/upload";
 
 interface ProductImageData {
@@ -41,6 +40,8 @@ export function ImageUploader({
           fileType: "image/webp" as const,
           initialQuality: 0.8,
         };
+        const imageCompression = (await import("browser-image-compression"))
+          .default;
         const compressedFile = await imageCompression(file, options);
 
         const formData = new FormData();
