@@ -9,21 +9,21 @@ import * as schema from "@/db/schema/better-auth";
 import { admin } from "better-auth/plugins";
 
 export const auth = betterAuth({
-    database: drizzleAdapter(db, {
-        provider: "pg",
-        schema,
-    }),
-    emailAndPassword: {
-        enabled: true,
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema,
+  }),
+  emailAndPassword: {
+    enabled: true,
+  },
+  plugins: [admin(), nextCookies()],
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
-    plugins: [admin(), nextCookies()],
-    socialProviders: {
-        google: {
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        },
-    },
-    experimental: {
-        joins: true,
-    },
+  },
+  experimental: {
+    joins: true,
+  },
 });

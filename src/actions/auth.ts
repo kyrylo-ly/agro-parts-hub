@@ -11,107 +11,107 @@ const LOGIN_ERROR_FALLBACK = "Invalid email or password";
 const SIGNUP_ERROR_FALLBACK = "Unable to create account";
 
 type BetterAuthError = {
-    body?: {
-        message?: string;
-    };
+  body?: {
     message?: string;
+  };
+  message?: string;
 };
 
 function getAuthErrorMessage(error: unknown, fallback: string) {
-    const candidate = error as BetterAuthError;
-    return candidate.body?.message ?? candidate.message ?? fallback;
+  const candidate = error as BetterAuthError;
+  return candidate.body?.message ?? candidate.message ?? fallback;
 }
 
 function readRequiredFormValue(formData: FormData, key: string) {
-    const value = formData.get(key);
-    if (typeof value !== "string") {
-        return "";
-    }
+  const value = formData.get(key);
+  if (typeof value !== "string") {
+    return "";
+  }
 
-    return value.trim();
+  return value.trim();
 }
 
 export async function loginWithEmailAction(formData: FormData) {
-    const callbackUrl = readRequiredFormValue(formData, 'callbackUrl')
-    const email = readRequiredFormValue(formData, "email");
-    const password = readRequiredFormValue(formData, "password");
+  const callbackUrl = readRequiredFormValue(formData, "callbackUrl");
+  const email = readRequiredFormValue(formData, "email");
+  const password = readRequiredFormValue(formData, "password");
 
-    if (!email || !password) {
-        redirect("/login?error=Email%20and%20password%20are%20required");
-    }
+  if (!email || !password) {
+    redirect("/login?error=Email%20and%20password%20are%20required");
+  }
 
-    try {
-        await auth.api.signInEmail({
-            body: {
-                email,
-                password,
-            },
-            headers: await headers(),
-        });
-    } catch (error) {
-        const message = encodeURIComponent(
-            getAuthErrorMessage(error, LOGIN_ERROR_FALLBACK),
-        );
-        redirect(`/login?error=${message}`);
-    }
+  try {
+    await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+      headers: await headers(),
+    });
+  } catch (error) {
+    const message = encodeURIComponent(
+      getAuthErrorMessage(error, LOGIN_ERROR_FALLBACK),
+    );
+    redirect(`/login?error=${message}`);
+  }
 
-    redirect(callbackUrl);
+  redirect(callbackUrl);
 }
 
 export async function signupWithEmailAction(formData: FormData) {
-    const callbackUrl = readRequiredFormValue(formData, 'callbackUrl')
-    const name = readRequiredFormValue(formData, "name");
-    const email = readRequiredFormValue(formData, "email");
-    const password = readRequiredFormValue(formData, "password");
-    const confirmPassword = readRequiredFormValue(formData, "confirm");
+  const callbackUrl = readRequiredFormValue(formData, "callbackUrl");
+  const name = readRequiredFormValue(formData, "name");
+  const email = readRequiredFormValue(formData, "email");
+  const password = readRequiredFormValue(formData, "password");
+  const confirmPassword = readRequiredFormValue(formData, "confirm");
 
-    if (!name || !email || !password || !confirmPassword) {
-        redirect("/signup?error=Name%2C%20email%20and%20password%20are%20required");
-    }
+  if (!name || !email || !password || !confirmPassword) {
+    redirect("/signup?error=Name%2C%20email%20and%20password%20are%20required");
+  }
 
-    if (password !== confirmPassword) {
-        redirect("/signup?error=Passwords should be the same");
-    }
+  if (password !== confirmPassword) {
+    redirect("/signup?error=Passwords should be the same");
+  }
 
-    try {
-        await auth.api.signUpEmail({
-            body: {
-                name,
-                email,
-                password,
-            },
-            headers: await headers(),
-        });
-    } catch (error) {
-        const message = encodeURIComponent(
-            getAuthErrorMessage(error, SIGNUP_ERROR_FALLBACK),
-        );
-        redirect(`/signup?error=${message}`);
-    }
+  try {
+    await auth.api.signUpEmail({
+      body: {
+        name,
+        email,
+        password,
+      },
+      headers: await headers(),
+    });
+  } catch (error) {
+    const message = encodeURIComponent(
+      getAuthErrorMessage(error, SIGNUP_ERROR_FALLBACK),
+    );
+    redirect(`/signup?error=${message}`);
+  }
 
-    redirect(callbackUrl);
+  redirect(callbackUrl);
 }
 
 export async function signOutAction() {
-    await auth.api.signOut({
-        headers: await headers(),
-    });
+  await auth.api.signOut({
+    headers: await headers(),
+  });
 }
 
 export async function loginWithGoogleAction(formData: FormData) {
-    const callbackUrl = readRequiredFormValue(formData, 'callbackUrl')
+  const callbackUrl = readRequiredFormValue(formData, "callbackUrl");
 
-    const data = await auth.api.signInSocial({
-        body: {
-            provider: "google",
-            callbackURL: callbackUrl,
-        },
-        headers: await headers(),
-    });
+  const data = await auth.api.signInSocial({
+    body: {
+      provider: "google",
+      callbackURL: callbackUrl,
+    },
+    headers: await headers(),
+  });
 
-    if (data?.url) {
-        redirect(data.url);
-    } else {
-        redirect("/login?error=Failed%20to%20initialize%20Google%20login");
-    }
+  if (data?.url) {
+    redirect(data.url);
+  } else {
+    redirect("/login?error=Failed%20to%20initialize%20Google%20login");
+  }
 }

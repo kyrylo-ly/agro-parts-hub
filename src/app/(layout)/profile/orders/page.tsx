@@ -26,7 +26,10 @@ function OrdersSkeleton() {
   return (
     <div className="space-y-6">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
+        <div
+          key={i}
+          className="bg-card border rounded-2xl overflow-hidden shadow-sm"
+        >
           <div className="border-b bg-muted/30 p-4 sm:px-6 flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
             <div className="space-y-2">
               <Skeleton className="h-6 w-48" />
@@ -79,7 +82,7 @@ async function OrdersContent() {
         </div>
         <h1 className="text-2xl font-bold">У вас ще немає замовлень</h1>
         <p className="text-muted-foreground max-w-md">
-          Зробіть своє перше замовлення, і воно з'явиться тут.
+          Зробіть своє перше замовлення, і воно з`явиться тут.
         </p>
         <Link href="/categories" className="mt-4">
           <span className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-12 px-8">
@@ -91,11 +94,26 @@ async function OrdersContent() {
   }
 
   const statusMap = {
-    pending: { label: "Очікує", color: "bg-yellow-500/10 text-yellow-600 border-yellow-200" },
-    processing: { label: "В обробці", color: "bg-blue-500/10 text-blue-600 border-blue-200" },
-    shipped: { label: "Відправлено", color: "bg-purple-500/10 text-purple-600 border-purple-200" },
-    delivered: { label: "Доставлено", color: "bg-emerald-500/10 text-emerald-600 border-emerald-200" },
-    cancelled: { label: "Скасовано", color: "bg-destructive/10 text-destructive border-destructive/20" },
+    pending: {
+      label: "Очікує",
+      color: "bg-yellow-500/10 text-yellow-600 border-yellow-200",
+    },
+    processing: {
+      label: "В обробці",
+      color: "bg-blue-500/10 text-blue-600 border-blue-200",
+    },
+    shipped: {
+      label: "Відправлено",
+      color: "bg-purple-500/10 text-purple-600 border-purple-200",
+    },
+    delivered: {
+      label: "Доставлено",
+      color: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+    },
+    cancelled: {
+      label: "Скасовано",
+      color: "bg-destructive/10 text-destructive border-destructive/20",
+    },
   };
 
   const paymentStatusMap = {
@@ -109,13 +127,20 @@ async function OrdersContent() {
         const statusConfig = statusMap[order.status as keyof typeof statusMap];
 
         return (
-          <div key={order.id} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
+          <div
+            key={order.id}
+            className="bg-card border rounded-2xl overflow-hidden shadow-sm"
+          >
             <div className="border-b bg-muted/30 p-4 sm:px-6 flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
               <div className="space-y-1">
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-lg">Замовлення №{order.id.slice(0, 8)}</span>
+                  <span className="font-semibold text-lg">
+                    Замовлення №{order.id.slice(0, 8)}
+                  </span>
                   {statusConfig && (
-                    <span className={`px-2.5 py-0.5 text-xs font-semibold border rounded-full ${statusConfig.color}`}>
+                    <span
+                      className={`px-2.5 py-0.5 text-xs font-semibold border rounded-full ${statusConfig.color}`}
+                    >
                       {statusConfig.label}
                     </span>
                   )}
@@ -127,13 +152,19 @@ async function OrdersContent() {
                   </div>
                   <div className="flex items-center gap-1">
                     <CreditCard className="size-4" />
-                    {paymentStatusMap[order.paymentStatus as keyof typeof paymentStatusMap] || order.paymentStatus}
+                    {paymentStatusMap[
+                      order.paymentStatus as keyof typeof paymentStatusMap
+                    ] || order.paymentStatus}
                   </div>
                 </div>
               </div>
               <div className="text-left sm:text-right">
-                <div className="text-sm text-muted-foreground mb-1">Сума замовлення</div>
-                <div className="font-bold text-xl">{Number(order.totalPrice).toLocaleString("uk-UA")} ₴</div>
+                <div className="text-sm text-muted-foreground mb-1">
+                  Сума замовлення
+                </div>
+                <div className="font-bold text-xl">
+                  {Number(order.totalPrice).toLocaleString("uk-UA")} ₴
+                </div>
               </div>
             </div>
 
@@ -142,34 +173,52 @@ async function OrdersContent() {
                 {order.items.map((item) => {
                   const product = item.product;
                   const productName = product?.name || "Видалений товар";
-                  const productUrl = product?.slug ? `/product/${product.slug}` : "#";
+                  const productUrl = product?.slug
+                    ? `/product/${product.slug}`
+                    : "#";
 
                   return (
                     <div key={item.id} className="flex gap-4">
                       <Link href={productUrl} className="shrink-0 block">
                         <div className="relative size-20 bg-white rounded-xl border p-1 overflow-hidden">
                           {product?.images?.[0]?.url ? (
-                            <Image src={product.images[0].url} alt={productName} fill sizes="80px" className="object-contain" />
+                            <Image
+                              src={product.images[0].url}
+                              alt={productName}
+                              fill
+                              sizes="80px"
+                              className="object-contain"
+                            />
                           ) : (
                             <Box className="size-8 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/30" />
                           )}
                         </div>
                       </Link>
                       <div className="flex flex-col flex-1 min-w-0 py-1">
-                        <Link href={productUrl} className={`font-medium line-clamp-2 transition-colors ${product ? 'hover:text-primary' : 'pointer-events-none text-muted-foreground'}`}>
+                        <Link
+                          href={productUrl}
+                          className={`font-medium line-clamp-2 transition-colors ${product ? "hover:text-primary" : "pointer-events-none text-muted-foreground"}`}
+                        >
                           {productName}
                         </Link>
                         <div className="mt-auto flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">
-                            {item.quantity} шт x {Number(item.priceAtPurchase).toLocaleString("uk-UA")} ₴
+                            {item.quantity} шт x{" "}
+                            {Number(item.priceAtPurchase).toLocaleString(
+                              "uk-UA",
+                            )}{" "}
+                            ₴
                           </span>
                           <span className="font-semibold">
-                            {(Number(item.priceAtPurchase) * item.quantity).toLocaleString("uk-UA")} ₴
+                            {(
+                              Number(item.priceAtPurchase) * item.quantity
+                            ).toLocaleString("uk-UA")}{" "}
+                            ₴
                           </span>
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
