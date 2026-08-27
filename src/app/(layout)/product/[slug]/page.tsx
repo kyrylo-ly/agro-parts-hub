@@ -10,13 +10,13 @@ import { AddToCartButton } from "@/components/add-to-cart-button";
 import { QuickOrderDialog } from "@/components/quick-order-dialog";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompareButton } from "@/components/compare-button";
-import { getPublicProductBySlug, getTopProductSlugs } from "@/services/product-service";
-import { db } from "@/db/db";
-import { product } from "@/db/schema/store";
-import { eq, desc } from "drizzle-orm";
+import {
+  getPublicProductBySlug,
+  getTopProductSlugs,
+} from "@/services/product-service";
 import { cn } from "@/lib/utils";
 
-
+export const instant = false;
 
 export async function generateStaticParams() {
   const slugs = await getTopProductSlugs();
@@ -65,10 +65,10 @@ function getDiscountInfo(price: string, compareAtPrice: string | null) {
     parseFloat(compareAtPrice) > parseFloat(price);
   const discountPercentage = hasDiscount
     ? Math.round(
-      ((parseFloat(compareAtPrice!) - parseFloat(price)) /
-        parseFloat(compareAtPrice!)) *
-      100
-    )
+        ((parseFloat(compareAtPrice!) - parseFloat(price)) /
+          parseFloat(compareAtPrice!)) *
+          100,
+      )
     : 0;
   return { hasDiscount, discountPercentage };
 }
@@ -88,7 +88,7 @@ export default async function ProductPage({
   const p = result.data;
   const { hasDiscount, discountPercentage: discount } = getDiscountInfo(
     p.price,
-    p.compareAtPrice
+    p.compareAtPrice,
   );
   const inStock = p.stock > 0;
   const attributes = (p.attributes as Record<string, string>) || {};
@@ -123,9 +123,9 @@ export default async function ProductPage({
     image: p.images.map((img) => img.url),
     brand: p.brand
       ? {
-        "@type": "Brand",
-        name: p.brand.name,
-      }
+          "@type": "Brand",
+          name: p.brand.name,
+        }
       : undefined,
     offers: {
       "@type": "Offer",
@@ -197,7 +197,7 @@ export default async function ProductPage({
                 className={cn(
                   inStock
                     ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
-                    : ""
+                    : "",
                 )}
               >
                 {inStock ? "В наявності" : "Немає в наявності"}
@@ -216,7 +216,7 @@ export default async function ProductPage({
               <span
                 className={cn(
                   "text-3xl font-bold",
-                  hasDiscount ? "text-red-600" : "text-foreground"
+                  hasDiscount ? "text-red-600" : "text-foreground",
                 )}
               >
                 {formatPrice(p.price)} ₴
@@ -300,9 +300,7 @@ export default async function ProductPage({
                   <p>{p.description}</p>
                 </div>
               ) : (
-                <p className="text-muted-foreground">
-                  Опис товару відсутній.
-                </p>
+                <p className="text-muted-foreground">Опис товару відсутній.</p>
               )}
             </TabsContent>
 
@@ -311,23 +309,21 @@ export default async function ProductPage({
                 <div className="rounded-lg border overflow-hidden">
                   <table className="w-full">
                     <tbody>
-                      {Object.entries(attributes).map(
-                        ([key, value], idx) => (
-                          <tr
-                            key={key}
-                            className={cn(
-                              idx % 2 === 0 ? "bg-muted/30" : "bg-background"
-                            )}
-                          >
-                            <td className="px-4 py-3 text-sm font-medium text-muted-foreground w-1/3 capitalize">
-                              {key.replace(/_/g, " ")}
-                            </td>
-                            <td className="px-4 py-3 text-sm font-medium">
-                              {value}
-                            </td>
-                          </tr>
-                        )
-                      )}
+                      {Object.entries(attributes).map(([key, value], idx) => (
+                        <tr
+                          key={key}
+                          className={cn(
+                            idx % 2 === 0 ? "bg-muted/30" : "bg-background",
+                          )}
+                        >
+                          <td className="px-4 py-3 text-sm font-medium text-muted-foreground w-1/3 capitalize">
+                            {key.replace(/_/g, " ")}
+                          </td>
+                          <td className="px-4 py-3 text-sm font-medium">
+                            {value}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

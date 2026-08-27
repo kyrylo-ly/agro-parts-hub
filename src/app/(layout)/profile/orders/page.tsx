@@ -1,6 +1,7 @@
 import { getUserOrders } from "@/actions/orders";
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import { Package, Calendar, CreditCard, Box } from "lucide-react";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -62,6 +63,7 @@ function OrdersSkeleton() {
 }
 
 async function OrdersContent() {
+  await connection();
   const result = await getUserOrders(1, 50);
 
   if (!result.success) {

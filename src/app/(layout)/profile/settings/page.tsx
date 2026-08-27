@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { connection } from "next/server";
 import { User } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { SettingsForm } from "./settings-form";
@@ -11,6 +12,8 @@ export const metadata = {
 export const instant = false;
 
 export default async function SettingsPage() {
+  //TODO: p9 best approach?
+  await connection();
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session || !session.user) {
@@ -28,7 +31,10 @@ export default async function SettingsPage() {
 
       <div className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm">
         <h2 className="text-xl font-semibold mb-6">Особисті дані</h2>
-        <SettingsForm initialName={session.user.name} email={session.user.email} />
+        <SettingsForm
+          initialName={session.user.name}
+          email={session.user.email}
+        />
       </div>
     </div>
   );

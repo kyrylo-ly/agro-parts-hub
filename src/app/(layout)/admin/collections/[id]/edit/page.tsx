@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { getCollectionById } from "@/actions/collections";
 import { CollectionForm } from "@/components/admin/collections/collection-form";
 
+export const instant = false;
+
+
 export default async function EditCollectionPage({
   params,
 }: {

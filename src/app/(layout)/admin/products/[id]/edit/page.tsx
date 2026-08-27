@@ -5,6 +5,9 @@ import { getAllBrands } from "@/services/brand-service";
 import { getCollections } from "@/actions/collections";
 import { ProductForm } from "@/components/admin/products/product-form";
 
+export const instant = false;
+
+
 export default async function EditProductPage({
   params,
 }: {

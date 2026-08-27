@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { getCategoryById, getAllCategories } from "@/services/category-service";
 import { CategoryForm } from "@/components/admin/categories/category-form";
 
+export const instant = false;
+
+
 export default async function EditCategoryPage({
   params,
 }: {

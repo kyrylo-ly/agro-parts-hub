@@ -28,6 +28,9 @@ export async function generateMetadata({
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+export const instant = false;
+
+
 export default function BrandPage({
   params,
   searchParams,
