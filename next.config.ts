@@ -1,11 +1,15 @@
 import type { NextConfig } from "next";
 
-const r2Domain = new URL(process.env.R2_PUBLIC_URL!)
+const r2Domain = new URL(process.env.R2_PUBLIC_URL!);
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   cacheComponents: true,
+  poweredByHeader: false,
+  partialPrefetching: true,
+
+  reactStrictMode: true,
   cacheLife: {
     catalog: {
       stale: 300,
@@ -20,7 +24,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true, // reached the vercel limit
     qualities: [60, 75],
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: r2Domain.protocol.replace(":", "") as "https",
