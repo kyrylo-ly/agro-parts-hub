@@ -8,7 +8,11 @@ interface LogoProps {
   hideTextOnMobile?: boolean;
 }
 
-export function Logo({ className, onClick, hideTextOnMobile = false }: LogoProps) {
+export function Logo({
+  className,
+  onClick,
+  hideTextOnMobile = false,
+}: LogoProps) {
   return (
     <Link
       href="/"
@@ -22,7 +26,7 @@ export function Logo({ className, onClick, hideTextOnMobile = false }: LogoProps
       <span
         className={cn(
           "font-bold text-xl text-primary tracking-tight",
-          hideTextOnMobile ? "hidden sm:inline-block" : ""
+          hideTextOnMobile ? "hidden sm:inline-block" : "",
         )}
       >
         Агро Літ
