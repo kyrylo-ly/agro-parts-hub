@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
-    // every ssr query rebuil dall css inline
+    // every ssr query rebuild all css inline
     // inlineCss: true,
   },
   images: {
