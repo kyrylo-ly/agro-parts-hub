@@ -1,49 +1,20 @@
 "use server";
 
-import { eq, count } from "drizzle-orm";
-import { revalidatePath, updateTag } from "next/cache";
-import { CACHE_TAGS } from "@/lib/constants/cache-tags";
-import { db } from "@/db/db";
-import { brand, product } from "@/db/schema/store";
-import { brandSchema, type BrandInput } from "@/lib/validations";
-import { slugify } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
+import { type BrandInput } from "@/entities/brand";
 import { requireAdmin } from "./admin-auth";
-
+import { createBrandUseCase, updateBrandUseCase, deleteBrandUseCase } from "@/use-cases/brands";
 
 export async function createBrand(input: BrandInput) {
   try {
     await requireAdmin();
-
-    const result = brandSchema.safeParse(input);
-    if (!result.success) {
-      return {
-        success: false as const,
-        error: "Validation failed",
-        fieldErrors: result.error.flatten().fieldErrors,
-      };
+    const result = await createBrandUseCase(input);
+    if (result.success) {
+      revalidatePath("/admin/brands");
     }
-
-    const validatedData = result.data;
-    const slug = validatedData.slug || slugify(validatedData.name);
-
-    const [newBrand] = await db
-      .insert(brand)
-      .values({
-        name: validatedData.name,
-        slug,
-        imageUrl: validatedData.imageUrl,
-      })
-      .returning();
-
-    revalidatePath("/admin/brands");
-    // Invalidate public ISR cache
-    updateTag(CACHE_TAGS.BRANDS);
-    return { success: true as const, data: newBrand };
+    return result;
   } catch (error) {
     console.error("Failed to create brand:", error);
-    if (error instanceof Error && error.message.includes("unique")) {
-      return { success: false as const, error: "Бренд з такою назвою або slug вже існує" };
-    }
     return { success: false as const, error: "Failed to create brand" };
   }
 }
@@ -51,38 +22,13 @@ export async function createBrand(input: BrandInput) {
 export async function updateBrand(id: number, input: BrandInput) {
   try {
     await requireAdmin();
-
-    const result = brandSchema.safeParse(input);
-    if (!result.success) {
-      return {
-        success: false as const,
-        error: "Validation failed",
-        fieldErrors: result.error.flatten().fieldErrors,
-      };
+    const result = await updateBrandUseCase(id, input);
+    if (result.success) {
+      revalidatePath("/admin/brands");
     }
-
-    const validatedData = result.data;
-    const slug = validatedData.slug || slugify(validatedData.name);
-
-    const [updatedBrand] = await db
-      .update(brand)
-      .set({
-        name: validatedData.name,
-        slug,
-        imageUrl: validatedData.imageUrl,
-      })
-      .where(eq(brand.id, id))
-      .returning();
-
-    revalidatePath("/admin/brands");
-    // Invalidate public ISR cache
-    updateTag(CACHE_TAGS.BRANDS);
-    return { success: true as const, data: updatedBrand };
+    return result;
   } catch (error) {
     console.error("Failed to update brand:", error);
-    if (error instanceof Error && error.message.includes("unique")) {
-      return { success: false as const, error: "Бренд з такою назвою або slug вже існує" };
-    }
     return { success: false as const, error: "Failed to update brand" };
   }
 }
@@ -90,25 +36,11 @@ export async function updateBrand(id: number, input: BrandInput) {
 export async function deleteBrand(id: number) {
   try {
     await requireAdmin();
-
-    // Check for products with this brand
-    const [productCount] = await db
-      .select({ count: count() })
-      .from(product)
-      .where(eq(product.brandId, id));
-
-    if (productCount.count > 0) {
-      return {
-        success: false as const,
-        error: `Неможливо видалити бренд, який використовується у ${productCount.count} продукт(ах). Спочатку змініть бренд цих продуктів.`,
-      };
+    const result = await deleteBrandUseCase(id);
+    if (result.success) {
+      revalidatePath("/admin/brands");
     }
-
-    await db.delete(brand).where(eq(brand.id, id));
-    revalidatePath("/admin/brands");
-    // Invalidate public ISR cache
-    updateTag(CACHE_TAGS.BRANDS);
-    return { success: true as const };
+    return result;
   } catch (error) {
     console.error("Failed to delete brand:", error);
     return { success: false as const, error: "Failed to delete brand" };

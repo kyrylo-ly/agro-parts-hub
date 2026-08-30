@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getAdminProductById } from "@/services/product-service";
 import { getAllCategories } from "@/services/category-service";
-import { getAllBrands } from "@/services/brand-service";
+import { getAllBrandsUseCase } from "@/use-cases/brands";
 import { getCollections } from "@/actions/collections";
 import { ProductForm } from "@/components/admin/products/product-form";
 
@@ -19,7 +19,7 @@ export default async function EditProductPage({
     await Promise.all([
       getAdminProductById(id),
       getAllCategories(),
-      getAllBrands(),
+      getAllBrandsUseCase(),
       getCollections(),
     ]);
 

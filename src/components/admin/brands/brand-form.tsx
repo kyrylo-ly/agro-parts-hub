@@ -10,12 +10,7 @@ import { Button } from "@/components/ui/button";
 import { createBrand, updateBrand } from "@/actions/brands";
 import { SingleImageUploader } from "@/components/admin/single-image-uploader";
 
-interface Brand {
-  id: number;
-  name: string;
-  slug: string;
-  imageUrl?: string | null;
-}
+import { type Brand } from "@/entities/brand";
 
 interface BrandFormProps {
   brand?: Brand;
@@ -57,7 +52,7 @@ export function BrandForm({ brand }: BrandFormProps) {
       router.push("/admin/brands");
       return {};
     },
-    {}
+    {},
   );
 
   return (
@@ -78,7 +73,9 @@ export function BrandForm({ brand }: BrandFormProps) {
           placeholder="Назва бренду"
         />
         {state.fieldErrors?.name && (
-          <p className="text-sm text-destructive">{state.fieldErrors.name[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.name[0]}
+          </p>
         )}
       </div>
 
@@ -91,20 +88,24 @@ export function BrandForm({ brand }: BrandFormProps) {
           placeholder="brand-name (авто-генерується)"
         />
         {state.fieldErrors?.slug && (
-          <p className="text-sm text-destructive">{state.fieldErrors.slug[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.slug[0]}
+          </p>
         )}
       </div>
 
       <div className="space-y-4">
         <Label>Зображення</Label>
-        <SingleImageUploader 
+        <SingleImageUploader
           folder="brands"
           currentImageUrl={imageUrl}
           onUpload={(url) => setImageUrl(url)}
           onRemove={() => setImageUrl("")}
         />
         {state.fieldErrors?.imageUrl && (
-          <p className="text-sm text-destructive">{state.fieldErrors.imageUrl[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.imageUrl[0]}
+          </p>
         )}
       </div>
 

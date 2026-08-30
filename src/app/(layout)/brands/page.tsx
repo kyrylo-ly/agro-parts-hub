@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { getPublicBrands } from "@/services/brand-service";
+import { getAllBrandsWithCountsUseCase } from "@/use-cases/brands";
 
 export const metadata: Metadata = {
   title: "Бренди",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BrandsPage() {
-  const result = await getPublicBrands();
+  const result = await getAllBrandsWithCountsUseCase();
   const brands = result.success ? result.data : [];
 
   return (

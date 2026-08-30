@@ -1,4 +1,4 @@
-import { getAllBrands } from "@/services/brand-service";
+import { getAllBrandsUseCase } from "@/use-cases/brands";
 import { BrandsTable } from "@/components/admin/brands/brands-table";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ function BrandsSkeleton() {
 }
 
 async function BrandsContent() {
-  const result = await getAllBrands();
+  const result = await getAllBrandsUseCase();
 
   return (
     <>

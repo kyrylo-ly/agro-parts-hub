@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { getPublicBrandBySlug } from "@/services/brand-service";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getPublicBrandBySlugUseCase } from "@/use-cases/brands";
+import { getFilteredProducts } from "@/services/product-service";
 
 export async function generateMetadata({
   params,
@@ -12,24 +15,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getPublicBrandBySlug(slug);
+  const result = await getPublicBrandBySlugUseCase(slug);
 
-  if (!result.success || !result.data || !("brand" in result.data)) {
+  if (!result.success || !result.data) {
     return { title: "Бренд не знайдено" };
   }
 
-  const br = result.data.brand;
+  const br = result.data;
   return {
     title: br.name,
     description: `Запчастини ${br.name} — купити в інтернет-магазині Агро Літ. Доступні ціни, швидка доставка по Україні.`,
   };
 }
-
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-
-export const instant = false;
-
 
 export default function BrandPage({
   params,
@@ -87,16 +84,21 @@ async function BrandContent({
   const sort =
     (resolvedSearchParams.sort as string) ?? "newest";
 
-  const result = await getPublicBrandBySlug(slug, {
+  const brandResult = await getPublicBrandBySlugUseCase(slug);
+
+  if (!brandResult.success || !brandResult.data) {
+    notFound();
+  }
+
+  const br = brandResult.data;
+
+  const productsResult = await getFilteredProducts({
+    brandSlugs: [slug],
     page,
     sort: sort as "newest" | "price_asc" | "price_desc" | "bestsellers",
   });
 
-  if (!result.success || !result.data || !("brand" in result.data)) {
-    notFound();
-  }
-
-  const { brand: br, products, meta } = result.data;
+  const { products, meta } = productsResult;
 
   return (
     <>

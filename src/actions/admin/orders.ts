@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/db";
-import { order, product } from "@/db/schema/store";
+import { order } from "@/db/schema/store";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -27,7 +27,10 @@ export async function getAdminOrders() {
   }
 }
 
-export async function updateOrderStatus(orderId: string, status: "pending" | "processing" | "shipped" | "delivered" | "cancelled") {
+export async function updateOrderStatus(
+  orderId: string,
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled",
+) {
   try {
     await db.update(order).set({ status }).where(eq(order.id, orderId));
     revalidatePath("/admin/orders");

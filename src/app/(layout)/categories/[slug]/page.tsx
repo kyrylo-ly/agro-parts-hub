@@ -7,17 +7,13 @@ import { Pagination } from "@/components/pagination";
 import { CategoriesFilters } from "@/components/categories-filters";
 import { getPublicCategoryBySlug } from "@/services/category-service";
 import { getCategoryAttributeFilters } from "@/services/product-service";
-import { getPublicBrands } from "@/services/brand-service";
+import { getBrandsWithCountsByCategoryUseCase } from "@/use-cases/brands";
 import { type ProductFilterParams } from "@/services/types";
 import { db } from "@/db/db";
 import { category } from "@/db/schema/store";
 
-
-
 export async function generateStaticParams() {
-  const categories = await db
-    .select({ slug: category.slug })
-    .from(category);
+  const categories = await db.select({ slug: category.slug }).from(category);
   return categories.map((c) => ({ slug: c.slug }));
 }
 
@@ -41,7 +37,7 @@ export async function generateMetadata({
 }
 
 function parseSearchParams(
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: Record<string, string | string[] | undefined>,
 ): ProductFilterParams {
   const get = (key: string): string | undefined => {
     const val = searchParams[key];
@@ -74,7 +70,6 @@ function parseSearchParams(
   const page = get("page");
   if (page) filters.page = Number(page);
 
-  // Dynamic attribute filters
   const attrs: Record<string, string[]> = {};
   for (const [key, value] of Object.entries(searchParams)) {
     if (key.startsWith("attr_") && value) {
@@ -93,7 +88,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export const instant = false;
 
-
 export default function CategoryPage({
   params,
   searchParams,
@@ -104,7 +98,10 @@ export default function CategoryPage({
   return (
     <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
       <Suspense fallback={<CategorySkeleton />}>
-        <CategoryContent paramsPromise={params} searchParamsPromise={searchParams} />
+        <CategoryContent
+          paramsPromise={params}
+          searchParamsPromise={searchParams}
+        />
       </Suspense>
     </div>
   );
@@ -162,9 +159,11 @@ async function CategoryContent({
 
   const { category: cat, products, meta } = result.data;
 
-  // Get filter data
   const [brandsResult, attributesResult] = await Promise.all([
-    getPublicBrands([cat.id, ...(cat.children?.map(c => c.id) || [])]),
+    getBrandsWithCountsByCategoryUseCase([
+      cat.id,
+      ...(cat.children?.map((c) => c.id) || []),
+    ]),
     getCategoryAttributeFilters(cat.id),
   ]);
 
@@ -175,7 +174,6 @@ async function CategoryContent({
     ? attributesResult.data
     : [];
 
-  // Breadcrumbs
   const breadcrumbItems: { label: string; href?: string }[] = [
     { label: "Головна", href: "/" },
     { label: "Каталог", href: "/categories" },
@@ -201,11 +199,7 @@ async function CategoryContent({
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {meta.total}{" "}
-            {meta.total === 1
-              ? "товар"
-              : meta.total < 5
-                ? "товари"
-                : "товарів"}
+            {meta.total === 1 ? "товар" : meta.total < 5 ? "товари" : "товарів"}
           </p>
         </div>
 
@@ -250,7 +244,9 @@ async function CategoryContent({
             currentPage={currentPage}
             totalPages={meta.totalPages}
             baseUrl={`/categories/${slug}`}
-            searchParams={searchParams as Record<string, string | string[] | undefined>}
+            searchParams={
+              searchParams as Record<string, string | string[] | undefined>
+            }
           />
         </div>
       </div>
