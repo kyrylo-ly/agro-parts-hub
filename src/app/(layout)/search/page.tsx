@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { searchProducts } from "@/services/product-service";
+import { searchProductsUseCase as searchProducts } from "@/use-cases/products";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 

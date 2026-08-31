@@ -1,16 +1,16 @@
 "use server";
 
-import { searchProductsQuick as serviceSearchProductsQuick, getProductsByIds as serviceGetProductsByIds } from "@/services/product-service";
+import { searchProductsQuickUseCase, getProductsByIdsUseCase } from "@/use-cases/products";
 
 /**
  * These are Server Actions explicitly exposed to Client Components.
- * They wrap the Data Access Layer methods safely.
+ * They wrap the Use Cases methods safely.
  */
 
 export async function searchProductsQuick(query: string) {
-  return serviceSearchProductsQuick(query);
+  return searchProductsQuickUseCase(query);
 }
 
 export async function getProductsByIds(ids: string[], maxLimit = 100) {
-  return serviceGetProductsByIds(ids, maxLimit);
+  return getProductsByIdsUseCase(ids, maxLimit);
 }

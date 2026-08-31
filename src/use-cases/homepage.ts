@@ -1,12 +1,12 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
-import { getNewArrivals, getBestsellers } from "./product-service";
-import { getPublicCategories } from "./category-service";
-import { getPublicCollections } from "./collection-service";
 import { getAllBrandsWithCountsUseCase } from "@/use-cases/brands";
+import { getAllCategoriesWithCountsUseCase } from "@/use-cases/categories";
+import { getAllCollectionsWithCountsUseCase } from "@/use-cases/collections";
+import { getNewArrivalsUseCase, getBestsellersUseCase } from "@/use-cases/products";
 
-export async function getHomepageData() {
+export async function getHomepageDataUseCase() {
   "use cache";
   cacheLife("max");
   cacheTag(
@@ -20,10 +20,10 @@ export async function getHomepageData() {
 
   const [newArrivals, bestsellers, categories, collections, brands] =
     await Promise.all([
-      getNewArrivals(8),
-      getBestsellers(8),
-      getPublicCategories(),
-      getPublicCollections(),
+      getNewArrivalsUseCase(8),
+      getBestsellersUseCase(8),
+      getAllCategoriesWithCountsUseCase(),
+      getAllCollectionsWithCountsUseCase(),
       getAllBrandsWithCountsUseCase(),
     ]);
 

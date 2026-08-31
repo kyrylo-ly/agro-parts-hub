@@ -14,7 +14,7 @@ import { SectionHeader } from "@/components/section-header";
 import { ProductGrid } from "@/components/product-grid";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getHomepageData } from "@/services/homepage-service";
+import { getHomepageDataUseCase } from "@/use-cases/homepage";
 import { Suspense } from "react";
 import { preload } from "react-dom";
 
@@ -220,7 +220,7 @@ async function HomepageDynamicContent() {
     categories: categoriesResult,
     collections: collectionsResult,
     brands: brandsResult,
-  } = await getHomepageData();
+  } = await getHomepageDataUseCase();
 
   const newArrivals = newArrivalsResult.success ? newArrivalsResult.data : [];
   const bestsellers = bestsellersResult.success ? bestsellersResult.data : [];

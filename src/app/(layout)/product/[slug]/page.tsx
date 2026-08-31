@@ -11,9 +11,9 @@ import { QuickOrderDialog } from "@/components/quick-order-dialog";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompareButton } from "@/components/compare-button";
 import {
-  getPublicProductBySlug,
-  getTopProductSlugs,
-} from "@/services/product-service";
+  getPublicProductBySlugUseCase as getPublicProductBySlug,
+  getTopProductSlugsUseCase as getTopProductSlugs,
+} from "@/use-cases/products";
 import { cn } from "@/lib/utils";
 
 export const instant = false;

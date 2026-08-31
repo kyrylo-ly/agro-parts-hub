@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCollections } from "@/actions/collections";
+import { getAllCollectionsUseCase } from "@/use-cases/collections";
 import { CollectionsTable } from "@/components/admin/collections/collections-table";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,7 +36,7 @@ function CollectionsSkeleton() {
 }
 
 async function CollectionsContent() {
-  const result = await getCollections();
+  const result = await getAllCollectionsUseCase();
 
   return (
     <>

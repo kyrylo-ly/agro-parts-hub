@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAllCategories } from "@/services/category-service";
+import { getAllCategoriesUseCase } from "@/use-cases/categories";
 import { CategoriesTable } from "@/components/admin/categories/categories-table";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,7 +36,7 @@ function CategoriesSkeleton() {
 }
 
 async function CategoriesContent() {
-  const result = await getAllCategories();
+  const result = await getAllCategoriesUseCase();
 
   return (
     <>

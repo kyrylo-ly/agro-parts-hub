@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Truck } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { getPublicCategories } from "@/services/category-service";
+import { getAllCategoriesWithCountsUseCase } from "@/use-cases/categories";
 
 export const metadata: Metadata = {
   title: "Каталог запчастин",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 
 export default async function CategoriesPage() {
-  const result = await getPublicCategories();
+  const result = await getAllCategoriesWithCountsUseCase();
   const categories = result.success ? result.data : [];
   const topCategories = categories.filter((c) => !c.parent);
 

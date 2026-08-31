@@ -1,5 +1,5 @@
 import "server-only";
-import { cacheLife, cacheTag, updateTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import {
   getAllBrandsDb,
@@ -117,7 +117,6 @@ export async function createBrandUseCase(input: BrandInput) {
       imageUrl: validatedData.imageUrl,
     });
 
-    updateTag(CACHE_TAGS.BRANDS);
     return { success: true as const, data: newBrand };
   } catch (error) {
     if (error instanceof Error && error.message.includes("unique")) {
@@ -147,7 +146,6 @@ export async function updateBrandUseCase(id: number, input: BrandInput) {
       imageUrl: validatedData.imageUrl,
     });
 
-    updateTag(CACHE_TAGS.BRANDS);
     return { success: true as const, data: updatedBrand };
   } catch (error) {
     if (error instanceof Error && error.message.includes("unique")) {
@@ -168,6 +166,5 @@ export async function deleteBrandUseCase(id: number) {
   }
 
   await deleteBrandDb(id);
-  updateTag(CACHE_TAGS.BRANDS);
   return { success: true as const };
 }

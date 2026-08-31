@@ -5,10 +5,11 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { CategoriesFilters } from "@/components/categories-filters";
-import { getPublicCategoryBySlug } from "@/services/category-service";
-import { getCategoryAttributeFilters } from "@/services/product-service";
+import { getCategoryBySlugUseCase } from "@/use-cases/categories";
+import { getFilteredProductsDb as getFilteredProducts } from "@/data-access/products";
+import { getCategoryAttributeFiltersUseCase as getCategoryAttributeFilters } from "@/use-cases/products";
 import { getBrandsWithCountsByCategoryUseCase } from "@/use-cases/brands";
-import { type ProductFilterParams } from "@/services/types";
+import { type ProductFilterParams } from "@/entities/product";
 import { db } from "@/db/db";
 import { category } from "@/db/schema/store";
 
@@ -23,13 +24,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getPublicCategoryBySlug(slug);
+  const result = await getCategoryBySlugUseCase(slug);
 
-  if (!result.success || !("category" in result.data!)) {
+  if (!result.success || !result.data) {
     return { title: "Категорія не знайдена" };
   }
 
-  const cat = result.data!.category;
+  const cat = result.data;
   return {
     title: cat.name,
     description: `Купити ${cat.name.toLowerCase()} — запчастини для сільгосптехніки. Широкий вибір, доступні ціни, швидка доставка по Україні.`,
@@ -151,13 +152,18 @@ async function CategoryContent({
   const searchParams = await searchParamsPromise;
   const filters = parseSearchParams(searchParams);
 
-  const result = await getPublicCategoryBySlug(slug, filters);
+  const categoryResult = await getCategoryBySlugUseCase(slug);
 
-  if (!result.success || !result.data || !("category" in result.data)) {
+  if (!categoryResult.success || !categoryResult.data) {
     notFound();
   }
 
-  const { category: cat, products, meta } = result.data;
+  const cat = categoryResult.data;
+
+  const categoryIds = [cat.id, ...(cat.children?.map((c) => c.id) || [])];
+
+  const productsResult = await getFilteredProducts({ ...filters, categoryIds });
+  const { products, meta } = productsResult;
 
   const [brandsResult, attributesResult] = await Promise.all([
     getBrandsWithCountsByCategoryUseCase([

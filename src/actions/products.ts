@@ -1,161 +1,59 @@
 "use server";
 
-import { eq, ilike, or, count, sql, and, inArray } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
-import { db } from "@/db/db";
-import { product, productToCollection, productImage } from "@/db/schema/store";
-import { productSchema, type ProductInput } from "@/lib/validations";
-import { deleteManyFromR2, getKeyFromUrl } from "@/lib/r2";
-import { slugify } from "@/lib/utils";
+import { type ProductInput } from "@/entities/product";
 import { requireAdmin } from "./admin-auth";
-import { handleDbError } from "@/lib/db-errors";
-
+import { createProductUseCase, updateProductUseCase, deleteProductUseCase } from "@/use-cases/products";
 
 export async function createProduct(input: ProductInput) {
   try {
     await requireAdmin();
-
-    const result = productSchema.safeParse(input);
-    if (!result.success) {
-      return {
-        success: false as const,
-        error: "Validation failed",
-        fieldErrors: result.error.flatten().fieldErrors,
-      };
+    const result = await createProductUseCase(input);
+    if (result.success) {
+      updateTag(CACHE_TAGS.PRODUCTS);
+      updateTag(CACHE_TAGS.NEW_ARRIVALS);
+      updateTag(CACHE_TAGS.BESTSELLERS);
+      revalidatePath("/admin/products");
     }
-
-    const validatedData = result.data;
-    const slug = validatedData.slug || slugify(validatedData.name);
-    const compareAtPrice = validatedData.compareAtPrice === "" ? null : validatedData.compareAtPrice;
-
-    const [newProduct] = await db
-      .insert(product)
-      .values({
-        categoryId: validatedData.categoryId,
-        brandId: validatedData.brandId,
-        sku: validatedData.sku,
-        name: validatedData.name,
-        slug,
-        description: validatedData.description,
-        price: validatedData.price,
-        compareAtPrice,
-        stock: validatedData.stock,
-        attributes: validatedData.attributes,
-        isActive: validatedData.isActive,
-      })
-      .returning();
-
-    // Handle collection assignments
-    if (validatedData.collectionIds && validatedData.collectionIds.length > 0) {
-      await db.insert(productToCollection).values(
-        validatedData.collectionIds.map((collectionId) => ({
-          productId: newProduct.id,
-          collectionId,
-        }))
-      );
-    }
-
-    revalidatePath("/admin/products");
-    // Invalidate public ISR cache
-    updateTag(CACHE_TAGS.PRODUCTS);
-    updateTag(CACHE_TAGS.NEW_ARRIVALS);
-    updateTag(CACHE_TAGS.BESTSELLERS);
-    return { success: true as const, data: newProduct };
+    return result;
   } catch (error) {
-    console.error("Failed to create product:", error);
-    return handleDbError(error, "Failed to create product");
+    console.error("Failed to create product action:", error);
+    return { success: false as const, error: "Failed to create product" };
   }
 }
 
 export async function updateProduct(id: string, input: ProductInput) {
   try {
     await requireAdmin();
-
-    const result = productSchema.safeParse(input);
-    if (!result.success) {
-      return {
-        success: false as const,
-        error: "Validation failed",
-        fieldErrors: result.error.flatten().fieldErrors,
-      };
+    const result = await updateProductUseCase(id, input);
+    if (result.success) {
+      updateTag(CACHE_TAGS.PRODUCTS);
+      updateTag(CACHE_TAGS.NEW_ARRIVALS);
+      updateTag(CACHE_TAGS.BESTSELLERS);
+      revalidatePath("/admin/products");
+      revalidatePath(`/admin/products/${id}`);
     }
-
-    const validatedData = result.data;
-    const slug = validatedData.slug || slugify(validatedData.name);
-    const compareAtPrice = validatedData.compareAtPrice === "" ? null : validatedData.compareAtPrice;
-
-    const [updatedProduct] = await db
-      .update(product)
-      .set({
-        categoryId: validatedData.categoryId,
-        brandId: validatedData.brandId,
-        sku: validatedData.sku,
-        name: validatedData.name,
-        slug,
-        description: validatedData.description,
-        price: validatedData.price,
-        compareAtPrice,
-        stock: validatedData.stock,
-        attributes: validatedData.attributes,
-        isActive: validatedData.isActive,
-      })
-      .where(eq(product.id, id))
-      .returning();
-
-    // Sync collection assignments
-    if (validatedData.collectionIds !== undefined) {
-      // Remove existing
-      await db.delete(productToCollection).where(eq(productToCollection.productId, id));
-      // Add new
-      if (validatedData.collectionIds.length > 0) {
-        await db.insert(productToCollection).values(
-          validatedData.collectionIds.map((collectionId) => ({
-            productId: id,
-            collectionId,
-          }))
-        );
-      }
-    }
-
-    revalidatePath("/admin/products");
-    revalidatePath(`/admin/products/${id}`);
-    // Invalidate public ISR cache
-    updateTag(CACHE_TAGS.PRODUCTS);
-    updateTag(CACHE_TAGS.NEW_ARRIVALS);
-    updateTag(CACHE_TAGS.BESTSELLERS);
-    return { success: true as const, data: updatedProduct };
+    return result;
   } catch (error) {
-    console.error("Failed to update product:", error);
-    return handleDbError(error, "Failed to update product");
+    console.error("Failed to update product action:", error);
+    return { success: false as const, error: "Failed to update product" };
   }
 }
 
 export async function deleteProduct(id: string) {
   try {
     await requireAdmin();
-
-    const images = await db.query.productImage.findMany({
-      where: eq(productImage.productId, id),
-    });
-
-    const keysToDelete = images
-      .map((image) => getKeyFromUrl(image.url))
-      .filter((key): key is string => key !== null);
-
-    if (keysToDelete.length > 0) {
-      await deleteManyFromR2(keysToDelete);
+    const result = await deleteProductUseCase(id);
+    if (result.success) {
+      updateTag(CACHE_TAGS.PRODUCTS);
+      updateTag(CACHE_TAGS.NEW_ARRIVALS);
+      updateTag(CACHE_TAGS.BESTSELLERS);
+      revalidatePath("/admin/products");
     }
-
-    await db.delete(product).where(eq(product.id, id));
-    revalidatePath("/admin/products");
-    // Invalidate public ISR cache
-    updateTag(CACHE_TAGS.PRODUCTS);
-    updateTag(CACHE_TAGS.NEW_ARRIVALS);
-    updateTag(CACHE_TAGS.BESTSELLERS);
-    return { success: true as const };
+    return result;
   } catch (error) {
-    console.error("Failed to delete product:", error);
+    console.error("Failed to delete product action:", error);
     return { success: false as const, error: "Failed to delete product" };
   }
 }

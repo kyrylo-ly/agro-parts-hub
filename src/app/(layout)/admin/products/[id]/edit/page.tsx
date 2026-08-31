@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import { getAdminProductById } from "@/services/product-service";
-import { getAllCategories } from "@/services/category-service";
+import { getAdminProductByIdUseCase as getAdminProductById } from "@/use-cases/products";
+import { getAllCategoriesUseCase } from "@/use-cases/categories";
 import { getAllBrandsUseCase } from "@/use-cases/brands";
-import { getCollections } from "@/actions/collections";
+import { getAllCollectionsUseCase } from "@/use-cases/collections";
 import { ProductForm } from "@/components/admin/products/product-form";
 
 export const instant = false;
@@ -18,9 +18,9 @@ export default async function EditProductPage({
   const [productResult, categoriesResult, brandsResult, collectionsResult] =
     await Promise.all([
       getAdminProductById(id),
-      getAllCategories(),
+      getAllCategoriesUseCase(),
       getAllBrandsUseCase(),
-      getCollections(),
+      getAllCollectionsUseCase(),
     ]);
 
   if (!productResult.success) {

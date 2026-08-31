@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCollectionById } from "@/actions/collections";
+import { getCollectionByIdUseCase } from "@/use-cases/collections";
 import { CollectionForm } from "@/components/admin/collections/collection-form";
 
 export const instant = false;
@@ -17,7 +17,7 @@ export default async function EditCollectionPage({
     notFound();
   }
 
-  const result = await getCollectionById(collectionId);
+  const result = await getCollectionByIdUseCase(collectionId);
 
   if (!result.success) {
     notFound();

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { getPublicCollectionBySlug } from "@/services/collection-service";
+import { getCollectionBySlugWithProductsUseCase } from "@/use-cases/collections";
 
 export async function generateMetadata({
   params,
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getPublicCollectionBySlug(slug);
+  const result = await getCollectionBySlugWithProductsUseCase(slug);
 
   if (!result.success || !result.data || !("collection" in result.data)) {
     return { title: "Колекція не знайдена" };
@@ -86,7 +86,7 @@ async function CollectionContent({
       : resolvedSearchParams.page
   ) || 1;
 
-  const result = await getPublicCollectionBySlug(slug, { page });
+  const result = await getCollectionBySlugWithProductsUseCase(slug, { page });
 
   if (!result.success || !result.data || !("collection" in result.data)) {
     notFound();

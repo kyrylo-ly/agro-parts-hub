@@ -1,11 +1,11 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { getPublicCategories } from "@/services/category-service";
+import { getAllCategoriesWithCountsUseCase } from "@/use-cases/categories";
 
 
 
 export default async function MainLayout({ children }: LayoutProps<"/">) {
-  const categoriesResult = await getPublicCategories();
+  const categoriesResult = await getAllCategoriesWithCountsUseCase();
 
   // Transform categories into tree structure for navigation
   const allCategories = categoriesResult.success ? categoriesResult.data : [];

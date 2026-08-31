@@ -1,13 +1,13 @@
-import { getAllCategories } from "@/services/category-service";
+import { getAllCategoriesUseCase } from "@/use-cases/categories";
 import { getAllBrandsUseCase } from "@/use-cases/brands";
-import { getCollections } from "@/actions/collections";
+import { getAllCollectionsUseCase } from "@/use-cases/collections";
 import { ProductForm } from "@/components/admin/products/product-form";
 
 export default async function NewProductPage() {
   const [categoriesResult, brandsResult, collectionsResult] = await Promise.all([
-    getAllCategories(),
+    getAllCategoriesUseCase(),
     getAllBrandsUseCase(),
-    getCollections(),
+    getAllCollectionsUseCase(),
   ]);
 
   return (

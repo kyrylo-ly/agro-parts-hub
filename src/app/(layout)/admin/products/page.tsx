@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAdminProducts } from "@/services/product-service";
+import { getAdminProductsUseCase as getAdminProducts } from "@/use-cases/products";
 import { ProductsTable } from "@/components/admin/products/products-table";
 import { ProductSearch } from "@/components/admin/products/product-search";
 import { Suspense } from "react";

@@ -7,7 +7,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPublicBrandBySlugUseCase } from "@/use-cases/brands";
-import { getFilteredProducts } from "@/services/product-service";
+import { getPublicProductsUseCase } from "@/use-cases/products";
 
 export async function generateMetadata({
   params,
@@ -92,13 +92,14 @@ async function BrandContent({
 
   const br = brandResult.data;
 
-  const productsResult = await getFilteredProducts({
+  const productsResult = await getPublicProductsUseCase({
     brandSlugs: [slug],
     page,
     sort: sort as "newest" | "price_asc" | "price_desc" | "bestsellers",
   });
 
-  const { products, meta } = productsResult;
+  const products = productsResult.success && productsResult.data ? productsResult.data.products : [];
+  const meta = productsResult.success && productsResult.data ? productsResult.data.meta : { total: 0, page: 1, limit: 12, totalPages: 0 };
 
   return (
     <>

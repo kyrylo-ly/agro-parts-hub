@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductGrid } from "@/components/product-grid";
 import { Pagination } from "@/components/pagination";
-import { getPublicProducts } from "@/services/product-service";
+import { getPublicProductsUseCase as getPublicProducts } from "@/use-cases/products";
 
 
 
