@@ -55,6 +55,7 @@ export function Header({ categories = [] }: HeaderProps) {
     <>
       {/* Main Header - Sticky */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 shadow-sm">
+        <div className="absolute bottom-full left-0 right-0 h-[100px] bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 pointer-events-none" />
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-y-3 gap-x-4 px-4 py-3 lg:h-16 lg:flex-nowrap lg:gap-8 lg:px-8 lg:py-0 max-w-350">
           {/* Top row elements on mobile, left on desktop */}
           <div className="flex items-center gap-3 sm:gap-4">
