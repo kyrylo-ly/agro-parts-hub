@@ -5,15 +5,13 @@ import { Truck } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { getAllCategoriesWithCountsUseCase } from "@/use-cases/categories";
+import { getPlural } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Каталог запчастин",
   description:
     "Повний каталог запчастин для тракторів та сільськогосподарської техніки. Підшипники, фільтри, запчастини для двигунів.",
 };
-
-
-
 
 export default async function CategoriesPage() {
   const result = await getAllCategoriesWithCountsUseCase();
@@ -23,10 +21,7 @@ export default async function CategoriesPage() {
   return (
     <div className="container mx-auto max-w-[1400px] px-4 py-6 lg:px-8 lg:py-8">
       <Breadcrumbs
-        items={[
-          { label: "Головна", href: "/" },
-          { label: "Каталог" },
-        ]}
+        items={[{ label: "Головна", href: "/" }, { label: "Каталог" }]}
       />
 
       <h1 className="mt-4 text-2xl font-bold tracking-tight lg:text-3xl">
@@ -34,13 +29,13 @@ export default async function CategoriesPage() {
       </h1>
       <p className="mt-2 text-muted-foreground">
         {categories.length}{" "}
-        {categories.length === 1 ? "категорія" : "категорій"}
+        {getPlural(categories.length, "категорія", "категорії", "категорій")}
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {topCategories.map((cat) => {
           const childCategories = categories.filter(
-            (c) => c.parent?.id === cat.id
+            (c) => c.parent?.id === cat.id,
           );
 
           return (
@@ -63,10 +58,18 @@ export default async function CategoriesPage() {
                 )}
               </div>
               <div className="w-full">
-                <p className="text-xs sm:text-sm font-semibold line-clamp-3 sm:line-clamp-2">{cat.name}</p>
+                <p className="text-xs sm:text-sm font-semibold line-clamp-3 sm:line-clamp-2">
+                  {cat.name}
+                </p>
                 {childCategories.length > 0 && (
                   <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-primary">
-                    {childCategories.length} підкатегорій
+                    {childCategories.length}{" "}
+                    {getPlural(
+                      childCategories.length,
+                      "підкатегорія",
+                      "підкатегорії",
+                      "підкатегорій",
+                    )}
                   </p>
                 )}
               </div>
