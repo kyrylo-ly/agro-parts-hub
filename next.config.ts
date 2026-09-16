@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const r2Domain = new URL(process.env.R2_PUBLIC_URL!);
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
   cacheComponents: true,
   poweredByHeader: false,

@@ -28,7 +28,7 @@ const benefits = [
   {
     icon: Truck,
     title: "Швидка доставка",
-    description: "Нова Пошта по всій Україні",
+    description: "Доставка по всій Україні",
   },
   {
     icon: ShieldCheck,

@@ -1,8 +1,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { getAllCategoriesWithCountsUseCase } from "@/use-cases/categories";
-
-
+import { ContactFloat } from "@/components/contact-float";
 
 export default async function MainLayout({ children }: LayoutProps<"/">) {
   const categoriesResult = await getAllCategoriesWithCountsUseCase();
@@ -10,7 +9,12 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
   // Transform categories into tree structure for navigation
   const allCategories = categoriesResult.success ? categoriesResult.data : [];
 
-  type ChildCategory = { id: number; name: string; slug: string; imageUrl: string | null };
+  type ChildCategory = {
+    id: number;
+    name: string;
+    slug: string;
+    imageUrl: string | null;
+  };
   const childrenMap = new Map<number, ChildCategory[]>();
 
   for (const cat of allCategories) {
@@ -45,6 +49,7 @@ export default async function MainLayout({ children }: LayoutProps<"/">) {
       <Header categories={topLevelCategories} />
       <main className="flex-1">{children}</main>
       <Footer />
+      <ContactFloat />
     </>
   );
 }
